@@ -100,7 +100,6 @@ function check_parameters(arcLen, r_brain, d_ratio, r_curv, D_func, O_func, BS_p
     
         for i in LinRange(0, 1, BS_points)
             dis = ((h + O_func(i)) - (Dh + D_func(i)))
-            println(dis)
             if dis < 0
                 @printf("BSpline points (outer and dividing line) overlap by a distance %g at x = %g\n", dis, i * L)
                 illegal_param = true
@@ -148,14 +147,14 @@ end # End of function
 
 
 
-function create_brain_2D(arcLen, r_brain, d_ratio, r_curv, D_func, O_func, BS_points, view=true)
+function create_brain_2D(arcLen, r_brain, d_ratio, r_curv, D_func, O_func, BS_points, lc, view=true)
 
     # Check for valid parameters
     check_parameters(arcLen, r_brain, d_ratio, r_curv, D_func, O_func, BS_points)
 
-    
-    #--- Meshing ---#
-    gmsh.initialize(["", "-clmax", "0.1"])
+
+    #--- Geometry ---#
+    gmsh.initialize(["", "-clmax", string(0.1)])
     model = gmsh.model
 
     if r_curv == 0  # Straight Box
@@ -182,7 +181,7 @@ function create_brain_2D(arcLen, r_brain, d_ratio, r_curv, D_func, O_func, BS_po
         O_CurveLoop = model.geo.addCurveLoop([OL, O_line, OR, -D_line])
         O_surf = model.geo.addPlaneSurface([O_CurveLoop])
 
-
+        D_arc = D_line # For generalisation in the following
 
     else # Curved slap 
         rI = r_curv - r_brain   # Inner radius  
@@ -191,7 +190,7 @@ function create_brain_2D(arcLen, r_brain, d_ratio, r_curv, D_func, O_func, BS_po
         theta = arcLen / r_curv # Spanning angle 
 
 
-       
+
         C = model.geo.addPoint(0.0, 0.0, 0.0) # Center
 
         #Inner arc
@@ -221,17 +220,54 @@ function create_brain_2D(arcLen, r_brain, d_ratio, r_curv, D_func, O_func, BS_po
         O_surf = model.geo.addPlaneSurface([O_CurveLoop])
     end
 
+    #--- Mesh Field: Distance to dividing BSpline ---#
+    
+    # Hardcoded for now
+    LcMin = lc/2
+    LcMax = lc
+    DistMin = 0.3
+    DistMax = 0.5
+
+    # LcMin -                       /------------------
+    #                              /
+    #                             /
+    #                            /
+    # LcMax   -o----------------/
+    #          |                |    |
+    #       BSpline        DistMin  DistMax
+
+    F_distance = model.mesh.field.add("Distance")
+    model.mesh.field.setNumber(F_distance, "NNodesByEdge", 100) # Try 2 if complaining
+    model.mesh.field.setNumbers(F_distance, "EdgesList", [D_arc])
+
+    F_threshold = model.mesh.field.add("Threshold")
+    model.mesh.field.setNumber(F_threshold, "IField", F_distance)
+    model.mesh.field.setNumber(F_threshold, "LcMin", LcMin)
+    model.mesh.field.setNumber(F_threshold, "LcMax", LcMax)
+    model.mesh.field.setNumber(F_threshold, "DistMin", DistMin)
+    model.mesh.field.setNumber(F_threshold, "DistMax", DistMax)
+
+    gmsh.model.mesh.field.setAsBackgroundMesh(F_threshold)
+
+    # The following should prevent over-refinement due to small mesh sizes on the boundary.
+    gmsh.option.setNumber("Mesh.MeshSizeExtendFromBoundary", 0)
+    gmsh.option.setNumber("Mesh.MeshSizeFromPoints", 0)
+    gmsh.option.setNumber("Mesh.MeshSizeFromCurvature", 0)
+
     model.geo.synchronize()
 
-    # Physics gorup
+
+    #--- Physics groups ---#
     I_PGroup = model.addPhysicalGroup(2, [I_surf])
     model.setPhysicalName(2, I_PGroup, "Brain tissue")
 
     O_PGroup = model.addPhysicalGroup(2, [O_surf])
     model.setPhysicalName(2, O_PGroup, "Brain fluid")
 
+    model.geo.synchronize()
 
-    model.geo.synchronize() 
+
+    #--- Finish mesh and view ---#
     model.mesh.generate(2)
 
     if view
@@ -246,23 +282,26 @@ function create_brain_2D(arcLen, r_brain, d_ratio, r_curv, D_func, O_func, BS_po
 end
 
 
-
+lc = 0.1       # Mesh size (definition?)
 arcLen = 10    # Outer arc length 
 r_brain = 5    # radial length of computed area
-d_ratio = 0.2  # thickness of fluid section relative to to r_brain
+d_ratio = 0.5  # thickness of fluid section relative to to r_brain
 r_curv = 50    # Radius of curvature
 BS_points = 50 # Number of points in BSpline curves
 
+# r_curv = 0
 
 D_func(x) = 0.2*sin(pi*x/0.1)
 O_func(x) = 0.2*sin(pi*x/0.5)
-create_brain_2D(arcLen, r_brain, d_ratio, r_curv, D_func, O_func, BS_points)
+create_brain_2D(arcLen, r_brain, d_ratio, r_curv, D_func, O_func, BS_points, lc)
 
 
 
 
 # Things to do:
-# √ add num_points
-# √ option for flat section
+    # √ add num_points
+    # √ option for flat section
 # periodic mesh (equal in left and right)
-# √ take care of overlap between D_func and O_func
+    # √ take care of overlap between D_func and O_func
+    # √ Work with fields
+# Define physics groups on all facets
