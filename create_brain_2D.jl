@@ -265,4 +265,4 @@ create_brain_2D(arcLen, r_brain, d_ratio, r_curv, D_func, O_func, BS_points)
 # √ add num_points
 # √ option for flat section
 # periodic mesh (equal in left and right)
-# take care of overlap between D_func and O_func
+# √ take care of overlap between D_func and O_func
