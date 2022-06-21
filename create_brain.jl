@@ -30,7 +30,7 @@ function add_manual_curve(model, r, theta, perturbation_func, lc, num_points = 5
     for i in range(1, num_points)
         angle = pi/2 + theta/2 - theta * angle_space[i]
         x, y = polar_to_cartesian(r + perturbation_func(angle_space[i]), angle)
-        append!(pointTags, model.geo.addPoint(x, y, 0.0, lc))
+        append!(pointTags, model.geo.addPoint(x, y, 0.0))
 
     end
     BSpline = model.geo.addBSpline(pointTags)
@@ -84,7 +84,7 @@ function create_brain(arcLen, r_brain, d_ratio, r_curv, D_func, O_func, view = t
 
     #--- Meshing ---#
 
-    gmsh.initialize()
+    gmsh.initialize(["", "-clmax", "0.1"])
     model = gmsh.model
     # factory = model.occ
 
@@ -115,8 +115,7 @@ function create_brain(arcLen, r_brain, d_ratio, r_curv, D_func, O_func, view = t
     I_CurveLoop = model.geo.addCurveLoop([IL_line, D_arc, -IR_line, -I_arc])
     I_surf = model.geo.addPlaneSurface([I_CurveLoop])
 
-    I_PGroup = model.addPhysicalGroup(2, [I_surf])
-    model.setPhysicalName(2, I_PGroup, "Brain tissue")
+    
     
     
     
@@ -126,11 +125,16 @@ function create_brain(arcLen, r_brain, d_ratio, r_curv, D_func, O_func, view = t
     O_CurveLoop = model.geo.addCurveLoop([OL_line, D_arc, -OR_line, -O_arc])
     O_surf = model.geo.addPlaneSurface([O_CurveLoop])
 
+
+    model.geo.synchronize()
+
+    I_PGroup = model.addPhysicalGroup(2, [I_surf])
+    model.setPhysicalName(2, I_PGroup, "Brain tissue")
+
     O_PGroup = model.addPhysicalGroup(2, [O_surf])
     model.setPhysicalName(2, O_PGroup, "Brain fluid")
     
   
-    
 
     model.geo.synchronize()
     model.mesh.generate(2) 
@@ -153,6 +157,15 @@ r_brain = 5    # radial length of computed area
 d_ratio = 0.2  # thickness of fluid section relative to to r_brain
 r_curv = 20    # Radius of curvature
 
-D_func(x) = 0.2*sin(pi*x*20)
-O_func(x) = 0.2*sin(pi*x*2)
+D_func(x) = 0.2*sin(pi*x/0.06)
+O_func(x) = 0.2*sin(pi*x/0.5)
 create_brain(arcLen, r_brain, d_ratio, r_curv, D_func, O_func)
+
+
+
+
+# Things to do:
+# add num_points
+# option for flat section
+# periodic mesh (equal in left and right)
+# take care of overlap between D_func and O_func
