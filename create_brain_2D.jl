@@ -157,15 +157,17 @@ function create_brain_2D(arcLen, r_brain, d_ratio, r_curv, D_func, O_func, BS_po
     gmsh.initialize(["", "-clmax", string(0.1)])
     model = gmsh.model
 
+    
     if r_curv == 0  # Straight Box
+        box_mode = true
         L = arcLen              # Length
         h = r_brain             # Height
         Dh = (1 - d_ratio) * h  # Dividing height
-
+    
         # Box corners
         BL = model.geo.addPoint(0.0, 0.0, 0.0)      # Bottom Left
         BR = model.geo.addPoint(arcLen, 0.0, 0.0)   # Bottom Right
-
+    
         # Inner tisue
         DL, DR, D_line = add_perturbed_line(model, L, Dh, D_func, BS_points) #Dividing Left, Dividing Right, Inner Top
         IL_line = model.geo.addLine(BL, DL) # Left line 
@@ -173,58 +175,60 @@ function create_brain_2D(arcLen, r_brain, d_ratio, r_curv, D_func, O_func, BS_po
         IB = model.geo.addLine(BR, BL) # Bottom line
         I_CurveLoop = model.geo.addCurveLoop([IL_line, D_line, IR_line, IB])
         I_surf = model.geo.addPlaneSurface([I_CurveLoop])
-
+    
         # Outer fluid
         TL, TR, O_line = add_perturbed_line(model, L, h, O_func, BS_points) # Top left, Top right, Outer Top
         OL_line = model.geo.addLine(DL, TL) # Left line 
         OR_line = model.geo.addLine(TR, DR) # Right line
         O_CurveLoop = model.geo.addCurveLoop([OL_line, O_line, OR_line, -D_line])
         O_surf = model.geo.addPlaneSurface([O_CurveLoop])
-
-
+    
+    
         # For generalisation in the following
         I_arc = IB
         D_arc = D_line
         O_arc = O_line
-
-
-
+    
+    
+    
+    
     else # Curved slap 
+        box_mode = false
         rI = r_curv - r_brain   # Inner radius  
         d = d_ratio * r_brain   # Thickness of fluid
         rD = r_curv - d         # Radius for dividing line
         theta = arcLen / r_curv # Spanning angle 
-
-
+    
+    
         C = model.geo.addPoint(0.0, 0.0, 0.0) # Center
-
+    
         #Inner arc
         xL, yL = polar_to_cartesian(rI, pi / 2 + theta / 2)
         xR, yR = polar_to_cartesian(rI, pi / 2 - theta / 2)
         IL = model.geo.addPoint(xL, yL, 0.0) # Inner Left
         IR = model.geo.addPoint(xR, yR, 0.0) # Inner Right
         I_arc = model.geo.addCircleArc(IL, C, IR) # Inner arc
-
-
+    
+    
         # Dividing arc
         DL, DR, D_arc = add_perturbed_arc(model, rD, theta, D_func, BS_points)
-
+    
         # Outer arc
         OL, OR, O_arc = add_perturbed_arc(model, r_curv, theta, O_func, BS_points)
-
+    
         # Inner tisue
         IL_line = model.geo.addLine(IL, DL)
         IR_line = model.geo.addLine(IR, DR)
         I_CurveLoop = model.geo.addCurveLoop([IL_line, D_arc, -IR_line, -I_arc])
         I_surf = model.geo.addPlaneSurface([I_CurveLoop])
-
+    
         # Outer fluid
         OL_line = model.geo.addLine(OL, DL)
         OR_line = model.geo.addLine(OR, DR)
         O_CurveLoop = model.geo.addCurveLoop([OL_line, D_arc, -OR_line, -O_arc])
         O_surf = model.geo.addPlaneSurface([O_CurveLoop])
-
-
+    
+    
     end
 
 
@@ -247,8 +251,8 @@ function create_brain_2D(arcLen, r_brain, d_ratio, r_curv, D_func, O_func, BS_po
 
     F_distance = model.mesh.field.add("Distance")
     model.mesh.field.setNumber(F_distance, "NNodesByEdge", 100) # Try 2 if complaining
-    # model.mesh.field.setNumbers(F_distance, "EdgesList", [D_arc])
-    model.mesh.field.setNumbers(F_distance, "EdgesList", [IL_line])
+    model.mesh.field.setNumbers(F_distance, "EdgesList", [D_arc])
+    # model.mesh.field.setNumbers(F_distance, "EdgesList", [IL_line]) # To verify periodic boundary mesh
 
 
 
@@ -266,20 +270,29 @@ function create_brain_2D(arcLen, r_brain, d_ratio, r_curv, D_func, O_func, BS_po
     gmsh.option.setNumber("Mesh.MeshSizeFromPoints", 0)
     gmsh.option.setNumber("Mesh.MeshSizeFromCurvature", 0)
 
-    # model.geo.synchronize()
-
-
-    #--- Periodic meshing ---#
-
     model.geo.synchronize()
 
 
-    affineTransform = [1, 0, 0, L,
-        0, 1, 0, 0,
-        0, 0, 1, 0,
-        0, 0, 0, 1,]
-    model.mesh.setPeriodic(1, [IR_line], [IL_line], affineTransform)  #dim, tags, tagsMaster, affineTransform
-    model.mesh.setPeriodic(1, [OR_line], [OL_line], affineTransform)  #dim, tags, tagsMaster, affineTransform
+    #--- Periodic meshing ---#   
+    if box_mode
+        # Translation along x-direction
+        translation = [ 1, 0, 0, arcLen,
+                        0, 1, 0, 0,
+                        0, 0, 1, 0,
+                        0, 0, 0, 1, ]
+         affineTransform = translation
+    else 
+        # Rotation around z-axis (in negative direction)
+        rotation = [    cos(-theta) , -sin(-theta)  , 0, 0,
+                        sin(-theta) , cos(-theta)   , 0, 0,
+                        0           , 0             , 1, 0,
+                        0           , 0             , 0, 1, ]
+        affineTransform = rotation 
+    end
+
+    # Impose mesh from left boundary on right boundar 
+    model.mesh.setPeriodic(1, [IR_line], [IL_line], affineTransform)  # Inner part
+    model.mesh.setPeriodic(1, [OR_line], [OL_line], affineTransform)  # Outer part
 
 
 
@@ -323,11 +336,11 @@ lc = 0.1       # Mesh size (definition?)
 arcLen = 10    # Outer arc length 
 r_brain = 5    # radial length of computed area
 d_ratio = 0.5  # thickness of fluid section relative to to r_brain
-r_curv = 50    # Radius of curvature
+r_curv = 20    # Radius of curvature
 BS_points = 50 # Number of points in BSpline curves
 
-arcLen = 2
-r_curv = 0
+arcLen = 10
+# r_curv = 0
 
 D_func(x) = 0.2*sin(pi*x/0.1)
 O_func(x) = 0.2*sin(pi*x/0.5)
