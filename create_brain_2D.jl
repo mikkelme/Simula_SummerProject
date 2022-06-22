@@ -168,27 +168,32 @@ function create_brain_2D(arcLen, r_brain, d_ratio, r_curv, D_func, O_func, BS_po
 
         # Inner tisue
         DL, DR, D_line = add_perturbed_line(model, L, Dh, D_func, BS_points) #Dividing Left, Dividing Right, Inner Top
-        IL = model.geo.addLine(BL, DL) # Left line 
-        IR = model.geo.addLine(DR, BR) # Right line
+        IL_line = model.geo.addLine(BL, DL) # Left line 
+        IR_line = model.geo.addLine(DR, BR) # Right line
         IB = model.geo.addLine(BR, BL) # Bottom line
-        I_CurveLoop = model.geo.addCurveLoop([IL, D_line, IR, IB])
+        I_CurveLoop = model.geo.addCurveLoop([IL_line, D_line, IR_line, IB])
         I_surf = model.geo.addPlaneSurface([I_CurveLoop])
 
         # Outer fluid
         TL, TR, O_line = add_perturbed_line(model, L, h, O_func, BS_points) # Top left, Top right, Outer Top
-        OL = model.geo.addLine(DL, TL) # Left line 
-        OR = model.geo.addLine(TR, DR) # Right line
-        O_CurveLoop = model.geo.addCurveLoop([OL, O_line, OR, -D_line])
+        OL_line = model.geo.addLine(DL, TL) # Left line 
+        OR_line = model.geo.addLine(TR, DR) # Right line
+        O_CurveLoop = model.geo.addCurveLoop([OL_line, O_line, OR_line, -D_line])
         O_surf = model.geo.addPlaneSurface([O_CurveLoop])
 
-        D_arc = D_line # For generalisation in the following
+
+        # For generalisation in the following
+        I_arc = IB
+        D_arc = D_line
+        O_arc = O_line
+
+
 
     else # Curved slap 
         rI = r_curv - r_brain   # Inner radius  
         d = d_ratio * r_brain   # Thickness of fluid
         rD = r_curv - d         # Radius for dividing line
         theta = arcLen / r_curv # Spanning angle 
-
 
 
         C = model.geo.addPoint(0.0, 0.0, 0.0) # Center
@@ -218,13 +223,17 @@ function create_brain_2D(arcLen, r_brain, d_ratio, r_curv, D_func, O_func, BS_po
         OR_line = model.geo.addLine(OR, DR)
         O_CurveLoop = model.geo.addCurveLoop([OL_line, D_arc, -OR_line, -O_arc])
         O_surf = model.geo.addPlaneSurface([O_CurveLoop])
+
+
     end
 
+
+
+
+
     #--- Mesh Field: Distance to dividing BSpline ---#
-    
-    # Hardcoded for now
-    LcMin = lc/2
-    LcMax = lc
+    LcMin = lc / 2  # Hardcoded for now
+    LcMax = lc      # Hardcoded for now
     DistMin = 0.3
     DistMax = 0.5
 
@@ -238,7 +247,10 @@ function create_brain_2D(arcLen, r_brain, d_ratio, r_curv, D_func, O_func, BS_po
 
     F_distance = model.mesh.field.add("Distance")
     model.mesh.field.setNumber(F_distance, "NNodesByEdge", 100) # Try 2 if complaining
-    model.mesh.field.setNumbers(F_distance, "EdgesList", [D_arc])
+    # model.mesh.field.setNumbers(F_distance, "EdgesList", [D_arc])
+    model.mesh.field.setNumbers(F_distance, "EdgesList", [IL_line])
+
+
 
     F_threshold = model.mesh.field.add("Threshold")
     model.mesh.field.setNumber(F_threshold, "IField", F_distance)
@@ -254,15 +266,40 @@ function create_brain_2D(arcLen, r_brain, d_ratio, r_curv, D_func, O_func, BS_po
     gmsh.option.setNumber("Mesh.MeshSizeFromPoints", 0)
     gmsh.option.setNumber("Mesh.MeshSizeFromCurvature", 0)
 
+    # model.geo.synchronize()
+
+
+    #--- Periodic meshing ---#
+
     model.geo.synchronize()
 
 
-    #--- Physics groups ---#
-    I_PGroup = model.addPhysicalGroup(2, [I_surf])
-    model.setPhysicalName(2, I_PGroup, "Brain tissue")
+    affineTransform = [1, 0, 0, L,
+        0, 1, 0, 0,
+        0, 0, 1, 0,
+        0, 0, 0, 1,]
+    model.mesh.setPeriodic(1, [IR_line], [IL_line], affineTransform)  #dim, tags, tagsMaster, affineTransform
+    model.mesh.setPeriodic(1, [OR_line], [OL_line], affineTransform)  #dim, tags, tagsMaster, affineTransform
 
-    O_PGroup = model.addPhysicalGroup(2, [O_surf])
-    model.setPhysicalName(2, O_PGroup, "Brain fluid")
+
+
+
+    #--- Physics groups ---#
+
+
+    I_arc_face = model.addPhysicalGroup(1, [I_arc])
+    IL_line_face = model.addPhysicalGroup(1, [IL_line])
+    IR_line_face = model.addPhysicalGroup(1, [IR_line])
+    D_arc_face = model.addPhysicalGroup(1, [D_arc])
+    OL_line_face = model.addPhysicalGroup(1, [OL_line])
+    OR_line_face = model.addPhysicalGroup(1, [OR_line])
+    O_arc_face = model.addPhysicalGroup(1, [O_arc])
+
+    I_surf_face = model.addPhysicalGroup(2, [I_surf])
+    model.setPhysicalName(2, I_surf_face, "Brain tissue")
+
+    O_surf_face = model.addPhysicalGroup(2, [O_surf])
+    model.setPhysicalName(2, O_surf_face, "Brain fluid")
 
     model.geo.synchronize()
 
@@ -289,7 +326,8 @@ d_ratio = 0.5  # thickness of fluid section relative to to r_brain
 r_curv = 50    # Radius of curvature
 BS_points = 50 # Number of points in BSpline curves
 
-# r_curv = 0
+arcLen = 2
+r_curv = 0
 
 D_func(x) = 0.2*sin(pi*x/0.1)
 O_func(x) = 0.2*sin(pi*x/0.5)
@@ -304,4 +342,4 @@ create_brain_2D(arcLen, r_brain, d_ratio, r_curv, D_func, O_func, BS_points, lc)
 # periodic mesh (equal in left and right)
     # √ take care of overlap between D_func and O_func
     # √ Work with fields
-# Define physics groups on all facets
+    # √ Define physics groups on all facets
