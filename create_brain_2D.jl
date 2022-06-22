@@ -154,7 +154,7 @@ function create_brain_2D(arcLen, r_brain, d_ratio, r_curv, D_func, O_func, BS_po
 
 
     #--- Geometry ---#
-    gmsh.initialize(["", "-clmax", string(0.1)])
+    gmsh.initialize(["", "-clmax", string(lc)])
     model = gmsh.model
 
     
