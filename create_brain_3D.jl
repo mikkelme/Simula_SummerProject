@@ -45,7 +45,7 @@ function cartesian_to_spherical(x, y, z)
 end
 
 
-function create_surface(model, r, zx_angle,  zy_angle)
+function create_surface(model, r, zx_angle, zy_angle)
 
     origo = model.geo.addPoint(0.0, 0.0, 0.0) # Center
 
@@ -81,42 +81,11 @@ function create_surface(model, r, zx_angle,  zy_angle)
     DA_arc = model.geo.addCircleArc(D, origo, A)
 
 
-
- 
-
-
-    #Draw cross for reference
-    X = model.geo.addPoint(spherical_to_cartesian(r, 0, zx_angle / 2)...)
-    Y = model.geo.addPoint(spherical_to_cartesian(r, pi / 2, zy_angle / 2)...)
-    Xneg = model.geo.addPoint(spherical_to_cartesian(r, pi, zx_angle / 2)...)
-    Yneg = model.geo.addPoint(spherical_to_cartesian(r, 3 * pi / 2, zy_angle / 2)...)
-    z_sphere = model.geo.addPoint(0, 0, 1)
-
-    model.geo.synchronize()
-
-    # Helpful naming
-    X_G = model.addPhysicalGroup(0, [X])
-    model.setPhysicalName(0, X_G, "X_G")
-
-    Y_G = model.addPhysicalGroup(0, [Y])
-    model.setPhysicalName(0, Y_G, "Y_G")
-
-    Xneg_G = model.addPhysicalGroup(0, [Xneg])
-    model.setPhysicalName(0, Xneg_G, "Xneg_G")
-
-    Yneg_G = model.addPhysicalGroup(0, [Yneg])
-    model.setPhysicalName(0, Yneg_G, "Yneg_G")
+    CurveLoop = model.geo.addCurveLoop([AB_arc, BC_arc, CD_arc, DA_arc])
+    Surf = model.geo.addSurfaceFilling([CurveLoop])
+    
 
 
-
-    model.geo.addCircleArc(X, origo, Xneg)
-    model.geo.addCircleArc(Y, origo, Yneg)
-
-    model.geo.addLine(origo, X)
-    model.geo.addLine(origo, Y)
-    model.geo.addLine(origo, Xneg)
-    model.geo.addLine(origo, Yneg)
-    model.geo.addLine(origo, z_sphere)
 
 
 
@@ -124,7 +93,7 @@ function create_surface(model, r, zx_angle,  zy_angle)
     # model.occ.synchronize()
     model.geo.synchronize()
 
- 
+
 
 
 
@@ -146,6 +115,8 @@ function create_brain_3D(params::model_params, view=true)
     zx_angle = pi / 2
     zy_angle = pi / 3
     create_surface(model, r, zx_angle, zy_angle)
+    model.mesh.generate(2)
+
 
 
 
@@ -171,13 +142,54 @@ end # End of create_brain_3D
 
 if abspath(PROGRAM_FILE) == @__FILE__
 
-    lc = 0.1       
-    arcLen = 10    
-    r_brain = 5    
-    d_ratio = 0.5  
-    r_curv = 20    
-    BS_points = 50 
+    lc = 0.1
+    arcLen = 10
+    r_brain = 5
+    d_ratio = 0.5
+    r_curv = 20
+    BS_points = 50
     params = model_params(lc, arcLen, r_brain, d_ratio, r_curv, BS_points)
 
     create_brain_3D(params)
 end
+
+
+
+
+
+##### Leftvers #####
+
+
+
+#Draw cross for reference
+# X = model.geo.addPoint(spherical_to_cartesian(r, 0, zx_angle / 2)...)
+# Y = model.geo.addPoint(spherical_to_cartesian(r, pi / 2, zy_angle / 2)...)
+# Xneg = model.geo.addPoint(spherical_to_cartesian(r, pi, zx_angle / 2)...)
+# Yneg = model.geo.addPoint(spherical_to_cartesian(r, 3 * pi / 2, zy_angle / 2)...)
+# z_sphere = model.geo.addPoint(0, 0, 1)
+
+# # model.geo.synchronize()
+
+# # # Helpful naming
+# # X_G = model.addPhysicalGroup(0, [X])
+# # model.setPhysicalName(0, X_G, "X_G")
+
+# # Y_G = model.addPhysicalGroup(0, [Y])
+# # model.setPhysicalName(0, Y_G, "Y_G")
+
+# # Xneg_G = model.addPhysicalGroup(0, [Xneg])
+# # model.setPhysicalName(0, Xneg_G, "Xneg_G")
+
+# # Yneg_G = model.addPhysicalGroup(0, [Yneg])
+# # model.setPhysicalName(0, Yneg_G, "Yneg_G")
+
+
+# model.geo.addCircleArc(X, origo, Xneg)
+# model.geo.addCircleArc(Y, origo, Yneg)
+
+# model.geo.addLine(origo, X)
+# model.geo.addLine(origo, Y)
+# model.geo.addLine(origo, Xneg)
+# model.geo.addLine(origo, Yneg)
+# model.geo.addLine(origo, z_sphere)
+
