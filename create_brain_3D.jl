@@ -20,14 +20,22 @@ using Printf
 # end
 
 
-struct model_params
-    lc::Float64         # Mesh size
-    x_arcLen::Float64   # Outer arc length (x-direction)
-    y_arcLen::Float64   # Outer arc length (y-direction)
-    r_brain::Float64    # Radial total length
-    d_ratio::Float64    # Radial relative length of fluid section
-    r_curv::Float64     # Radius of curvature
-    BS_points::Int64    # Number of points in BSpline curves
+mutable struct model_params
+    lc::Float64             # Mesh size
+    arcLen::Tuple{Float64,Float64}  # Outer arc length (x, y)-direction
+    r_brain::Float64        # Radial total length
+    d_ratio::Float64        # Radial relative length of fluid section
+    r_curv::Float64         # Radius of curvature
+    inner_perturb::Function # Radial perturbation on inner surface f(x,y,z)
+    outer_perturb::Function # Radial perturbation on inner surface f(x,y,z)
+    BS_points::Int64        # Number of points in BSpline curves
+    vertex::Array{Int64, 2}
+    # origo::Int64
+
+    function model_params(lc, arcLen, r_brain, d_ratio, r_curv, inner_perturb, outer_perturb, BS_points) # Constructor
+        new(lc, arcLen, r_brain, d_ratio, r_curv, inner_perturb, outer_perturb, BS_points, Matrix{Int64}(undef, 2, 4) )
+    end
+    # ::Array{Float64,3}
 end
 
 
@@ -43,9 +51,15 @@ end
 
 
 
-function create_surface(model, r, zx_angle, zy_angle)
+function create_surface(param, r, angle)
+    model = gmsh.model
 
-    origo = model.occ.addPoint(0.0, 0.0, 0.0) # Center ### Get rid of this later
+    zx_angle, zy_angle = angle
+
+    # origo = model.occ.addPoint(0.0, 0.0, 0.0) # Center ### Get rid of this later
+    origo = param.vertex[1,1]
+
+    #-----> Working form here with using param struct <------
 
     # Make boundary of surface
     ###################
@@ -92,21 +106,23 @@ function create_surface(model, r, zx_angle, zy_angle)
 end
 
 
-function add_perturbed_arc(model, start_tag, center_tag, end_tag, pert_func, BS_points)
-                   
+function add_perturbed_arc(param, start_tag, center_tag, end_tag, pert_func, BS_points)
+    model = gmsh.model
+
+
     pointTags = [start_tag]
     start_point = model.getValue(0, start_tag, []) #dim, tag, parametrization
     end_point = model.getValue(0, end_tag, [])
     origo = model.getValue(0, center_tag, [])
     r = sqrt(start_point[1]^2 + start_point[2]^2 + start_point[3]^2)
-    
-    
+
+
     direction = end_point - start_point
     range = LinRange(0, 1, BS_points)
     for i in 2:BS_points-1
         # Step toward end_point in straight line
         point = start_point + range[i] * direction
-        
+
         # Add perturbation
         perturbed_radius = r + pert_func((point - start_point)...)
 
@@ -126,7 +142,8 @@ end
 
 
 
-function create_perturbed_surface(model, r, angle, pert_func, BS_points)
+function create_perturbed_surface(param, r, angle, pert_func, BS_points)
+    model = gmsh.model
     zx_angle, zy_angle = angle
 
     origo = model.occ.addPoint(0.0, 0.0, 0.0) # Center
@@ -163,7 +180,7 @@ function create_perturbed_surface(model, r, angle, pert_func, BS_points)
 
     CurveLoop = model.occ.addCurveLoop([arc[1], arc[2], arc[3], arc[4]])
     surf = model.occ.addBSplineFilling(CurveLoop, 2, "Stretch") # Alternatively use "Coons" is also nice
-  
+
 
     model.occ.synchronize()
 
@@ -176,33 +193,36 @@ end
 
 
 
-function create_brain_3D(params::model_params, view=true)
+function create_brain_3D(param::model_params, view=true)
     # Consider mutable struct for stuff in here
     # Check parameters
 
 
-    rI = params.r_curv - params.r_brain                         # Inner radius  
-    rD = params.r_curv - params.d_ratio * params.r_brain        # Radius for dividing line
+
+    rI = param.r_curv - param.r_brain                         # Inner radius  
+    rD = param.r_curv - param.d_ratio * param.r_brain        # Radius for dividing line
 
     # Should enforce  0 < angle < pi
-    zx_angle = params.x_arcLen / params.r_curv # Angle span from z-axis towards x-axis
-    zy_angle = params.y_arcLen / params.r_curv # Angle span from z-axis towards x-axis
+    x_arcLen, y_arcLen = param.arcLen
+    zx_angle = x_arcLen / param.r_curv # Angle span from z-axis towards x-axis
+    zy_angle = y_arcLen / param.r_curv # Angle span from z-axis towards x-axis
+    angle = (zx_angle, zy_angle)
 
 
     #--- occmetry ---# (Only curved slab for now)
     gmsh.initialize(["", "-clmax", string(0.1)])
     model = gmsh.model
 
+    origo = model.occ.addPoint(0.0, 0.0, 0.0)
+    param.vertex[1,1] = origo
 
-    I_vertex, I_arc, I_surf = create_surface(model, rI, zx_angle, zy_angle)
+    # println(typeof(model))
+    # exit()
+    I_vertex, I_arc, I_surf = create_surface(param, rI, angle)
 
+    D_vertex, D_arc, D_surf = create_perturbed_surface(param, rD, angle, param.inner_perturb, param.BS_points)
+    # O_vertex, O_arc, O_surf = create_perturbed_surface(model, param.r_curv, angle, param.outer_perturb, param.BS_points)
 
-    angle = (zx_angle, zy_angle)
-    perturbation_func(x, y, z) = 0.2 * sin(pi * x / 0.1) + 0.2 * sin(pi * y / 0.5)
-
-
-    D_vertex, D_arc, D_surf = create_perturbed_surface(model, rD, angle, perturbation_func, params.BS_points)
-    # create_surface(model, params.r_curv, zx_angle, zy_angle)
 
     #--- Connect surfaces ---#
     # Lines
@@ -258,22 +278,23 @@ end # End of create_brain_3D
 if abspath(PROGRAM_FILE) == @__FILE__
 
     lc = 0.5
-    x_arcLen = 5
-    y_arcLen = 2
+    arcLen = (5.0, 2.0)
     r_brain = 5
     d_ratio = 0.5
     r_curv = 15
+    inner_perturb(x, y, z) = 0.2 * sin(pi * x / 0.1) + 0.2 * sin(pi * y / 0.5)
+    outer_perturb(x, y, z) = 0.2 * sin(pi * x / 2) + 0.2 * sin(pi * y / 1)
     BS_points = 50 # Make direction depending x,y
-    params = model_params(lc, x_arcLen, y_arcLen, r_brain, d_ratio, r_curv, BS_points)
+    param = model_params(lc, arcLen, r_brain, d_ratio, r_curv, inner_perturb, outer_perturb, BS_points)
 
-    create_brain_3D(params)
+    create_brain_3D(param)
 end
 
 
 
 
 
-##### Leftvers #####
+##### Leftovers #####
 
 
 
