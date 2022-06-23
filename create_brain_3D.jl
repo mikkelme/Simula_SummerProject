@@ -45,80 +45,44 @@ function cartesian_to_spherical(x, y, z)
 end
 
 
-function create_surface(model, r, zx, zy)
+function create_surface(model, r, zx_angle,  zy_angle)
 
-    # x, y, z = spherical_to_cartesian(r, theta / 2, phi / 2)
     origo = model.geo.addPoint(0.0, 0.0, 0.0) # Center
 
-    zx_angle = pi / 3
-    zy_angle = pi / 4
-
-
     # Make boundary of surface
-
-    x, _, rx = spherical_to_cartesian(r, 0, zx_angle / 2)
-    _, y, ry = spherical_to_cartesian(r, pi / 2, zy_angle / 2)
-
-    a = sqrt(r^2 - rx^2)
-    b = sqrt(r^2 - ry^2)
-    c = sqrt(rx^2 + ry^2 - r^2)
-
-
     ###################
-    alpha = (1 - z) / y
+    # alpha = (1 - z) / y
     # Use inclined circle (for y incline)
     # eq.: x^2 + (z + αy)^2 = r^2
     ###################
-    
 
 
-    # x -= 0.04
-    # y -= 0.04
-    # theta = atan(y / x)
-    # phi = asin(x / (r * cos(theta)))
+    x, _, zx = spherical_to_cartesian(r, 0, zx_angle / 2)
+    _, y, zy = spherical_to_cartesian(r, pi / 2, zy_angle / 2)
 
-    A = model.geo.addPoint(a, b, c)
-    B = model.geo.addPoint(-a, b, c)
-    C = model.geo.addPoint(-a, -b, c)
-    D = model.geo.addPoint(a, -b, c)
+    alpha_x = (1 - zx) / x
+    alpha_y = (1 - zy) / y
 
 
-    # A = model.geo.addPoint(spherical_to_cartesian(r, theta, phi)...)
-    # B = model.geo.addPoint(spherical_to_cartesian(r, -theta + pi, phi)...)
-    # C = model.geo.addPoint(spherical_to_cartesian(r, theta + pi, phi)...)
-    # D = model.geo.addPoint(spherical_to_cartesian(r, -theta, phi)...)
+    a = 2 * alpha_x / (1 - alpha_x^2)
+    b = 2 * alpha_y / (1 - alpha_y^2)
+    c = r / sqrt(a^2 + b^2 + 1)
+
+
+    A = model.geo.addPoint(a * c, b * c, c)
+    B = model.geo.addPoint(-a * c, b * c, c)
+    C = model.geo.addPoint(-a * c, -b * c, c)
+    D = model.geo.addPoint(a * c, -b * c, c)
+
 
     AB_arc = model.geo.addCircleArc(A, origo, B)
     BC_arc = model.geo.addCircleArc(B, origo, C)
     CD_arc = model.geo.addCircleArc(C, origo, D)
     DA_arc = model.geo.addCircleArc(D, origo, A)
 
-    #AB midpoint
-    # x1, y1, z1 = spherical_to_cartesian(r, theta, phi)
-    # x2, y2, z2 = spherical_to_cartesian(r, -theta + pi, phi)
-
-    # AB_mid = [x1 + x2, y1 + y2, z1 + z2]
-    # theta_mid = atan((y1 + y2) / (x1 + x2))
-    # phi_mid = asin((x1 + x2) / (2*r * cos(theta_mid)))
-    # theta_mid = (theta -theta + pi/2)
-    # AB_mid = model.geo.addPoint(spherical_to_cartesian(r, theta_mid, phi)...)
 
 
-
-    # B = model.geo.addPoint(spherical_to_cartesian(r, theta + pi/2, phi)...)
-    # C = model.geo.addPoint(spherical_to_cartesian(r, theta + pi, phi)...)
-    # D = model.geo.addPoint(spherical_to_cartesian(r, theta + 3*pi/2, phi)...)
-
-
-    # phi1 = asin(x/(r*cos(theta)))
-    # phi2 = asin(y / (r * sin(theta)))
-    # println(phi1*pi)
-    # println(phi2*pi)
-
-
-    # Circle around y-axis
-    #
-
+ 
 
 
     #Draw cross for reference
@@ -157,50 +121,10 @@ function create_surface(model, r, zx, zy)
 
 
 
-    #     arc1 = model.geo.addCircleArc(IL, C, IR) # Inner arc
-
-
-
-
-
-
-    # point2 = model.geo.addPoint(spherical_to_cartesian(r, pi / 2 + theta / 2, phi / 2)...)
-    # point3 = model.geo.addPoint(spherical_to_cartesian(r, pi / 2 - theta / 2, phi / 2)...)
-    # point4 = model.geo.addPoint(spherical_to_cartesian(r, pi / 2 + pi + theta / 2, phi / 2)...)
-    # point5 = model.geo.addPoint(spherical_to_cartesian(r, pi / 2 + pi - theta / 2, phi / 2)...)
-
-    # line1 = model.geo.addLine(point2, point3)
-    # line2 = model.geo.addLine(point3, point4)
-    # line3 = model.geo.addLine(point4, point5)
-    # line4 = model.geo.addLine(point5, point2)
-
-
-
-
-
-
-
-
-
-    # sph = model.occ.addSphere(0, 0, 0, r, -1, -2*pi, pi/2, 2*pi)
-
-
-
     # model.occ.synchronize()
     model.geo.synchronize()
 
-    # R = 1
-    # R1 = 0.95
-    # sph = model.occ.addSphere(0, 0, 0, R, -1, 0, pi / 2, pi / 2)
-    # b1 = model.occ.addBox(R1, 0, 0, R, R, R)
-    # b2 = model.occ.addBox(0, R1, 0, R, R, R)
-    # b3 = model.occ.addBox(0, 0, R1, R, R, R)
-    # model.occ.cut([(3, sph)], [(3, b1), (3, b2), (3, b3)])
-    # model.occ.synchronize()
-    # model.removeEntities([(3, sph)])
-    # model.removeEntities([(2, 2), (2, 4), (2, 6)], true)
-
-
+ 
 
 
 
@@ -218,9 +142,10 @@ function create_brain_3D(params::model_params, view=true)
 
     # Bottom surface
     r = 1
-    theta = pi/4
-    phi = pi/8
-    create_surface(model, r, theta, phi)
+    # 0 < angle < pi
+    zx_angle = pi / 2
+    zy_angle = pi / 3
+    create_surface(model, r, zx_angle, zy_angle)
 
 
 
