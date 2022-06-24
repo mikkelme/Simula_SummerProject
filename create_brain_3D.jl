@@ -159,11 +159,45 @@ function connect_and_volumize(brain::geo3D)
 end
 
 
+function add_mesh_field(brain::geo3D)
+    LcMin = lc / 2  # Hardcoded for now
+    LcMax = lc      # Hardcoded for now
+    DistMin = 0.3
+    DistMax = 0.5
+
+    # LcMin -                       /------------------
+    #                              /
+    #                             /
+    #                            /
+    # LcMax   -o----------------/
+    #          |                |    |
+    #       BSpline        DistMin  DistMax
+
+    F_distance = gmsh.model.mesh.field.add("Distance")
+    # gmsh.model.mesh.field.setNumber(F_distance, "NNodesByEdge", 100)
+    # gmsh.model.mesh.field.setNumbers(F_distance, "EdgesList", [brain.rad_surf[2]])
+   
+
+    # F_threshold = gmsh.model.mesh.field.add("Threshold")
+    # gmsh.model.mesh.field.setNumber(F_threshold, "IField", F_distance)
+    # gmsh.model.mesh.field.setNumber(F_threshold, "LcMin", LcMin)
+    # gmsh.model.mesh.field.setNumber(F_threshold, "LcMax", LcMax)
+    # gmsh.model.mesh.field.setNumber(F_threshold, "DistMin", DistMin)
+    # gmsh.model.mesh.field.setNumber(F_threshold, "DistMax", DistMax)
+
+    # gmsh.model.mesh.field.setAsBackgroundMesh(F_threshold)
+
+    # # The following should prevent over-refinement due to small mesh sizes on the boundary.
+    # gmsh.option.setNumber("Mesh.MeshSizeExtendFromBoundary", 0)
+    # gmsh.option.setNumber("Mesh.MeshSizeFromPoints", 0)
+    # gmsh.option.setNumber("Mesh.MeshSizeFromCurvature", 0)
+
+
+end
+
+
 function create_brain_3D(param::model_params, view=true)
     # Safety check of parameters? # Should enforce  0 < angle < pi
-
-    # Initialize struct for holding tags
-    brain = geo3D() 
 
     # Calculate derived parameters
     rI = param.r_curv - param.r_brain                   # Inner radius  
@@ -176,16 +210,16 @@ function create_brain_3D(param::model_params, view=true)
 
     #----- Geometry -----# 
     gmsh.initialize(["", "-clmax", string(param.lc)])
+    brain = geo3D() # Struct for holding tags
 
     # Add radial surfaces
     brain.vertex[1, :], brain.arc[1, :], brain.rad_surf[1] = create_surface(brain, rI, angle)
     brain.vertex[2, :], brain.arc[2, :], brain.rad_surf[2] = create_perturbed_surface(brain, rD, angle, param.inner_perturb, param.BS_points)
     brain.vertex[3, :], brain.arc[3, :], brain.rad_surf[3] = create_perturbed_surface(brain, param.r_curv, angle, param.outer_perturb, param.BS_points)
-    
-    # Connect and volumize 
-    connect_and_volumize(brain)
 
-    # Add mesh field
+    # ------ #
+    connect_and_volumize(brain)
+    # add_mesh_field(brain)
 
 
 
