@@ -34,12 +34,13 @@ end
 
 
 mutable struct geo3D
-    origo::Int64
-    vertex::Array{Int64,2}
-    arc::Array{Int64,2}
+    origo::Int32
+    vertex::Array{Int32,2}
+    arc::Array{Int32,2}
+    rad_surf::Array{Int32, 1} # Radial surfaces
 
     function geo3D() # Constructor
-        new(0, Matrix{Int64}(undef, 2, 4), Matrix{Int64}(undef, 2, 4))
+        new(0, Matrix{Int32}(undef, 3, 4), Matrix{Int32}(undef, 3, 4), Vector{Int32}(undef, 3))
     end
 end
 
@@ -56,19 +57,19 @@ end
 
 
 
-function create_surface(brain, r, angle)
+function create_surface(brain::geo3D, r, angle)
     # Make boundary of surface
     ###################
     # Use inclined circle (for y incline)
     # eq.: x^2 + (z + αy)^2 = r^2
     ###################s
-    model = gmsh.model
+    
 
     zx_angle, zy_angle = angle
 
 
-    vertex = Array{Float64,1}(undef, 4)
-    arc = Array{Float64,1}(undef, 4)
+    vertex = Array{Int32,1}(undef, 4)
+    arc = Array{Int32,1}(undef, 4)
 
 
     x, _, zx = spherical_to_cartesian(r, 0, zx_angle / 2)
@@ -83,19 +84,19 @@ function create_surface(brain, r, angle)
     c = r / sqrt(a^2 + b^2 + 1)
 
 
-    vertex[1] = model.occ.addPoint(a * c, b * c, c)
-    vertex[2] = model.occ.addPoint(-a * c, b * c, c)
-    vertex[3] = model.occ.addPoint(-a * c, -b * c, c)
-    vertex[4] = model.occ.addPoint(a * c, -b * c, c)
+    vertex[1] = gmsh.model.occ.addPoint(a * c, b * c, c)
+    vertex[2] = gmsh.model.occ.addPoint(-a * c, b * c, c)
+    vertex[3] = gmsh.model.occ.addPoint(-a * c, -b * c, c)
+    vertex[4] = gmsh.model.occ.addPoint(a * c, -b * c, c)
 
 
-    arc[1] = model.occ.addCircleArc(vertex[1], brain.origo, vertex[2])
-    arc[2] = model.occ.addCircleArc(vertex[2], brain.origo, vertex[3])
-    arc[3] = model.occ.addCircleArc(vertex[3], brain.origo, vertex[4])
-    arc[4] = model.occ.addCircleArc(vertex[4], brain.origo, vertex[1])
+    arc[1] = gmsh.model.occ.addCircleArc(vertex[1], brain.origo, vertex[2])
+    arc[2] = gmsh.model.occ.addCircleArc(vertex[2], brain.origo, vertex[3])
+    arc[3] = gmsh.model.occ.addCircleArc(vertex[3], brain.origo, vertex[4])
+    arc[4] = gmsh.model.occ.addCircleArc(vertex[4], brain.origo, vertex[1])
 
-    CurveLoop = model.occ.addCurveLoop([arc[1], arc[2], arc[3], arc[4]])
-    surf = model.occ.addSurfaceFilling(CurveLoop)
+    CurveLoop = gmsh.model.occ.addCurveLoop([arc[1], arc[2], arc[3], arc[4]])
+    surf = gmsh.model.occ.addSurfaceFilling(CurveLoop)
 
     return vertex, arc, surf
 
@@ -103,13 +104,13 @@ end
 
 
 function add_perturbed_arc(start_tag, center_tag, end_tag, pert_func, BS_points)
-    model = gmsh.model
+    
 
 
     pointTags = [start_tag]
-    start_point = model.getValue(0, start_tag, []) #dim, tag, parametrization
-    end_point = model.getValue(0, end_tag, [])
-    origo = model.getValue(0, center_tag, [])
+    start_point = gmsh.model.getValue(0, start_tag, []) #dim, tag, parametrization
+    end_point = gmsh.model.getValue(0, end_tag, [])
+    origo = gmsh.model.getValue(0, center_tag, [])
     r = sqrt(start_point[1]^2 + start_point[2]^2 + start_point[3]^2)
 
 
@@ -125,11 +126,11 @@ function add_perturbed_arc(start_tag, center_tag, end_tag, pert_func, BS_points)
         # Normalize to be on perturbed sphere
         point *= perturbed_radius / sqrt((point[1] - origo[1])^2 + (point[2] - origo[2])^2 + (point[3] - origo[3])^2)
 
-        append!(pointTags, model.occ.addPoint(point...))
+        append!(pointTags, gmsh.model.occ.addPoint(point...))
     end
 
     append!(pointTags, end_tag)
-    BSpline = model.occ.addBSpline(pointTags)
+    BSpline = gmsh.model.occ.addBSpline(pointTags)
     return BSpline
 
 end
@@ -138,14 +139,14 @@ end
 
 
 
-function create_perturbed_surface(brain, r, angle, pert_func, BS_points)
-    model = gmsh.model
+function create_perturbed_surface(brain::geo3D, r, angle, pert_func, BS_points)
+    
     zx_angle, zy_angle = angle
 
- 
 
-    vertex = Array{Float64,1}(undef, 4)
-    arc = Array{Float64,1}(undef, 4)
+
+    vertex = Array{Int32,1}(undef, 4)
+    arc = Array{Int32,1}(undef, 4)
 
 
     x, _, zx = spherical_to_cartesian(r, 0, zx_angle / 2)
@@ -161,11 +162,11 @@ function create_perturbed_surface(brain, r, angle, pert_func, BS_points)
     c = r / sqrt(a^2 + b^2 + 1)
 
 
-    vertex[1] = model.occ.addPoint(a * c, b * c, c)
-    vertex[2] = model.occ.addPoint(-a * c, b * c, c)
-    vertex[3] = model.occ.addPoint(-a * c, -b * c, c)
-    vertex[4] = model.occ.addPoint(a * c, -b * c, c)
-    model.occ.synchronize()
+    vertex[1] = gmsh.model.occ.addPoint(a * c, b * c, c)
+    vertex[2] = gmsh.model.occ.addPoint(-a * c, b * c, c)
+    vertex[3] = gmsh.model.occ.addPoint(-a * c, -b * c, c)
+    vertex[4] = gmsh.model.occ.addPoint(a * c, -b * c, c)
+    gmsh.model.occ.synchronize()
 
 
 
@@ -174,11 +175,11 @@ function create_perturbed_surface(brain, r, angle, pert_func, BS_points)
     arc[3] = add_perturbed_arc(vertex[3], brain.origo, vertex[4], pert_func, BS_points)
     arc[4] = add_perturbed_arc(vertex[4], brain.origo, vertex[1], pert_func, BS_points)
 
-    CurveLoop = model.occ.addCurveLoop([arc[1], arc[2], arc[3], arc[4]])
-    surf = model.occ.addBSplineFilling(CurveLoop, -1, "Stretch") # Alternatively use "Coons"
+    CurveLoop = gmsh.model.occ.addCurveLoop([arc[1], arc[2], arc[3], arc[4]])
+    surf = gmsh.model.occ.addBSplineFilling(CurveLoop, -1, "Stretch") # Alternatively use "Coons"
 
 
-    model.occ.synchronize()
+    gmsh.model.occ.synchronize()
 
 
 
@@ -187,7 +188,28 @@ function create_perturbed_surface(brain, r, angle, pert_func, BS_points)
 end
 
 
+function connect_and_fill(brain::geo3D)
+    
 
+    for i in 1:2    
+        vline = [gmsh.model.occ.addLine(brain.vertex[i, 1], brain.vertex[i+1, 1])] # Vertical line
+        Loop = [] # curve loops
+        for j in 2:4
+            append!(vline, gmsh.model.occ.addLine(brain.vertex[i, j], brain.vertex[i+1, j]))
+            append!(Loop, gmsh.model.occ.addCurveLoop([vline[j-1], brain.arc[i+1, j-1], -vline[j], -brain.arc[i, j-1]]))
+        end
+        append!(Loop, gmsh.model.occ.addCurveLoop([vline[4], brain.arc[i+1, 4], -vline[1], -brain.arc[i, 4]]))
+    
+        Surf = [gmsh.model.occ.addSurfaceFilling(l) for l in Loop]
+        SurfLoop = gmsh.model.occ.addSurfaceLoop([brain.rad_surf[i], Surf..., brain.rad_surf[i+1]])
+        Vol = gmsh.model.occ.addVolume([SurfLoop])
+    end
+
+
+
+
+
+end
 
 function create_brain_3D(param::model_params, view=true)
     # Consider mutable struct for stuff in here
@@ -207,47 +229,25 @@ function create_brain_3D(param::model_params, view=true)
 
     #--- occmetry ---# (Only curved slab for now)
     gmsh.initialize(["", "-clmax", string(0.1)])
-    model = gmsh.model
+    
 
-    brain.origo = model.occ.addPoint(0.0, 0.0, 0.0)
-
-
-
-    I_vertex, I_arc, I_surf = create_surface(brain, rI, angle)
-    D_vertex, D_arc, D_surf = create_perturbed_surface(brain, rD, angle, param.inner_perturb, param.BS_points)
-    O_vertex, O_arc, O_surf = create_perturbed_surface(brain, param.r_curv, angle, param.outer_perturb, param.BS_points)
+    brain.origo = gmsh.model.occ.addPoint(0.0, 0.0, 0.0)
 
 
 
+    brain.vertex[1, :], brain.arc[1, :], brain.rad_surf[1] = create_surface(brain, rI, angle)
+    brain.vertex[2, :], brain.arc[2, :], brain.rad_surf[2] = create_perturbed_surface(brain, rD, angle, param.inner_perturb, param.BS_points)
+    brain.vertex[3, :], brain.arc[3, :], brain.rad_surf[3] = create_perturbed_surface(brain, param.r_curv, angle, param.outer_perturb, param.BS_points)
 
 
-    #--- Connect surfaces ---#
-    # Lines
-    # A = model.occ.addLine(I_vertex[1], D_vertex[1])
-    # B = model.occ.addLine(I_vertex[2], D_vertex[2])
-    # C = model.occ.addLine(I_vertex[3], D_vertex[3])
-    # D = model.occ.addLine(I_vertex[4], D_vertex[4])
-
-
-    # loop1 = model.occ.addCurveLoop([A, D_arc[1], -B, -I_arc[1]])
-    # Y_surf = model.occ.addPlaneSurface([loop1])
-
-    # loop2 = model.occ.addCurveLoop([B, D_arc[2], -C, -I_arc[2]])
-    # Xneg_surf = model.occ.addPlaneSurface([loop2])
-
-    # loop3 = model.occ.addCurveLoop([C, D_arc[3], -D, -I_arc[3]])
-    # Xneg_surf = model.occ.addPlaneSurface([loop3])
-
-    # loop4 = model.occ.addCurveLoop([D, D_arc[4], -A, -I_arc[4]])
-    # Yneg_surf = model.occ.addPlaneSurface([loop4])
+    connect_and_fill(brain)
 
 
 
 
 
-
-    model.occ.synchronize()
-    model.mesh.generate(2)
+    gmsh.model.occ.synchronize()
+    gmsh.model.mesh.generate(2)
 
 
 
@@ -284,6 +284,11 @@ if abspath(PROGRAM_FILE) == @__FILE__
     BS_points = 50 # Make direction depending x,y
     param = model_params(lc, arcLen, r_brain, d_ratio, r_curv, inner_perturb, outer_perturb, BS_points)
 
+    A = Array{Int32,1}(undef, 3)
+    B = Array{Int32,2}(undef, 2, 4)
+
+
+
     create_brain_3D(param)
 end
 
@@ -296,13 +301,13 @@ end
 
 
 #Draw cross for reference
-# X = model.occ.addPoint(spherical_to_cartesian(r, 0, zx_angle / 2)...)
-# Y = model.occ.addPoint(spherical_to_cartesian(r, pi / 2, zy_angle / 2)...)
-# Xneg = model.occ.addPoint(spherical_to_cartesian(r, pi, zx_angle / 2)...)
-# Yneg = model.occ.addPoint(spherical_to_cartesian(r, 3 * pi / 2, zy_angle / 2)...)
-# z_sphere = model.occ.addPoint(0, 0, 1)
+# X = gmsh.model.occ.addPoint(spherical_to_cartesian(r, 0, zx_angle / 2)...)
+# Y = gmsh.model.occ.addPoint(spherical_to_cartesian(r, pi / 2, zy_angle / 2)...)
+# Xneg = gmsh.model.occ.addPoint(spherical_to_cartesian(r, pi, zx_angle / 2)...)
+# Yneg = gmsh.model.occ.addPoint(spherical_to_cartesian(r, 3 * pi / 2, zy_angle / 2)...)
+# z_sphere = gmsh.model.occ.addPoint(0, 0, 1)
 
-# # model.occ.synchronize()
+# # gmsh.model.occ.synchronize()
 
 # # # Helpful naming
 # # X_G = model.addPhysicalGroup(0, [X])
@@ -318,12 +323,12 @@ end
 # # model.setPhysicalName(0, Yneg_G, "Yneg_G")
 
 
-# model.occ.addCircleArc(X, origo, Xneg)
-# model.occ.addCircleArc(Y, origo, Yneg)
+# gmsh.model.occ.addCircleArc(X, origo, Xneg)
+# gmsh.model.occ.addCircleArc(Y, origo, Yneg)
 
-# model.occ.addLine(origo, X)
-# model.occ.addLine(origo, Y)
-# model.occ.addLine(origo, Xneg)
-# model.occ.addLine(origo, Yneg)
-# model.occ.addLine(origo, z_sphere)
+# gmsh.model.occ.addLine(origo, X)
+# gmsh.model.occ.addLine(origo, Y)
+# gmsh.model.occ.addLine(origo, Xneg)
+# gmsh.model.occ.addLine(origo, Yneg)
+# gmsh.model.occ.addLine(origo, z_sphere)
 
