@@ -279,14 +279,14 @@ function create_brain_2D(arcLen, r_brain, d_ratio, r_curv, D_func, O_func, BS_po
         translation = [ 1, 0, 0, arcLen,
                         0, 1, 0, 0,
                         0, 0, 1, 0,
-                        0, 0, 0, 1, ]
+                        0, 0, 0, 1 ]
          affineTransform = translation
     else 
         # Rotation around z-axis (in negative direction)
         rotation = [    cos(-theta) , -sin(-theta)  , 0, 0,
                         sin(-theta) , cos(-theta)   , 0, 0,
                         0           , 0             , 1, 0,
-                        0           , 0             , 0, 1, ]
+                        0           , 0             , 0, 1 ]
         affineTransform = rotation 
     end
 
