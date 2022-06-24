@@ -1,46 +1,32 @@
 using GridapGmsh: gmsh
 using Printf
 
-# # struct that can be changed along the way: 
-# mutable struct Person
-#     name::String # Fields
-#     age::Float64
-#     isActive
-
-#     function Person(name, age) # Think this is a constructor
-#         new(name, age, true) # sets isActive=true bu default        
-#     end
-# end
-
-# logan = Person("Logan", 44)
-# logan.age += 1
-
-# function birtday(person::Person)
-#     person.age += 1
-# end
-
 
 struct model_params
-    lc::Float64             # Mesh size
+    # Parameters defining the brain model
+    lc::Float64                     # Mesh size
     arcLen::Tuple{Float64,Float64}  # Outer arc length (x, y)-direction
-    r_brain::Float64        # Radial total length
-    d_ratio::Float64        # Radial relative length of fluid section
-    r_curv::Float64         # Radius of curvature
-    inner_perturb::Function # Radial perturbation on inner surface f(x,y,z)
-    outer_perturb::Function # Radial perturbation on inner surface f(x,y,z)
-    BS_points::Int64        # Number of points in BSpline curves
+    r_brain::Float64                # Radial total length
+    d_ratio::Float64                # Radial relative length of fluid section
+    r_curv::Float64                 # Radius of curvature
+    inner_perturb::Function         # Radial perturbation on inner surface f(x,y,z)
+    outer_perturb::Function         # Radial perturbation on inner surface f(x,y,z)
+    BS_points::Int64                # Number of points in BSpline curves
 end
 
 
-
 mutable struct geo3D
-    origo::Int32
-    vertex::Array{Int32,2}
-    arc::Array{Int32,2}
-    rad_surf::Array{Int32, 1} # Radial surfaces
+    # For holding gmsh tags
+    origo::Int32                    # Center of coordinate system
+    vertex::Array{Int32,2}          # Vertices of all corners
+    arc::Array{Int32,2}             # Tangential arcs
+    rad_surf::Array{Int32, 1}       # Radial surfaces
 
     function geo3D() # Constructor
-        new(0, Matrix{Int32}(undef, 3, 4), Matrix{Int32}(undef, 3, 4), Vector{Int32}(undef, 3))
+        new(    gmsh.model.occ.addPoint(0.0, 0.0, 0.0), 
+                Matrix{Int32}(undef, 3, 4), 
+                Matrix{Int32}(undef, 3, 4), 
+                Vector{Int32}(undef, 3)     )
     end
 end
 
@@ -132,7 +118,6 @@ function add_perturbed_arc(start_tag, center_tag, end_tag, pert_func, BS_points)
 end
 
 
-
 function create_perturbed_surface(brain::geo3D, r, angle, pert_func, BS_points)
     vertex = sphere_patch_corners(r, angle) # Get sphere patch corners
     arc = Array{Int32,1}(undef, 4)
@@ -153,9 +138,8 @@ function create_perturbed_surface(brain::geo3D, r, angle, pert_func, BS_points)
 end
 
 
-function connect_and_fill(brain::geo3D)
-    
-
+function connect_and_volumize(brain::geo3D)
+    # Connect surfaces and create volumes
     for i in 1:2
         vline = [gmsh.model.occ.addLine(brain.vertex[i, 1], brain.vertex[i+1, 1])] # Vertical line
         Loop = [] # curve loops
@@ -172,50 +156,45 @@ function connect_and_fill(brain::geo3D)
         gmsh.model.occ.synchronize()
         [gmsh.model.addPhysicalGroup(2, [s]) for s in surf]
     end
-
-
-
-
-
 end
 
+
 function create_brain_3D(param::model_params, view=true)
-    # Consider mutable struct for stuff in here
-    # Check parameters
+    # Safety check of parameters? # Should enforce  0 < angle < pi
 
-    brain = geo3D()
+    # Initialize struct for holding tags
+    brain = geo3D() 
 
+    # Calculate derived parameters
     rI = param.r_curv - param.r_brain                   # Inner radius  
     rD = param.r_curv - param.d_ratio * param.r_brain   # Radius for dividing line
-
-    # Should enforce  0 < angle < pi
     x_arcLen, y_arcLen = param.arcLen
     zx_angle = x_arcLen / param.r_curv                  # Angle span z -> x -axis
     zy_angle = y_arcLen / param.r_curv                  # Angle span z -> x -axis
     angle = (zx_angle, zy_angle)
 
 
-    #--- occmetry ---# (Only curved slab for now)
-    gmsh.initialize(["", "-clmax", string(0.1)])
-    
-    brain.origo = gmsh.model.occ.addPoint(0.0, 0.0, 0.0)
+    #----- Geometry -----# 
+    gmsh.initialize(["", "-clmax", string(param.lc)])
 
+    # Add radial surfaces
     brain.vertex[1, :], brain.arc[1, :], brain.rad_surf[1] = create_surface(brain, rI, angle)
     brain.vertex[2, :], brain.arc[2, :], brain.rad_surf[2] = create_perturbed_surface(brain, rD, angle, param.inner_perturb, param.BS_points)
     brain.vertex[3, :], brain.arc[3, :], brain.rad_surf[3] = create_perturbed_surface(brain, param.r_curv, angle, param.outer_perturb, param.BS_points)
+    
+    # Connect and volumize 
+    connect_and_volumize(brain)
+
+    # Add mesh field
 
 
-    connect_and_fill(brain)
 
-
-
-
-
+    # Generate mesh
     gmsh.model.occ.synchronize()
     gmsh.model.mesh.generate(2)
 
 
-
+    # View and finalize
     if view
         gmsh.fltk.initialize()
         gmsh.fltk.run()
@@ -256,42 +235,4 @@ if abspath(PROGRAM_FILE) == @__FILE__
 end
 
 
-
-
-
-##### Leftovers #####
-
-
-
-#Draw cross for reference
-# X = gmsh.model.occ.addPoint(spherical_to_cartesian(r, 0, zx_angle / 2)...)
-# Y = gmsh.model.occ.addPoint(spherical_to_cartesian(r, pi / 2, zy_angle / 2)...)
-# Xneg = gmsh.model.occ.addPoint(spherical_to_cartesian(r, pi, zx_angle / 2)...)
-# Yneg = gmsh.model.occ.addPoint(spherical_to_cartesian(r, 3 * pi / 2, zy_angle / 2)...)
-# z_sphere = gmsh.model.occ.addPoint(0, 0, 1)
-
-# # gmsh.model.occ.synchronize()
-
-# # # Helpful naming
-# # X_G = model.addPhysicalGroup(0, [X])
-# # model.setPhysicalName(0, X_G, "X_G")
-
-# # Y_G = model.addPhysicalGroup(0, [Y])
-# # model.setPhysicalName(0, Y_G, "Y_G")
-
-# # Xneg_G = model.addPhysicalGroup(0, [Xneg])
-# # model.setPhysicalName(0, Xneg_G, "Xneg_G")
-
-# # Yneg_G = model.addPhysicalGroup(0, [Yneg])
-# # model.setPhysicalName(0, Yneg_G, "Yneg_G")
-
-
-# gmsh.model.occ.addCircleArc(X, origo, Xneg)
-# gmsh.model.occ.addCircleArc(Y, origo, Yneg)
-
-# gmsh.model.occ.addLine(origo, X)
-# gmsh.model.occ.addLine(origo, Y)
-# gmsh.model.occ.addLine(origo, Xneg)
-# gmsh.model.occ.addLine(origo, Yneg)
-# gmsh.model.occ.addLine(origo, z_sphere)
 
