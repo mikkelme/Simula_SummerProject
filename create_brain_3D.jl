@@ -20,7 +20,7 @@ using Printf
 # end
 
 
-mutable struct model_params
+struct model_params
     lc::Float64             # Mesh size
     arcLen::Tuple{Float64,Float64}  # Outer arc length (x, y)-direction
     r_brain::Float64        # Radial total length
@@ -29,13 +29,18 @@ mutable struct model_params
     inner_perturb::Function # Radial perturbation on inner surface f(x,y,z)
     outer_perturb::Function # Radial perturbation on inner surface f(x,y,z)
     BS_points::Int64        # Number of points in BSpline curves
-    vertex::Array{Int64, 2}
-    # origo::Int64
+end
 
-    function model_params(lc, arcLen, r_brain, d_ratio, r_curv, inner_perturb, outer_perturb, BS_points) # Constructor
-        new(lc, arcLen, r_brain, d_ratio, r_curv, inner_perturb, outer_perturb, BS_points, Matrix{Int64}(undef, 2, 4) )
+
+
+mutable struct geo3D
+    origo::Int64
+    vertex::Array{Int64,2}
+    arc::Array{Int64,2}
+
+    function geo3D() # Constructor
+        new(0, Matrix{Int64}(undef, 2, 4), Matrix{Int64}(undef, 2, 4))
     end
-    # ::Array{Float64,3}
 end
 
 
@@ -51,27 +56,19 @@ end
 
 
 
-function create_surface(param, r, angle)
+function create_surface(brain, r, angle)
+    # Make boundary of surface
+    ###################
+    # Use inclined circle (for y incline)
+    # eq.: x^2 + (z + αy)^2 = r^2
+    ###################s
     model = gmsh.model
 
     zx_angle, zy_angle = angle
 
-    # origo = model.occ.addPoint(0.0, 0.0, 0.0) # Center ### Get rid of this later
-    origo = param.vertex[1,1]
-
-    #-----> Working form here with using param struct <------
-
-    # Make boundary of surface
-    ###################
-    # alpha = (1 - z) / y
-    # Use inclined circle (for y incline)
-    # eq.: x^2 + (z + αy)^2 = r^2
-    ###################
 
     vertex = Array{Float64,1}(undef, 4)
     arc = Array{Float64,1}(undef, 4)
-
-
 
 
     x, _, zx = spherical_to_cartesian(r, 0, zx_angle / 2)
@@ -92,21 +89,20 @@ function create_surface(param, r, angle)
     vertex[4] = model.occ.addPoint(a * c, -b * c, c)
 
 
-    arc[1] = model.occ.addCircleArc(vertex[1], origo, vertex[2])
-    arc[2] = model.occ.addCircleArc(vertex[2], origo, vertex[3])
-    arc[3] = model.occ.addCircleArc(vertex[3], origo, vertex[4])
-    arc[4] = model.occ.addCircleArc(vertex[4], origo, vertex[1])
+    arc[1] = model.occ.addCircleArc(vertex[1], brain.origo, vertex[2])
+    arc[2] = model.occ.addCircleArc(vertex[2], brain.origo, vertex[3])
+    arc[3] = model.occ.addCircleArc(vertex[3], brain.origo, vertex[4])
+    arc[4] = model.occ.addCircleArc(vertex[4], brain.origo, vertex[1])
 
     CurveLoop = model.occ.addCurveLoop([arc[1], arc[2], arc[3], arc[4]])
     surf = model.occ.addSurfaceFilling(CurveLoop)
-
 
     return vertex, arc, surf
 
 end
 
 
-function add_perturbed_arc(param, start_tag, center_tag, end_tag, pert_func, BS_points)
+function add_perturbed_arc(start_tag, center_tag, end_tag, pert_func, BS_points)
     model = gmsh.model
 
 
@@ -142,11 +138,11 @@ end
 
 
 
-function create_perturbed_surface(param, r, angle, pert_func, BS_points)
+function create_perturbed_surface(brain, r, angle, pert_func, BS_points)
     model = gmsh.model
     zx_angle, zy_angle = angle
 
-    origo = model.occ.addPoint(0.0, 0.0, 0.0) # Center
+ 
 
     vertex = Array{Float64,1}(undef, 4)
     arc = Array{Float64,1}(undef, 4)
@@ -173,13 +169,13 @@ function create_perturbed_surface(param, r, angle, pert_func, BS_points)
 
 
 
-    arc[1] = add_perturbed_arc(model, vertex[1], origo, vertex[2], pert_func, BS_points)
-    arc[2] = add_perturbed_arc(model, vertex[2], origo, vertex[3], pert_func, BS_points)
-    arc[3] = add_perturbed_arc(model, vertex[3], origo, vertex[4], pert_func, BS_points)
-    arc[4] = add_perturbed_arc(model, vertex[4], origo, vertex[1], pert_func, BS_points)
+    arc[1] = add_perturbed_arc(vertex[1], brain.origo, vertex[2], pert_func, BS_points)
+    arc[2] = add_perturbed_arc(vertex[2], brain.origo, vertex[3], pert_func, BS_points)
+    arc[3] = add_perturbed_arc(vertex[3], brain.origo, vertex[4], pert_func, BS_points)
+    arc[4] = add_perturbed_arc(vertex[4], brain.origo, vertex[1], pert_func, BS_points)
 
     CurveLoop = model.occ.addCurveLoop([arc[1], arc[2], arc[3], arc[4]])
-    surf = model.occ.addBSplineFilling(CurveLoop, 2, "Stretch") # Alternatively use "Coons" is also nice
+    surf = model.occ.addBSplineFilling(CurveLoop, -1, "Stretch") # Alternatively use "Coons"
 
 
     model.occ.synchronize()
@@ -197,15 +193,15 @@ function create_brain_3D(param::model_params, view=true)
     # Consider mutable struct for stuff in here
     # Check parameters
 
+    brain = geo3D()
 
-
-    rI = param.r_curv - param.r_brain                         # Inner radius  
-    rD = param.r_curv - param.d_ratio * param.r_brain        # Radius for dividing line
+    rI = param.r_curv - param.r_brain                   # Inner radius  
+    rD = param.r_curv - param.d_ratio * param.r_brain   # Radius for dividing line
 
     # Should enforce  0 < angle < pi
     x_arcLen, y_arcLen = param.arcLen
-    zx_angle = x_arcLen / param.r_curv # Angle span from z-axis towards x-axis
-    zy_angle = y_arcLen / param.r_curv # Angle span from z-axis towards x-axis
+    zx_angle = x_arcLen / param.r_curv                  # Angle span z -> x -axis
+    zy_angle = y_arcLen / param.r_curv                  # Angle span z -> x -axis
     angle = (zx_angle, zy_angle)
 
 
@@ -213,15 +209,16 @@ function create_brain_3D(param::model_params, view=true)
     gmsh.initialize(["", "-clmax", string(0.1)])
     model = gmsh.model
 
-    origo = model.occ.addPoint(0.0, 0.0, 0.0)
-    param.vertex[1,1] = origo
+    brain.origo = model.occ.addPoint(0.0, 0.0, 0.0)
 
-    # println(typeof(model))
-    # exit()
-    I_vertex, I_arc, I_surf = create_surface(param, rI, angle)
 
-    D_vertex, D_arc, D_surf = create_perturbed_surface(param, rD, angle, param.inner_perturb, param.BS_points)
-    # O_vertex, O_arc, O_surf = create_perturbed_surface(model, param.r_curv, angle, param.outer_perturb, param.BS_points)
+
+    I_vertex, I_arc, I_surf = create_surface(brain, rI, angle)
+    D_vertex, D_arc, D_surf = create_perturbed_surface(brain, rD, angle, param.inner_perturb, param.BS_points)
+    O_vertex, O_arc, O_surf = create_perturbed_surface(brain, param.r_curv, angle, param.outer_perturb, param.BS_points)
+
+
+
 
 
     #--- Connect surfaces ---#
