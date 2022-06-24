@@ -55,40 +55,36 @@ function spherical_to_cartesian(r, theta, phi)
 end
 
 
-
-
-function create_surface(brain::geo3D, r, angle)
-    # Make boundary of surface
-    ###################
-    # Use inclined circle (for y incline)
-    # eq.: x^2 + (z + αy)^2 = r^2
-    ###################s
-    
+function sphere_patch_corners(r, angle)
+    # Calculate corners of sphere patch, 
+    # using interception of inclined circles: 
+    # x^2 + (z + αy)^2 = y^2 + (z + αx)^2 = r^2
 
     zx_angle, zy_angle = angle
-
-
     vertex = Array{Int32,1}(undef, 4)
-    arc = Array{Int32,1}(undef, 4)
 
-
-    x, _, zx = spherical_to_cartesian(r, 0, zx_angle / 2)
-    _, y, zy = spherical_to_cartesian(r, pi / 2, zy_angle / 2)
-
-    alpha_x = (1 - zx) / x
-    alpha_y = (1 - zy) / y
-
+    x, _, z_x = spherical_to_cartesian(r, 0, zx_angle / 2)
+    _, y, z_y = spherical_to_cartesian(r, pi / 2, zy_angle / 2)
+    alpha_x = (1 - z_x) / x
+    alpha_y = (1 - z_y) / y
 
     a = 2 * alpha_x / (1 - alpha_x^2)
     b = 2 * alpha_y / (1 - alpha_y^2)
     c = r / sqrt(a^2 + b^2 + 1)
-
 
     vertex[1] = gmsh.model.occ.addPoint(a * c, b * c, c)
     vertex[2] = gmsh.model.occ.addPoint(-a * c, b * c, c)
     vertex[3] = gmsh.model.occ.addPoint(-a * c, -b * c, c)
     vertex[4] = gmsh.model.occ.addPoint(a * c, -b * c, c)
 
+    return vertex
+end
+
+
+
+function create_surface(brain::geo3D, r, angle)
+    vertex = sphere_patch_corners(r, angle) # Get sphere patch corners
+    arc = Array{Int32,1}(undef, 4)
 
     arc[1] = gmsh.model.occ.addCircleArc(vertex[1], brain.origo, vertex[2])
     arc[2] = gmsh.model.occ.addCircleArc(vertex[2], brain.origo, vertex[3])
@@ -98,34 +94,34 @@ function create_surface(brain::geo3D, r, angle)
     CurveLoop = gmsh.model.occ.addCurveLoop([arc[1], arc[2], arc[3], arc[4]])
     surf = gmsh.model.occ.addSurfaceFilling(CurveLoop)
 
+    gmsh.model.occ.synchronize()
+    gmsh.model.addPhysicalGroup(2, [surf])
     return vertex, arc, surf
 
 end
 
 
 function add_perturbed_arc(start_tag, center_tag, end_tag, pert_func, BS_points)
-    
-
-
     pointTags = [start_tag]
+
+    # Convert: tag -> coordinates 
     start_point = gmsh.model.getValue(0, start_tag, []) #dim, tag, parametrization
     end_point = gmsh.model.getValue(0, end_tag, [])
     origo = gmsh.model.getValue(0, center_tag, [])
     r = sqrt(start_point[1]^2 + start_point[2]^2 + start_point[3]^2)
-
-
+    
+    # Draw arc
     direction = end_point - start_point
     range = LinRange(0, 1, BS_points)
     for i in 2:BS_points-1
         # Step toward end_point in straight line
         point = start_point + range[i] * direction
 
-        # Add perturbation
+        # Add perturbation to radius
         perturbed_radius = r + pert_func((point - start_point)...)
 
         # Normalize to be on perturbed sphere
         point *= perturbed_radius / sqrt((point[1] - origo[1])^2 + (point[2] - origo[2])^2 + (point[3] - origo[3])^2)
-
         append!(pointTags, gmsh.model.occ.addPoint(point...))
     end
 
@@ -137,38 +133,10 @@ end
 
 
 
-
-
 function create_perturbed_surface(brain::geo3D, r, angle, pert_func, BS_points)
-    
-    zx_angle, zy_angle = angle
-
-
-
-    vertex = Array{Int32,1}(undef, 4)
+    vertex = sphere_patch_corners(r, angle) # Get sphere patch corners
     arc = Array{Int32,1}(undef, 4)
-
-
-    x, _, zx = spherical_to_cartesian(r, 0, zx_angle / 2)
-    _, y, zy = spherical_to_cartesian(r, pi / 2, zy_angle / 2)
-
-    alpha_x = (1 - zx) / x
-    alpha_y = (1 - zy) / y
-
-
-
-    a = 2 * alpha_x / (1 - alpha_x^2)
-    b = 2 * alpha_y / (1 - alpha_y^2)
-    c = r / sqrt(a^2 + b^2 + 1)
-
-
-    vertex[1] = gmsh.model.occ.addPoint(a * c, b * c, c)
-    vertex[2] = gmsh.model.occ.addPoint(-a * c, b * c, c)
-    vertex[3] = gmsh.model.occ.addPoint(-a * c, -b * c, c)
-    vertex[4] = gmsh.model.occ.addPoint(a * c, -b * c, c)
     gmsh.model.occ.synchronize()
-
-
 
     arc[1] = add_perturbed_arc(vertex[1], brain.origo, vertex[2], pert_func, BS_points)
     arc[2] = add_perturbed_arc(vertex[2], brain.origo, vertex[3], pert_func, BS_points)
@@ -177,11 +145,8 @@ function create_perturbed_surface(brain::geo3D, r, angle, pert_func, BS_points)
 
     CurveLoop = gmsh.model.occ.addCurveLoop([arc[1], arc[2], arc[3], arc[4]])
     surf = gmsh.model.occ.addBSplineFilling(CurveLoop, -1, "Stretch") # Alternatively use "Coons"
-
-
     gmsh.model.occ.synchronize()
-
-
+    gmsh.model.addPhysicalGroup(2, [surf])
 
     return vertex, arc, surf
 
@@ -191,7 +156,7 @@ end
 function connect_and_fill(brain::geo3D)
     
 
-    for i in 1:2    
+    for i in 1:2
         vline = [gmsh.model.occ.addLine(brain.vertex[i, 1], brain.vertex[i+1, 1])] # Vertical line
         Loop = [] # curve loops
         for j in 2:4
@@ -200,9 +165,12 @@ function connect_and_fill(brain::geo3D)
         end
         append!(Loop, gmsh.model.occ.addCurveLoop([vline[4], brain.arc[i+1, 4], -vline[1], -brain.arc[i, 4]]))
     
-        Surf = [gmsh.model.occ.addSurfaceFilling(l) for l in Loop]
-        SurfLoop = gmsh.model.occ.addSurfaceLoop([brain.rad_surf[i], Surf..., brain.rad_surf[i+1]])
-        Vol = gmsh.model.occ.addVolume([SurfLoop])
+        surf = [gmsh.model.occ.addSurfaceFilling(l) for l in Loop]
+        surfLoop = gmsh.model.occ.addSurfaceLoop([brain.rad_surf[i], surf..., brain.rad_surf[i+1]])
+        Vol = gmsh.model.occ.addVolume([surfLoop])
+
+        gmsh.model.occ.synchronize()
+        [gmsh.model.addPhysicalGroup(2, [s]) for s in surf]
     end
 
 
@@ -230,10 +198,7 @@ function create_brain_3D(param::model_params, view=true)
     #--- occmetry ---# (Only curved slab for now)
     gmsh.initialize(["", "-clmax", string(0.1)])
     
-
     brain.origo = gmsh.model.occ.addPoint(0.0, 0.0, 0.0)
-
-
 
     brain.vertex[1, :], brain.arc[1, :], brain.rad_surf[1] = create_surface(brain, rI, angle)
     brain.vertex[2, :], brain.arc[2, :], brain.rad_surf[2] = create_perturbed_surface(brain, rD, angle, param.inner_perturb, param.BS_points)
@@ -248,8 +213,6 @@ function create_brain_3D(param::model_params, view=true)
 
     gmsh.model.occ.synchronize()
     gmsh.model.mesh.generate(2)
-
-
 
 
 
