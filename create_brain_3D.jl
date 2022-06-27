@@ -1,30 +1,13 @@
-using GridapGmsh: gmsh
-using Printf
-
-
-struct model_params
-    # Parameters defining the brain model
-    lc::Float64                       # Mesh size
-    arcLen::Tuple{Float64,Float64}    # Outer arc length (x, y)-direction
-    r_brain::Float64                  # Radial total length
-    d_ratio::Float64                  # Radial relative length of fluid section
-    r_curv::Float64                   # Radius of curvature
-    inner_perturb::Function           # Radial perturbation on inner surface f(x,y,z)
-    outer_perturb::Function           # Radial perturbation on inner surface f(x,y,z)
-    BS_points::Int64                  # Number of points in BSpline curves
-    field_Lc_lim::Array{Float64,1}    # Field strengh as (LcMin, LcMax) multiplied by Lc when used
-    field_Dist_lim::Array{Float64,1}  # field distance (DistMin, DistMax)
-end
+include("./utils.jl")
 
 
 mutable struct geo3D
-    # For holding gmsh tags
     origo::Int32                      # Center of coordinate system
     vertex::Array{Int32,2}            # Vertices of all corners
     arc::Array{Int32,2}               # Tangential arcs
     tan_surf::Array{Int32,1}          # Tangential surfaces
     rad_surf::Array{Int32,2}          # Radial surfaces
-    angle::Tuple{Float64,Float64}     # Angle span (z → x-axis, z → x-axis)
+    angle::Tuple{Float64,Float64}     # Angle span (z → x-axis, z → y-axis)
 
     function geo3D() # Constructor
         new(gmsh.model.occ.addPoint(0.0, 0.0, 0.0),
@@ -37,18 +20,8 @@ mutable struct geo3D
 end
 
 
-function spherical_to_cartesian(r, theta, phi)
-    # theta: angle from x-axis in x-y-plane (0 → 2π)
-    # phi: angle from z-axis towards x-y-plane (0 → π)
-    x = r * cos(theta) * sin(phi)
-    y = r * sin(theta) * sin(phi)
-    z = r * cos(phi)
-    return x, y, z
-end
 
-function vecNorm(point)
-    return sqrt(point[1]^2 + point[2]^2 + point[3]^2)
-end
+
 
 function sphere_patch_corners(r, angle, pert_func=f(x, y) = 0)
     # Calculate corners of sphere patch, 
@@ -141,6 +114,11 @@ function add_perturbed_arc(start_tag, center_tag, end_tag, NonPerturbed_start, N
 
     # Draw arc
     direction = end_point - start_point
+
+    # Calculate spline points in given direction
+    BS_points = Int(sum(abs.(direction / vecNorm(direction))[1:2] .* BS_points))
+  
+
     range = LinRange(0, 1, BS_points)
     for i in 2:BS_points-1
         # Step toward end_point in straight line
@@ -193,12 +171,14 @@ function connect_and_volumize(brain::geo3D)
         brain.rad_surf[i, :] = [gmsh.model.occ.addSurfaceFilling(l) for l in Loop]
     
 
-    
         surfLoop = gmsh.model.occ.addSurfaceLoop([brain.tan_surf[i], brain.rad_surf[i,:]..., brain.tan_surf[i+1]])  
-        Vol = gmsh.model.occ.addVolume([surfLoop])
-    
+        vol = gmsh.model.occ.addVolume([surfLoop])
         gmsh.model.occ.synchronize()
-        [gmsh.model.addPhysicalGroup(2, [s]) for s in brain.rad_surf[i]]
+
+        # Add physical gorups
+        [gmsh.model.addPhysicalGroup(2, [s]) for s in brain.rad_surf[i]] # surface
+        gmsh.model.addPhysicalGroup(3, [vol])  # volume
+    
     end
 end
 
@@ -267,14 +247,10 @@ function apply_periodic_meshing(brain::geo3D)
     end
 
 
-
-
-
-
 end
 
 
-function create_brain_3D(param::model_params, view=true)
+function create_brain_3D(param::model_params)
     #?--> Safety check of parameters? # Should enforce  0 < angle < pi
 
     gmsh.initialize(["", "-clmax", string(param.lc)])
@@ -297,8 +273,8 @@ function create_brain_3D(param::model_params, view=true)
 
 
     connect_and_volumize(brain)
-    # add_mesh_field(brain, param)
-    # apply_periodic_meshing(brain)
+    add_mesh_field(brain, param)
+    apply_periodic_meshing(brain)
 
 
     # Generate mesh
@@ -306,44 +282,11 @@ function create_brain_3D(param::model_params, view=true)
     gmsh.model.mesh.generate(3)
 
 
-    # View and finalize
-    if view
-        gmsh.fltk.initialize()
-        gmsh.fltk.run()
-    end
-
-    gmsh.finalize()
-
+   
 
 
 
 end # End of create_brain_3D
-
-
-
-
-if abspath(PROGRAM_FILE) == @__FILE__
-
-    lc = 0.25
-    arcLen = (5, 2)
-    r_brain = 5
-    d_ratio = 0.5
-    r_curv = 20
-    inner_perturb(x, y) = 0.2 * cos(pi * abs(x) / 0.5) + 0.2 * cos(pi * abs(y) / 0.5) # Must be equal on end surfaces
-    outer_perturb(x, y) = 0.2 * cos(pi * abs(x) / 2) + 0.2 * cos(pi * abs(y) / 1)
-    BS_points = 50 # Make direction depending x,y
-    field_Lc_lim = [1 / 2, 1]
-    field_Dist_lim = [0.3, 0.5]
-
-    param = model_params(lc, arcLen, r_brain, d_ratio, r_curv, inner_perturb, outer_perturb, BS_points, field_Lc_lim, field_Dist_lim)
-
-    A = Array{Int32,1}(undef, 3)
-    B = Array{Int32,2}(undef, 2, 4)
-
-
-
-    create_brain_3D(param)
-end
 
 
 
