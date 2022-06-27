@@ -130,8 +130,8 @@ end
 
 
 function create_brain_2D(param::model_params)
+    # Check of parameters?
 
-    gmsh.initialize(["", "-clmax", string(param.lc)])
     brain = geo2D() # Struct for holding tags and angle
 
     # Calculate derived parameters

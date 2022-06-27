@@ -253,7 +253,6 @@ end
 function create_brain_3D(param::model_params)
     #?--> Safety check of parameters? # Should enforce  0 < angle < pi
 
-    gmsh.initialize(["", "-clmax", string(param.lc)])
     brain = geo3D() # Struct for holding tags and angle
 
     # Calculate derived parameters
