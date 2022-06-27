@@ -56,7 +56,6 @@ function sphere_patch_corners(r, angle, pert_func=f(x, y) = 0)
     # x^2 + (z + α_y * y)^2 = y^2 + (z + α_x * x)^2 = r^2
 
     zx_angle, zy_angle = angle
-    vertex = Array{Int32,1}(undef, 4)
 
     x, _, z_x = spherical_to_cartesian(r, 0, zx_angle / 2)
     _, y, z_y = spherical_to_cartesian(r, pi / 2, zy_angle / 2)
@@ -73,16 +72,14 @@ function sphere_patch_corners(r, angle, pert_func=f(x, y) = 0)
     B = [-a * c, b * c, c]
     C = [-a * c, -b * c, c]
     D = [a * c, -b * c, c]
-
-    # Add perturbation
     NonPerturbed = [A, B, C, D]
 
-    
+    # Add perturbation
+    vertex = Array{Int32,1}(undef, 4)
     for i in 1:4
         P = NonPerturbed[i] * (r + pert_func(cartesian_to_surface_cord(NonPerturbed[i]...)...)) / vecNorm(NonPerturbed[i])
         vertex[i] = gmsh.model.occ.addPoint(P...)
     end
-    
 
 
     return vertex, NonPerturbed
@@ -185,19 +182,21 @@ end
 function connect_and_volumize(brain::geo3D)
     # Connect surfaces and create volumes
     for i in 1:2
-        vline = [gmsh.model.occ.addLine(brain.vertex[i, 1], brain.vertex[i+1, 1])] # Vertical line
+        vline = [gmsh.model.occ.addLine(brain.vertex[i, 1], brain.vertex[i+1, 1])] # Vertical lines
         Loop = [] # curve loops
         for j in 2:4
             append!(vline, gmsh.model.occ.addLine(brain.vertex[i, j], brain.vertex[i+1, j]))
             append!(Loop, gmsh.model.occ.addCurveLoop([vline[j-1], brain.arc[i+1, j-1], -vline[j], -brain.arc[i, j-1]]))
         end
         append!(Loop, gmsh.model.occ.addCurveLoop([vline[4], brain.arc[i+1, 4], -vline[1], -brain.arc[i, 4]]))
-
+    
         brain.rad_surf[i, :] = [gmsh.model.occ.addSurfaceFilling(l) for l in Loop]
+    
 
-        surfLoop = gmsh.model.occ.addSurfaceLoop([brain.tan_surf[i], brain.rad_surf[i]..., brain.tan_surf[i+1]])
+    
+        surfLoop = gmsh.model.occ.addSurfaceLoop([brain.tan_surf[i], brain.rad_surf[i,:]..., brain.tan_surf[i+1]])  
         Vol = gmsh.model.occ.addVolume([surfLoop])
-
+    
         gmsh.model.occ.synchronize()
         [gmsh.model.addPhysicalGroup(2, [s]) for s in brain.rad_surf[i]]
     end
@@ -298,14 +297,13 @@ function create_brain_3D(param::model_params, view=true)
 
 
     connect_and_volumize(brain)
-    add_mesh_field(brain, param)
-    apply_periodic_meshing(brain)
-
+    # add_mesh_field(brain, param)
+    # apply_periodic_meshing(brain)
 
 
     # Generate mesh
     gmsh.model.occ.synchronize()
-    gmsh.model.mesh.generate(2)
+    gmsh.model.mesh.generate(3)
 
 
     # View and finalize
