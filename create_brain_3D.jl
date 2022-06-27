@@ -46,16 +46,17 @@ function spherical_to_cartesian(r, theta, phi)
     return x, y, z
 end
 
+function vecNorm(point)
+    return sqrt(point[1]^2 + point[2]^2 + point[3]^2)
+end
 
-function sphere_patch_corners(r, angle, pert_func=f(x, y, z) = 0)
+function sphere_patch_corners(r, angle, pert_func=f(x, y) = 0)
     # Calculate corners of sphere patch, 
     # using interception of inclined circles: 
     # x^2 + (z + α_y * y)^2 = y^2 + (z + α_x * x)^2 = r^2
 
     zx_angle, zy_angle = angle
     vertex = Array{Int32,1}(undef, 4)
-
-
 
     x, _, z_x = spherical_to_cartesian(r, 0, zx_angle / 2)
     _, y, z_y = spherical_to_cartesian(r, pi / 2, zy_angle / 2)
@@ -67,41 +68,33 @@ function sphere_patch_corners(r, angle, pert_func=f(x, y, z) = 0)
     b = 2 * alpha_y / (1 - alpha_y^2)
     c = r / sqrt(a^2 + b^2 + 1)
 
-    # Add perturbation
+    # Non perturbed points 
     A = [a * c, b * c, c]
     B = [-a * c, b * c, c]
     C = [-a * c, -b * c, c]
     D = [a * c, -b * c, c]
 
-    A_pert = A * (r + pert_func(A...)) / sqrt(A[1]^2 + A[2]^2 + A[3]^2)
-    B_pert = B * (r + pert_func(B...)) / sqrt(B[1]^2 + B[2]^2 + B[3]^2)
-    C_pert = C * (r + pert_func(C...)) / sqrt(C[1]^2 + C[2]^2 + C[3]^2)
-    D_pert = D * (r + pert_func(D...)) / sqrt(D[1]^2 + D[2]^2 + D[3]^2)
+    # Add perturbation
+    NonPerturbed = [A, B, C, D]
 
-    # Add points
-    vertex[1] = gmsh.model.occ.addPoint(A_pert...)
-    vertex[2] = gmsh.model.occ.addPoint(B_pert...)
-    vertex[3] = gmsh.model.occ.addPoint(C_pert...)
-    vertex[4] = gmsh.model.occ.addPoint(D_pert...)
+    
+    for i in 1:4
+        P = NonPerturbed[i] * (r + pert_func(cartesian_to_surface_cord(NonPerturbed[i]...)...)) / vecNorm(NonPerturbed[i])
+        vertex[i] = gmsh.model.occ.addPoint(P...)
+    end
+    
 
-    #-----> Working here perturbating the cornes, not sure if it works completely yet
-    # After doing that go back and finish implementation of boundary conditions
 
-    return vertex
+    return vertex, NonPerturbed
 end
 
 
 
 function create_surface(brain::geo3D, r)
-    vertex = sphere_patch_corners(r, brain.angle) # Get sphere patch corners
-    arc = Array{Int32,1}(undef, 4)
+    vertex, _ = sphere_patch_corners(r, brain.angle) # Get sphere patch corners
+    arc = [gmsh.model.occ.addCircleArc(vertex[i], brain.origo, vertex[i%4 + 1]) for i in 1:4]
 
-    arc[1] = gmsh.model.occ.addCircleArc(vertex[1], brain.origo, vertex[2])
-    arc[2] = gmsh.model.occ.addCircleArc(vertex[2], brain.origo, vertex[3])
-    arc[3] = gmsh.model.occ.addCircleArc(vertex[3], brain.origo, vertex[4])
-    arc[4] = gmsh.model.occ.addCircleArc(vertex[4], brain.origo, vertex[1])
-
-    CurveLoop = gmsh.model.occ.addCurveLoop([arc[1], arc[2], arc[3], arc[4]])
+    CurveLoop = gmsh.model.occ.addCurveLoop([arc...])
     surf = gmsh.model.occ.addSurfaceFilling(CurveLoop)
 
     gmsh.model.occ.synchronize()
@@ -111,14 +104,43 @@ function create_surface(brain::geo3D, r)
 end
 
 
-function add_perturbed_arc(start_tag, center_tag, end_tag, pert_func, BS_points)
+function cartesian_to_surface_cord(x, y, z)
+    # Go from 3D cartesian coordinates to 
+    # 2D cartesian surface coordinates. 
+    # Direction to travel along circle arcs in 
+    # x and y direction respectively
+
+    # Is all calculations safe from trigonometric traps?
+
+    r = sqrt(x^2 + y^2 + z^2)
+
+    c = z
+    a = x / c
+    b = y / c
+
+
+    alpha_x = -(1 - sqrt(1 + a^2)) / a
+    alpha_y = -(1 - sqrt(1 + b^2)) / b
+
+    angle_x = 2 * atan(alpha_x)
+    angle_y = 2 * atan(alpha_y)
+
+    x_arcLen = r * angle_x
+    y_arcLen = r * angle_y
+
+   return x_arcLen, y_arcLen
+
+end
+
+
+function add_perturbed_arc(start_tag, center_tag, end_tag, NonPerturbed_start, NonPerturbed_end, pert_func, BS_points)
     pointTags = [start_tag]
 
-    # Convert: tag -> coordinates 
-    start_point = gmsh.model.getValue(0, start_tag, []) #dim, tag, parametrization
-    end_point = gmsh.model.getValue(0, end_tag, [])
+    start_point = NonPerturbed_start
+    end_point = NonPerturbed_end
     origo = gmsh.model.getValue(0, center_tag, [])
-    r = sqrt(start_point[1]^2 + start_point[2]^2 + start_point[3]^2)
+    r = vecNorm(start_point)
+
 
     # Draw arc
     direction = end_point - start_point
@@ -126,17 +148,15 @@ function add_perturbed_arc(start_tag, center_tag, end_tag, pert_func, BS_points)
     for i in 2:BS_points-1
         # Step toward end_point in straight line
         point = start_point + range[i] * direction
-    
-        # Normalize to be on normal sphere arc
-        point *= r / sqrt((point[1] - origo[1])^2 + (point[2] - origo[2])^2 + (point[3] - origo[3])^2)
-    
+
+        # Normalize to be on sphere 
+        point *= r / vecNorm(point)
+
         # Add perturbation to radius
-        # perturbed_radius = r + pert_func((point - start_point)...)
-        perturbed_radius = r + pert_func((point)...)
-    
-    
+        perturbed_radius = r + pert_func(cartesian_to_surface_cord(point...)...)
+
         # Normalize to be on perturbed sphere
-        point *= perturbed_radius / sqrt((point[1] - origo[1])^2 + (point[2] - origo[2])^2 + (point[3] - origo[3])^2)
+        point *= perturbed_radius / vecNorm(point)
         append!(pointTags, gmsh.model.occ.addPoint(point...))
     end
 
@@ -148,17 +168,11 @@ end
 
 
 function create_perturbed_surface(brain::geo3D, r, pert_func, BS_points)
-    # 2D func porjected to sphere surface
-    vertex = sphere_patch_corners(r, brain.angle, pert_func) # Get sphere patch corners
-    arc = Array{Int32,1}(undef, 4)
-    gmsh.model.occ.synchronize()
 
-    arc[1] = add_perturbed_arc(vertex[1], brain.origo, vertex[2], pert_func, BS_points)
-    arc[2] = add_perturbed_arc(vertex[2], brain.origo, vertex[3], pert_func, BS_points)
-    arc[3] = add_perturbed_arc(vertex[3], brain.origo, vertex[4], pert_func, BS_points)
-    arc[4] = add_perturbed_arc(vertex[4], brain.origo, vertex[1], pert_func, BS_points)
+    vertex, NonPerturbed = sphere_patch_corners(r, brain.angle, pert_func) # Get sphere patch corners
+    arc = [add_perturbed_arc(vertex[i], brain.origo, vertex[i%4+1], NonPerturbed[i], NonPerturbed[i%4+1], pert_func, BS_points) for i in 1:4]
 
-    CurveLoop = gmsh.model.occ.addCurveLoop([arc[1], arc[2], arc[3], arc[4]])
+    CurveLoop = gmsh.model.occ.addCurveLoop([arc...])
     surf = gmsh.model.occ.addBSplineFilling(CurveLoop, -1, "Stretch") # Alternatively use "Coons"
     gmsh.model.occ.synchronize()
     gmsh.model.addPhysicalGroup(2, [surf])
@@ -273,7 +287,6 @@ function apply_periodic_meshing(brain::geo3D)
     # end
 
 
-
 end
 
 
@@ -296,20 +309,18 @@ function create_brain_3D(param::model_params, view=true)
     # Add radial surfaces
     brain.vertex[1, :], brain.arc[1, :], brain.tan_surf[1] = create_surface(brain, rI)
     brain.vertex[2, :], brain.arc[2, :], brain.tan_surf[2] = create_perturbed_surface(brain, rD, param.inner_perturb, param.BS_points)
-    # brain.vertex[2, :], brain.arc[2, :], brain.tan_surf[2] = create_surface(brain, rD)
-
     brain.vertex[3, :], brain.arc[3, :], brain.tan_surf[3] = create_perturbed_surface(brain, param.r_curv, param.outer_perturb, param.BS_points)
 
 
     connect_and_volumize(brain)
-    add_mesh_field(brain, param)
-    apply_periodic_meshing(brain)
+    # add_mesh_field(brain, param)
+    # apply_periodic_meshing(brain)
 
 
 
     # Generate mesh
     gmsh.model.occ.synchronize()
-    gmsh.model.mesh.generate(1)
+    gmsh.model.mesh.generate(2)
 
 
     # View and finalize
@@ -331,14 +342,12 @@ end # End of create_brain_3D
 if abspath(PROGRAM_FILE) == @__FILE__
 
     lc = 0.5
-    arcLen = (5, 5)
+    arcLen = (5, 2)
     r_brain = 5
     d_ratio = 0.5
     r_curv = 20
-    # inner_perturb(x, y, z) = 0.2 * sin(pi * x / 2) + 0.2 * sin(pi * y / 2)
-    inner_perturb(x, y, z) = 0.05*x + 0.05*y ### Why isn't the lines continous with this? FIGURE THIS OUT MONDAY :D
-
-    outer_perturb(x, y, z) = 0.2 * sin(pi * x / 2) + 0.2 * sin(pi * y / 1)
+    inner_perturb(x, y) = 0.2 * cos(pi * abs(x) / 0.5) + 0.2 * cos(pi * abs(y) / 0.5) # Must be equal on end surfaces
+    outer_perturb(x, y) = 0.2 * cos(pi * abs(x) / 2) + 0.2 * cos(pi * abs(y) / 1)
     BS_points = 50 # Make direction depending x,y
     field_Lc_lim = [1 / 2, 1]
     field_Dist_lim = [0.3, 0.5]
