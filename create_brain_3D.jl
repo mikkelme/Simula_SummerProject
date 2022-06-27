@@ -224,6 +224,7 @@ function add_mesh_field(brain::geo3D, param::model_params)
     gmsh.model.mesh.field.setNumber(F_distance, "NNodesByEdge", 100)
     gmsh.model.mesh.field.setNumbers(F_distance, "SurfacesList", [brain.tan_surf[2]])
 
+
     # Define trheshold field
     F_threshold = gmsh.model.mesh.field.add("Threshold")
     gmsh.model.mesh.field.setNumber(F_threshold, "IField", F_distance)
@@ -237,54 +238,38 @@ function add_mesh_field(brain::geo3D, param::model_params)
     gmsh.option.setNumber("Mesh.MeshSizeExtendFromBoundary", 0)
     gmsh.option.setNumber("Mesh.MeshSizeFromPoints", 0)
     gmsh.option.setNumber("Mesh.MeshSizeFromCurvature", 0)
+
+    gmsh.model.occ.synchronize()
 end
 
 
 function apply_periodic_meshing(brain::geo3D)
-    θy, θx = brain.angle # Notice θx and θy is purposely switched 
     zx_angle, zy_angle = brain.angle
-    println(θy)
-    println(θx)
-
-
+    
 
     # Rotation around x-axis 
     Rx = [1, 0, 0, 0,
-        0, cos(θy), sin(θy), 0,
-        0, -sin(θy), cos(θy), 0,
+        0, cos(zy_angle), sin(zy_angle), 0,
+        0, -sin(zy_angle), cos(zy_angle), 0,
         0, 0, 0, 1]
 
     # Rotation around y-axis 
-    Ry = [cos(θx), 0, -sin(θx), 0,
+    Ry = [cos(zx_angle), 0, -sin(zx_angle), 0,
         0, 1, 0, 0,
-        sin(θx), 0, cos(θx), 0,
+        sin(zx_angle), 0, cos(zx_angle), 0,
         0, 0, 0, 1]
 
 
 
 
-    # gmsh.model.mesh.setPeriodic(2, [brain.rad_surf[1, 1]], [brain.rad_surf[1, 3]], Rx) 
+    for i in 1:2
+        gmsh.model.mesh.setPeriodic(2, [brain.rad_surf[i, 1]], [brain.rad_surf[i, 3]], Rx) # From -y → +y surf
+        gmsh.model.mesh.setPeriodic(2, [brain.rad_surf[i, 2]], [brain.rad_surf[i, 4]], Ry) # From -x → +x surf        
+    end
 
 
 
 
-
-    # # Manual test
-    # point3 = gmsh.model.getValue(0, 3, []) #dim, tag, parametrization
-    # cord = [point3..., 1]
-    # θ = -θy
-    # A = [1 0 0 0; 0 cos(θ) sin(θ) 0; 0 -sin(θ) cos(θ) 0; 0 0 0 1]
-    # B = [cos(θ) 0 -sin(θ) 0; 0 1 0 0; sin(θ) 0 cos(θ) 0; 0 0 0 1]
-    # res = A * cord
-    # println(cord)
-    # println(res)
-
-    
-
-    # for i in 1:2
-    #     gmsh.model.mesh.setPeriodic(2, [brain.rad_surf[i, 1]], [brain.rad_surf[i, 3]], Ry) # From -y → y surf
-    #     gmsh.model.mesh.setPeriodic(2, [brain.rad_surf[i, 2]], [brain.rad_surf[i, 4]], Rx) # From -x → x surf        
-    # end
 
 
 end
@@ -313,8 +298,8 @@ function create_brain_3D(param::model_params, view=true)
 
 
     connect_and_volumize(brain)
-    # add_mesh_field(brain, param)
-    # apply_periodic_meshing(brain)
+    add_mesh_field(brain, param)
+    apply_periodic_meshing(brain)
 
 
 
@@ -341,7 +326,7 @@ end # End of create_brain_3D
 
 if abspath(PROGRAM_FILE) == @__FILE__
 
-    lc = 0.5
+    lc = 0.25
     arcLen = (5, 2)
     r_brain = 5
     d_ratio = 0.5
