@@ -41,10 +41,10 @@ end
 if abspath(PROGRAM_FILE) == @__FILE__
 
     lc = 0.5
-    arcLen = (20, 5)
-    r_brain = 5
+    arcLen = (5, 0)
+    r_brain = 2
     d_ratio = 0.5
-    r_curv = 20
+    r_curv = 50
     inner_perturb(x, y) = 0.2 * cos(pi * abs(x) / 0.5) + 0.2 * cos(pi * abs(y) / 0.5)
     outer_perturb(x, y) = 0.2 * cos(pi * abs(x) / 2)  + 0.2 * cos(pi * abs(y) / 1)
     BS_points = (arcLen[1]*20, arcLen[2]*10)
@@ -54,5 +54,5 @@ if abspath(PROGRAM_FILE) == @__FILE__
     param = model_params(lc, arcLen, r_brain, d_ratio, r_curv, inner_perturb, outer_perturb, BS_points, field_Lc_lim, field_Dist_lim)
 
 
-    create_brain(param)
+    create_brain(param, true, true)
 end
