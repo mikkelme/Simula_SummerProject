@@ -11,33 +11,23 @@ function create_brain(param::model_params, view=true, write=false)
 
     # View and finalize
     if view
+        # Shift rotation center 
+        gmsh.option.setNumber("General.RotationCenterGravity", 0)
+        gmsh.option.setNumber("General.RotationCenterZ", param.r_curv-param.r_brain/2)
+        
+        # Rotate view
         gmsh.option.setNumber("General.Trackball", 0)
         gmsh.option.setNumber("General.RotationX", -90) # Used if trackball = 0
-        gmsh.option.setNumber("General.TranslationY", -(param.r_curv-param.r_brain)/2)
-
-
-
-
-
-
-
-
-
-
-        # gmsh.option.setNumber("General.Trackball", 0)
-        # gmsh.option.setNumber("General.RotationCenterX", 10)
-        # gmsh.option.setNumber("General.RotationCenterY", 10)
-        # gmsh.option.setNumber("General.RotationCenterZ", 10)
-
 
     
         gmsh.fltk.initialize()
+        gmsh.option.setNumber("General.Trackball", 1) # Reenable for better rotation control
+
         gmsh.fltk.run()
     end
 
     if write
         gmsh.write("brain.msh")
-        
     end 
 
     gmsh.finalize()
@@ -51,7 +41,7 @@ end
 if abspath(PROGRAM_FILE) == @__FILE__
 
     lc = 0.5
-    arcLen = (5, 0)
+    arcLen = (20, 5)
     r_brain = 5
     d_ratio = 0.5
     r_curv = 20
