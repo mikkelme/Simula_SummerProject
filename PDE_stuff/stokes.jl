@@ -4,7 +4,7 @@ using GridapGmsh
 
 
 # Discrete model
-n = 100
+n = 20
 domain = (0, 1, 0, 1)
 partition = (n, n)
 model = CartesianDiscreteModel(domain, partition)
@@ -20,6 +20,7 @@ order = 2
 reffeᵤ = ReferenceFE(lagrangian, VectorValue{2,Float64}, order)
 reffeₚ = ReferenceFE(lagrangian, Float64, order - 1; space=:P)
 
+
 # Define test FESpaces
 V = TestFESpace(model, reffeᵤ, labels=labels, dirichlet_tags=["diri0", "diri1"], conformity=:H1)
 Q = TestFESpace(model, reffeₚ, conformity=:L2, constraint=:zeromean)
@@ -27,7 +28,7 @@ Y = MultiFieldFESpace([V, Q])
 
 # Define trial FESpaces from Dirichlet values
 u0 = VectorValue(0, 0)
-u1 = VectorValue(1, 0)
+u1 = VectorValue(10, 0)
 U = TrialFESpace(V, [u0, u1])
 P = TrialFESpace(Q)
 X = MultiFieldFESpace([U, P])
@@ -39,6 +40,7 @@ dΩ = Measure(Ωₕ, degree)
 
 # Define bilinear and linear form
 f = VectorValue(0.0, 0.0)
+# f(x) = x
 a((u, p), (v, q)) = ∫(∇(v) ⊙ ∇(u) - (∇ ⋅ v) * p + q * (∇ ⋅ u))dΩ
 l((v, q)) = ∫(v ⋅ f)dΩ
 
@@ -50,3 +52,4 @@ uh, ph = solve(op)
 
 # Export results to vtk
 writevtk(Ωₕ, "results", order=2, cellfields=["uh" => uh, "ph" => ph])
+

@@ -10,14 +10,15 @@ D = gmsh.model.occ.addPoint(0, 1, 0)
 
 P = [A, B, C, D]
 line = []
-sides = []
+# sides = []
 for i in 0:3
     # println(1 + i % 4 , " ", 1 + (i + 1) % 4)
     append!(line, gmsh.model.occ.addLine(1 + i % 4, 1 + (i + 1) % 4))
     gmsh.model.occ.synchronize()
-    append!(sides, line[i+1])
+    gmsh.model.addPhysicalGroup(1, [line[i+1]])
+    # append!(sides, line[i+1])
 end
-boundary = gmsh.model.addPhysicalGroup(1, sides)
+# boundary = gmsh.model.addPhysicalGroup(1, sides)
 # gmsh.model.setPhysicalName(1, boundary, "sides")
 
 

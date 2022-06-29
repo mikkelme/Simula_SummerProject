@@ -34,7 +34,7 @@ h(x) = 2.0
 a(u, v) = ∫(∇(v) ⋅ ∇(u)) * dΩ
 b(v) = ∫(v * f) * dΩ #+ ∫(v*h)*dΓ
 
-
+LUSolver(A, b)
 # --- Solve --- #
 
 op = AffineFEOperator(a, b, U, V)
