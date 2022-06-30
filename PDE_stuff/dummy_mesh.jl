@@ -3,10 +3,11 @@ using GridapGmsh: gmsh
 
 gmsh.initialize(["", "-clmax", "1"])
 
+L = 1 
 A = gmsh.model.occ.addPoint(0, 0, 0)
-B = gmsh.model.occ.addPoint(1, 0, 0)
-C = gmsh.model.occ.addPoint(1, 1, 0)
-D = gmsh.model.occ.addPoint(0, 1, 0)
+B = gmsh.model.occ.addPoint(L, 0, 0)
+C = gmsh.model.occ.addPoint(L, L, 0)
+D = gmsh.model.occ.addPoint(0, L, 0)
 
 P = [A, B, C, D]
 line = []

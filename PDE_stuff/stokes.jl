@@ -28,7 +28,7 @@ Y = MultiFieldFESpace([V, Q])
 
 # Define trial FESpaces from Dirichlet values
 u0 = VectorValue(0, 0)
-u1 = VectorValue(10, 0)
+u1 = VectorValue(1, 0)
 U = TrialFESpace(V, [u0, u1])
 P = TrialFESpace(Q)
 X = MultiFieldFESpace([U, P])
