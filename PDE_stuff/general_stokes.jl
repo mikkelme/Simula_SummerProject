@@ -3,7 +3,7 @@ using GridapGmsh
 
 
 
-function stokes(model, f, dirichlet, MMS=nothing)
+function stokes(model, f, dirichlet, neumann, MMS=nothing)
     path = "/Users/mikkelme/Documents/Github/Simula_SummerProject/PDE_stuff/"
     dirichlet_conditions = !isempty(dirichlet)
     neumann_conditions = !isempty(neumann)
@@ -34,13 +34,7 @@ function stokes(model, f, dirichlet, MMS=nothing)
         Y = MultiFieldFESpace([V, Q])
 
         # Define trial FESpaces from Dirichlet values
-
-        # println([dirichlet[tag] for tag in dirichlet_tags])
-        # U = TrialFESpace(V, [dirichlet[tag] for tag in dirichlet_tags])
-        u0 = VectorValue(0, 0)
-        u1 = VectorValue(1, 0)
-        U = TrialFESpace(V, [u0, u1])
-
+        U = TrialFESpace(V, [dirichlet[tag] for tag in dirichlet_tags])
         P = TrialFESpace(Q)
         X = MultiFieldFESpace([U, P])
 
@@ -101,17 +95,18 @@ u(x) = VectorValue(x[1]^2, -2 * x[1] * x[2])
 f = VectorValue(2.0, 0.0)
 
 dirichlet = Dict([1,2,3,4] => u)
+neumann = Dict()
+
+
+
 # dirichlet = Dict([1,2,3,4] => VectorValue(0.0, 0.0))
-
-
 # dirichlet = Dict([1] => u)
 
 
-stokes(model, f, dirichlet, u)
+stokes(model, f, dirichlet, neumann, u)
 
 
 
 # Problems to investigate friday
-#---> Only seems to accept to groups of tags
 #---> Check manufactured solution
 #---> Include possibility for neumann conditions
