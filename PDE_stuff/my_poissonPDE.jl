@@ -1,5 +1,7 @@
 using Gridap
 using GridapGmsh
+using Printf
+
 
 # Equation to solve
 # Find scalar field u such that 
@@ -61,8 +63,8 @@ function poisson(model, f, dirichlet, neumann, MMS=nothing)
         dΓ = [Measure(Γ[i], degree) for i in 1:length(neumann_tags)]
 
         h = [neumann[tag] for tag in neumann_tags]
-       
-    
+
+
 
     end
 
@@ -93,7 +95,9 @@ function poisson(model, f, dirichlet, neumann, MMS=nothing)
         println("Using (MMS)")
 
         error = MMS - uh
-        println()
+        l2norm = sqrt(sum(∫(error ⋅ error) * dΩ))
+        @printf("l2 norm = %e \n", l2norm)
+
         writevtk(Ω, path * "poisson_results", cellfields=["uh" => uh, "error" => error])
 
     end
@@ -111,9 +115,9 @@ model = GmshDiscreteModel("/Users/mikkelme/Documents/Github/Simula_SummerProject
 
 
 u(x) = VectorValue(x[1]^2, x[2])
-f(x) = VectorValue(-2,0)
+f(x) = VectorValue(-2, 0)
 
-h1(x) = x[1] + x[2]
+h1(x) = VectorValue(x[1] + x[2], 0)
 h2(x) = 100 * x[2]
 
 # dirichlet = Dict(1 => u, 2 => u, 3 => u, 4 => u)
@@ -124,10 +128,10 @@ dirichlet = Dict([1, 2, 3, 4] => u)
 
 
 # neumann = Dict([1,2] => h1, 3 =>  h2)
-# neumann = Dict([4] => h1)
+neumann = Dict([4] => h1)
 
 
 
 # dirichlet = Dict()
-neumann = Dict()
+# neumann = Dict()
 poisson(model, f, dirichlet, neumann, u)
