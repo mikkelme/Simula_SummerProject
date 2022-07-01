@@ -1,9 +1,10 @@
 using GridapGmsh: gmsh
 
 
-function create_unit_box(lc, view = true)
-        
-    gmsh.initialize(["", "-clmax", string(lc)])
+function create_unit_box(lc, view=false)
+    path = "/Users/mikkelme/Documents/Github/Simula_SummerProject/PDE_stuff/"
+
+    gmsh.initialize(["", "-clscale", string(lc)])
 
 
     A = gmsh.model.occ.addPoint(0, 0, 0)
@@ -38,12 +39,17 @@ function create_unit_box(lc, view = true)
         gmsh.fltk.initialize()
         gmsh.fltk.run()
     end
-    gmsh.write("unit_box.msh")
+    gmsh.write(path * "unit_box.msh")
     gmsh.finalize()
 
 end
 
 
-lc = 0.1
-create_unit_box(lc)
+if abspath(PROGRAM_FILE) == @__FILE__
+
+    lc = 0.1
+    lc = 2
+    create_unit_box(lc, true)
+end
+
 
