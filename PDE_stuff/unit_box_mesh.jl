@@ -3,6 +3,10 @@ using GridapGmsh: gmsh
 
 function create_unit_box(lc, view=false)
     path = "/Users/mikkelme/Documents/Github/Simula_SummerProject/PDE_stuff/"
+    if !ispath(path)
+        path = "/home/mirok/Documents/MkSoftware/Simula_SummerProject/PDE_stuff/"
+    end
+    @show path
 
     gmsh.initialize(["", "-clscale", string(lc)])
 
