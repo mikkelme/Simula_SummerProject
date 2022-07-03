@@ -26,6 +26,11 @@ function create_unit_box(lc, view=false)
         gmsh.model.addPhysicalGroup(1, [line[i+1]])
     end
 
+    # Mark vertices too
+    gmsh.model.addPhysicalGroup(0, [A], 5)
+    gmsh.model.addPhysicalGroup(0, [B], 6)
+    gmsh.model.addPhysicalGroup(0, [C], 7)
+    gmsh.model.addPhysicalGroup(0, [D], 8)        
 
     loop = gmsh.model.occ.addCurveLoop([line[1], line[2], line[3], line[4]])
     surf = gmsh.model.occ.addPlaneSurface([loop])

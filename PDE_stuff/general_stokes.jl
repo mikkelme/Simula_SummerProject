@@ -31,7 +31,8 @@ function stokes(model, f, dirichlet, neumann, MS=nothing, write=false)
         add_tag_from_tags!(labels, name, tags)
         push!(dirichlet_names, name)
     end
-
+    @show dirichlet_names
+    
     if !neumann_conditions
 
         # Define test FESpaces
@@ -69,16 +70,14 @@ function stokes(model, f, dirichlet, neumann, MS=nothing, write=false)
         Γ = [BoundaryTriangulation(model, tags=tag) for tag in neumann_tags]
         dΓ = [Measure(Γ[i], degree) for i in 1:length(neumann_tags)]
         h = [neumann[tag] for tag in neumann_tags]
-
     end
-
-
 
     # New equations
     μ = 1
     ϵ(u) = 1 / 2 * (∇(u) + transpose(∇(u)))
     a((u, p), (v, q)) = ∫(2 * μ * ϵ(u) ⊙ ϵ(v) - p * (∇ ⋅ v) - q * (∇ ⋅ u)) * dΩ
     b((v, q)) = neumann_conditions ? ∫(v ⋅ f) * dΩ + sum([∫(v ⋅ h[i]) * dΓ[i] for i in 1:length(neumann_tags)]) : ∫(v ⋅ f) * dΩ
+
     # b((v, q)) = ∫(v ⋅ f) * dΩ + sum([∫(v ⋅ h[i]) * dΓ[i] for i in 1:length(neumann_tags)])
 
 
@@ -129,7 +128,7 @@ function error_conv(f, dirichlet, neumann, MS)
 
 
     lc_start = 2
-    num_points = 4
+    num_points = 5
 
     norm = zeros(Float64, num_points, 2)
     lc = zeros(Float64, num_points)
@@ -213,15 +212,25 @@ h2(x) = VectorValue(σ(x) * [1.0, 0.0])
 h3(x) = VectorValue(σ(x) * [0.0, 1.0])
 h4(x) = VectorValue(σ(x) * [-1.0, 0.0])
 
+#    
+# (8)  3  (7)
+#  4       2
+# (5)  1  (6)
+
+# NOTE: 5:8 are marked corner vertices; with only 1:4 the corners would be
+# missing
+# NOTE: isempty(dirichlet) is not expected to work; some dirichlet boundary
+# should always be preset. 
+
+# This one works
+dirichlet = Dict([1, 2, 3, 4, 5, 6, 7, 8] => u0)
+neumann = Dict()
+
+# FIXME
+#dirichlet = Dict([1, 2, 4, 5, 6, 8] => u0)
+#neumann = Dict(3 => h3)
 
 
-dirichlet = Dict([1, 2, 3] => u0)
-# neumann = Dict(1 => h1, 2 => h2, 3 => h3, 4 => h4)
-neumann = Dict(4 => h4)
-
-
-# dirichlet = Dict()
-# neumann = Dict()
 # stokes(model, f, dirichlet, neumann, (u0, p0))
 error_conv(f, dirichlet, neumann, (u0, p0))
 
