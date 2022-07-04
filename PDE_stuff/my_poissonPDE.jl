@@ -1,6 +1,9 @@
 using Gridap
 using GridapGmsh
 using Printf
+using Plots
+
+include("./unit_box_mesh.jl")
 
 
 # Equation to solve
@@ -14,7 +17,7 @@ using Printf
 # writevtk(model, "model")
 
 
-function poisson(model, f, dirichlet, neumann, MMS=nothing)
+function poisson(model, f, dirichlet, neumann, MMS=nothing, write=false)
     path = "/Users/mikkelme/Documents/Github/Simula_SummerProject/PDE_stuff/"
 
     dirichlet_conditions = !isempty(dirichlet)
@@ -24,27 +27,18 @@ function poisson(model, f, dirichlet, neumann, MMS=nothing)
     order = 1
     reffe = ReferenceFE(lagrangian, VectorValue{2,Float64}, order) # type of FE interpolation
 
-    # Test space and trial space
-    if dirichlet_conditions
+    labels = get_face_labeling(model)
 
-        labels = get_face_labeling(model)
-
-        dirichlet_tags = collect(keys(dirichlet))
-        dirichlet_names = Vector{String}()
-        for tags in dirichlet_tags
-            name = "$tags"
-            add_tag_from_tags!(labels, name, tags)
-            push!(dirichlet_names, name)
-        end
-
-
-
-        V = TestFESpace(model, reffe, labels=labels, conformity=:H1, dirichlet_tags=dirichlet_names)
-        U = TrialFESpace(V, [dirichlet[tag] for tag in dirichlet_tags])
-    else
-        V = TestFESpace(model, reffe; conformity=:H1, constraint=:zeromean)
-        U = TrialFESpace(V)
+    dirichlet_tags = collect(keys(dirichlet))
+    dirichlet_names = Vector{String}()
+    for tags in dirichlet_tags
+        name = "$tags"
+        add_tag_from_tags!(labels, name, tags)
+        push!(dirichlet_names, name)
     end
+
+    V = TestFESpace(model, reffe, labels=labels, conformity=:H1, dirichlet_tags=dirichlet_names)
+    U = TrialFESpace(V, [dirichlet[tag] for tag in dirichlet_tags])
 
 
 
@@ -58,12 +52,9 @@ function poisson(model, f, dirichlet, neumann, MMS=nothing)
     if neumann_conditions
         neumann_tags = collect(keys(neumann))
 
-
         Γ = [BoundaryTriangulation(model, tags=tag) for tag in neumann_tags]
         dΓ = [Measure(Γ[i], degree) for i in 1:length(neumann_tags)]
-
         h = [neumann[tag] for tag in neumann_tags]
-
 
 
     end
@@ -73,6 +64,19 @@ function poisson(model, f, dirichlet, neumann, MMS=nothing)
     # --- Weak form --- #
     a(u, v) = ∫(∇(v) ⊙ ∇(u)) * dΩ
     b(v) = neumann_conditions ? ∫(v ⋅ f) * dΩ + sum([∫(v ⋅ h[i]) * dΓ[i] for i in 1:length(neumann_tags)]) : ∫(v ⋅ f) * dΩ
+
+
+    tag = 3
+
+    Γ = BoundaryTriangulation(model, tags=[tag])
+    dΓ = Measure(Γ, degree)
+    # h = neumann[tag]
+    h(x) = VectorValue([1000.0, -1000.0])
+
+    b(v) = ∫(v ⋅ f) * dΩ + ∫(v ⋅ h) * dΓ
+    # b(v) = ∫(v ⋅ f) * dΩ 
+
+
     # b(v) = neumann_conditions ? ∫(v * f) * dΩ + ∫(v * h) * dΓ : ∫(v * f) * dΩ
 
     # b(v) = ∫(v * f) * dΩ + ∫(v * h) * dΓ
@@ -90,7 +94,9 @@ function poisson(model, f, dirichlet, neumann, MMS=nothing)
     # --- Compare to manufactured solution --- #
     if MMS == nothing
         println("No manufactured solution (MMS)")
-        writevtk(Ω, path * "poisson_results", cellfields=["uh" => uh])
+        if write
+            writevtk(Ω, path * "poisson_results", cellfields=["uh" => uh])
+        end
     else
         println("Using (MMS)")
 
@@ -98,40 +104,103 @@ function poisson(model, f, dirichlet, neumann, MMS=nothing)
         l2norm = sqrt(sum(∫(error ⋅ error) * dΩ))
         @printf("l2 norm = %e \n", l2norm)
 
-        writevtk(Ω, path * "poisson_results", cellfields=["uh" => uh, "error" => error])
+        if write
+            writevtk(Ω, path * "poisson_results", cellfields=["uh" => uh, "error" => error])
+        end
 
+        return l2norm
     end
 
 
 end
 
 
+function error_conv(solver, f, dirichlet, neumann, MS)
 
 
-model = GmshDiscreteModel("/Users/mikkelme/Documents/Github/Simula_SummerProject/PDE_stuff/dummy.msh")
+    lc_start = 2
+    num_points = 5
 
-# u(x) = [sin(pi * x[1]), sin(pi * x[2])]
-# f(x) = sin(pi * x[1]) * pi^2 + sin(pi * x[2]) * pi^2
+    norm = zeros(Float64, num_points)
+    lc = zeros(Float64, num_points)
+    for p in 1:num_points
+        lc[p] = lc_start * (1 / 2)^(p - 1)
+        println(p, " ", lc[p])
+        create_unit_box(lc[p])
+
+        path = "/Users/mikkelme/Documents/Github/Simula_SummerProject/PDE_stuff/unit_box.msh"
+        if !ispath(path)
+            path = "/home/mirok/Documents/MkSoftware/Simula_SummerProject/PDE_stuff/unit_box.msh"
+        end
+        @show path
+
+        model = GmshDiscreteModel(path)
+        if p < num_points
+            norm[p] = solver(model, f, dirichlet, neumann, MS)
+        else
+            norm[p] = solver(model, f, dirichlet, neumann, MS, true)
+        end
 
 
-u(x) = VectorValue(x[1]^2, x[2])
-f(x) = VectorValue(-2, 0)
-
-h1(x) = VectorValue(x[1] + x[2], 0)
-h2(x) = 100 * x[2]
-
-# dirichlet = Dict(1 => u, 2 => u, 3 => u, 4 => u)
-# dirichlet = Dict(1 => -1, 2 => 1, 3 => -1, 4 => 1)
+        # Put the actual mesh size
+        Ω = Triangulation(model)
+        lc[p] = minimum(sqrt.(collect(get_cell_measure(Ω))))
+    end
 
 
-dirichlet = Dict([1, 2, 3, 4] => u)
+    X = ones(num_points, 2)
+    X[:, 2] = log.(lc)
+    p = plot(lc, norm, xaxis=:log, yaxis=:log, label="Velocity", marker=:x)
+
+    println("---------")
+    println("mesh size", lc)
+    println("u l2 norm: ", norm)
+
+    y = log.(norm)
+    b = inv(transpose(X) * X) * transpose(X) * y
+    slope = b[2]
+    println("Convergence rate: ", slope)
+
+    display(p)
+    return
 
 
-# neumann = Dict([1,2] => h1, 3 =>  h2)
-neumann = Dict([4] => h1)
+end
+
+
+# model = GmshDiscreteModel("/Users/mikkelme/Documents/Github/Simula_SummerProject/PDE_stuff/unit_box.msh")
+
+
+u0(x) = VectorValue(sin(π * x[1]), sin(π * x[2]))
+f(x) = VectorValue(π^2 * sin(π * x[1]), π^2 * sin(π * x[2]))
+
+grad_u(x) = [π*cos(π * x[1]) 0.0; 0.0 π*cos(π * x[2])]
+
+h1(x) = VectorValue(grad_u(x) * [0.0, -1.0])
+h2(x) = VectorValue(grad_u(x) * [1.0, 0.0])
+h3(x) = VectorValue(grad_u(x) * [0.0, 1.0])
+h4(x) = VectorValue(grad_u(x) * [-1.0, 0.0])
+
+
+# h1(x) = VectorValue( π*cos( π * x[1] ), 0)
+
+# u(x) = VectorValue(x[1]^2, x[2])
+# f(x) = VectorValue(-2, 0)
+
+# h1(x) = VectorValue(x[1] + x[2], 0)
+# h2(x) = 100 * x[2]
+
+# h3(x) = VectorValue([1000.0, -1000.0])
+# dirichlet = Dict([1, 2, 3, 4, 5, 6, 7, 8] => u0)
+dirichlet = Dict([1, 2, 3, 5, 6, 7, 8] => u0)
+
+
+neumann = Dict(4 => h4)
+# neumann = Dict()
 
 
 
 # dirichlet = Dict()
-# neumann = Dict()
-poisson(model, f, dirichlet, neumann, u)
+# poisson(model, f, dirichlet, neumann, u)
+error_conv(poisson, f, dirichlet, neumann, u0)
+
