@@ -1,3 +1,34 @@
+# --- Custom Functions --- # 
+
+function direct_wiring(gmsh; renumber=true)
+    renumber && gmsh.model.mesh.renumberNodes()
+    renumber && gmsh.model.mesh.renumberElements()
+
+    Dc = GridapGmsh._setup_cell_dim(gmsh)
+    Dp = GridapGmsh._setup_point_dim(gmsh, Dc)
+    node_to_coords = GridapGmsh._setup_node_coords(gmsh, Dp)
+    nnodes = length(node_to_coords)
+    vertex_to_node, node_to_vertex = _setup_nodes_and_vertices(gmsh, node_to_coords)
+    grid, cell_to_entity = _setup_grid(gmsh, Dc, Dp, node_to_coords, node_to_vertex)
+    cell_to_vertices = _setup_cell_to_vertices(Gridap.Geometry.get_cell_node_ids(grid), node_to_vertex, nnodes)
+    grid_topology = Gridap.Geometry.UnstructuredGridTopology(grid, cell_to_vertices, vertex_to_node)
+    labeling = GridapGmsh._setup_labeling(gmsh, grid, grid_topology, cell_to_entity, vertex_to_node, node_to_vertex)
+
+    pgs = gmsh.model.getPhysicalGroups()
+    # gmsh.finalize()
+
+
+    model = Gridap.Geometry.UnstructuredDiscreteModel(grid, grid_topology, labeling)
+    pgs_dict = Dict(Int64(pgs[i][2]) => Int64(i) for i in 1:length(pgs)) # Physical group dictionary
+  
+
+    return model, pgs_dict
+end
+
+
+
+
+# --- SUPPORT FUNCTIONS COPY-PASTED FROM https://github.com/gridap/GridapGmsh.jl/blob/master/src/GmshDiscreteModels.jl --- #
 
 
 function  _setup_nodes_and_vertices(gmsh,node_to_coords)

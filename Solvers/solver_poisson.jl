@@ -12,36 +12,51 @@ include("./unit_box_direct.jl")
 
 
 
-function poisson_solver(model, f0, g0, h0)
-    # (8) 3 (7)
-    #  4     2
-    # (5) 1 (6)
+function poisson_solver(model, pgs_dict, f0, g0, h0, dirichlet_tags, neumann_tags)
 
     labels = get_face_labeling(model)
-    plus_tags = get_tags_from_group(path * "unit_box.msh", [1, 2, 3, 4, 5, 6, 8])
-    minus_tags = get_tags_from_group(path * "unit_box.msh", [8])
+    neumann_conditions = !isempty(neumann_tags)
 
-    add_tag_from_tags!(labels, "plus", plus_tags)
-    add_tag_from_tags!(labels, "minus", minus_tags)
+    # all_tags = collect(keys(pgs_dict)) # Only works with no irrelevant tags
+    # dirichlet_tags = [pgs_dict[tag] for tag in dirichlet_tags] # is going to be dircihlet 
+    # neumann_tags = filter(x -> x ∉ dirichlet_tags, collect(keys(pgs_dict))) # is going to be neumann
+
+    dirichlet_tags = [pgs_dict[tag] for tag in dirichlet_tags]
+    neumann_tags = [pgs_dict[tag] for tag in neumann_tags]
+
+
+    add_tag_from_tags!(labels, "diri", dirichlet_tags)
+
 
 
 
     order = 1
     reffe = ReferenceFE(lagrangian, Float64, order)
 
-    V = TestFESpace(model, reffe, labels=labels, conformity=:H1, dirichlet_tags=["plus", "minus"])
-    U = TrialFESpace(V, [5, -5])
+    V = TestFESpace(model, reffe, labels=labels, conformity=:H1, dirichlet_tags=["diri"])
+    U = TrialFESpace(V, g0)
 
     # Integration 
     degree = 2
     Ω = Triangulation(model) # Integration mesh of the domain Omega
     dΩ = Measure(Ω, degree) # Gauss-like quadrature (how to connect point in numerical integration)
 
+    if neumann_conditions
+        Γ = [BoundaryTriangulation(model, tags=tag) for tag in neumann_tags]
+        ν = [get_normal_vector(Γ[i]) for i in 1:length(neumann_tags)]
+        dΓ = [Measure(Γ[i], degree) for i in 1:length(neumann_tags)]
+        # h = [neumann[tag] for tag in neumann_tags]
+
+   
+
+    end
 
 
     # --- Weak form --- #
     a(u, v) = ∫(∇(v) ⋅ ∇(u)) * dΩ
-    b(v) = ∫(v * f0) * dΩ
+    b(v) = neumann_conditions ? ∫(v * f0) * dΩ + sum([∫(v * (h0 ⋅ ν[i])) * dΓ[i] for i in 1:length(neumann_tags)]) : ∫(v * f0) * dΩ
+
+    # b(v) = ∫(v * f0) * dΩ
 
     # --- Solve --- #
     op = AffineFEOperator(a, b, U, V)
@@ -55,117 +70,37 @@ function poisson_solver(model, f0, g0, h0)
 end
 
 
-# function my_GmshDiscreteModel(mshfile; renumber=true)
-#     # @check_if_loaded
-#     if !isfile(mshfile)
-#         error("Msh file not found: $mshfile")
-#     end
 
-#     gmsh.initialize()
-#     gmsh.option.setNumber("General.Terminal", 1)
-#     gmsh.option.setNumber("Mesh.SaveAll", 1)
-#     gmsh.option.setNumber("Mesh.MedImportGroupsOfNodes", 1)
-#     gmsh.open(mshfile)
-
-#     renumber && gmsh.model.mesh.renumberNodes()
-#     renumber && gmsh.model.mesh.renumberElements()
-
-#     Dc = 2
-#     Dp = 2
-
-#     node_to_coords = _setup_node_coords(gmsh, Dp)
-#     # nnodes = length(node_to_coords)
-#     # vertex_to_node, node_to_vertex = _setup_nodes_and_vertices(gmsh, node_to_coords)
-#     # grid, cell_to_entity = _setup_grid(gmsh, Dc, Dp, node_to_coords, node_to_vertex)
-#     # cell_to_vertices = _setup_cell_to_vertices(get_cell_node_ids(grid), node_to_vertex, nnodes)
-#     # grid_topology = UnstructuredGridTopology(grid, cell_to_vertices, vertex_to_node)
-#     # labeling = _setup_labeling(gmsh, grid, grid_topology, cell_to_entity, vertex_to_node, node_to_vertex)
-#     gmsh.finalize()
-
-#     # UnstructuredDiscreteModel(grid, grid_topology, labeling)
-# end
-
-
-
-
-
-function get_tags_from_group(mshfile, pgs_tags)
-    gmsh.initialize()
-    gmsh.open(mshfile)
-    pgs = gmsh.model.getPhysicalGroups()
-    tags = Vector{Int64}()
-
-    for i in 1:length(pgs_tags)
-        pgs_tag = pgs_tags[i]
-        for j in 1:length(pgs)
-
-            if pgs[j][2] == pgs_tag
-                append!(tags, j)
-            end
-        end
-        length(tags) < i && @printf("Physical group tag: %i, not found\n", pgs_tag)
-        length(tags) > i && @printf("Multiple candidates found for physical group tag: %i\n", pgs_tag)
-        @assert(length(tags) == i)
-
-    end
-
-    gmsh.finalize()
-
-
-    return tags
-
-end
 
 
 ###############
 # MS
-# u0(x) = cos(π * x[1] * x[2])
-# f0(x) = π^2 * (x[1]^2 + x[2]^2) * cos(π * x[1] * x[2])
+u0(x) = cos(π * x[1] * x[2])
+f0(x) = π^2 * (x[1]^2 + x[2]^2) * cos(π * x[1] * x[2])
 h0(x) = VectorValue(-π * x[2] * sin(π * x[1] * x[2]), -π * x[1] * sin(π * x[1] * x[2]))
 
-f0(x) = 0
-g0(x) = 5
+
+# f0(x) = 0
+# g0(x) = 5
 
 
+model, pgs_dict = create_unit_box(0.01, false)
 # create_unit_box(2, false)
-model = GmshDiscreteModel(path * "unit_box.msh")
+# model = GmshDiscreteModel(path * "unit_box_new.msh")
 
-const D3 = 3
-const POINT = 15
-const UNSET = 0
-
-
-function wiring(mshfile; renumber=true)
-    @check_if_loaded
-    if !isfile(mshfile)
-        error("Msh file not found: $mshfile")
-    end
-
-    gmsh.initialize()
-    gmsh.option.setNumber("General.Terminal", 1)
-    gmsh.option.setNumber("Mesh.SaveAll", 1)
-    gmsh.option.setNumber("Mesh.MedImportGroupsOfNodes", 1)
-    gmsh.open(mshfile)
-
-    renumber && gmsh.model.mesh.renumberNodes()
-    renumber && gmsh.model.mesh.renumberElements()
-
-    Dc = _setup_cell_dim(gmsh)
-    Dp = _setup_point_dim(gmsh, Dc)
-    node_to_coords = _setup_node_coords(gmsh, Dp)
-    nnodes = length(node_to_coords)
-    vertex_to_node, node_to_vertex = _setup_nodes_and_vertices(gmsh, node_to_coords)
-    grid, cell_to_entity = _setup_grid(gmsh, Dc, Dp, node_to_coords, node_to_vertex)
-    cell_to_vertices = _setup_cell_to_vertices(get_cell_node_ids(grid), node_to_vertex, nnodes)
-    grid_topology = UnstructuredGridTopology(grid, cell_to_vertices, vertex_to_node)
-    labeling = _setup_labeling(gmsh, grid, grid_topology, cell_to_entity, vertex_to_node, node_to_vertex)
-    gmsh.finalize()
-
-    UnstructuredDiscreteModel(grid, grid_topology, labeling)
-end
+all_btags = [1, 2, 3, 4, 5, 6, 7, 8]
+dirichlet_tags = [1, 2, 4, 5, 6, 7, 8]
+neumann_tags = filter(x -> x ∉ dirichlet_tags, collect(keys(pgs_dict))) 
 
 
-wiring(path * "unit_box.msh")
+
+
+#-------> Do convergence test tomorrow and check that everything is good <----------#
+poisson_solver(model, pgs_dict, f0, g0, h0, dirichlet_tags, neumann_tags)
+
+
+
+
 
 # tags = get_tags_from_group(path * "unit_box.msh", [5, 6, 7, 8])
 # println(tags)
@@ -184,4 +119,31 @@ wiring(path * "unit_box.msh")
 
 
 
-# poisson_solver(model, f0, g0, h0)
+
+
+# function get_tags_from_group(mshfile, pgs_tags)
+#     gmsh.initialize()
+#     gmsh.open(mshfile)
+#     pgs = gmsh.model.getPhysicalGroups()
+#     tags = Vector{Int64}()
+
+#     for i in 1:length(pgs_tags)
+#         pgs_tag = pgs_tags[i]
+#         for j in 1:length(pgs)
+
+#             if pgs[j][2] == pgs_tag
+#                 append!(tags, j)
+#             end
+#         end
+#         length(tags) < i && @printf("Physical group tag: %i, not found\n", pgs_tag)
+#         length(tags) > i && @printf("Multiple candidates found for physical group tag: %i\n", pgs_tag)
+#         @assert(length(tags) == i)
+
+#     end
+
+#     gmsh.finalize()
+
+
+#     return tags
+
+# end
