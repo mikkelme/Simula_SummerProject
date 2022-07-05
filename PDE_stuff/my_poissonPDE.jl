@@ -15,6 +15,16 @@ include("./unit_box_mesh.jl")
 
 # model = GmshDiscreteModel("dummy.msh")
 # writevtk(model, "model")
+function create_square(n)
+    # (3) 6 (4)
+    #  7     8
+    # (1) 5 (2)
+
+    domain = (0, 1, 0, 1)
+    partition = (n, n)
+    model = CartesianDiscreteModel(domain, partition)
+    return model
+end
 
 
 function poisson(model, f, dirichlet, neumann, MMS=nothing, write=false)
@@ -25,7 +35,7 @@ function poisson(model, f, dirichlet, neumann, MMS=nothing, write=false)
 
 
     order = 1
-    reffe = ReferenceFE(lagrangian, VectorValue{2,Float64}, order) # type of FE interpolation
+    reffe = ReferenceFE(lagrangian, Float64, order) # type of FE interpolation
 
     labels = get_face_labeling(model)
 
@@ -53,6 +63,7 @@ function poisson(model, f, dirichlet, neumann, MMS=nothing, write=false)
         neumann_tags = collect(keys(neumann))
 
         Γ = [BoundaryTriangulation(model, tags=tag) for tag in neumann_tags]
+        ν = [get_normal_vector(Γ[i]) for i in 1:length(neumann_tags)]
         dΓ = [Measure(Γ[i], degree) for i in 1:length(neumann_tags)]
         h = [neumann[tag] for tag in neumann_tags]
 
@@ -62,18 +73,21 @@ function poisson(model, f, dirichlet, neumann, MMS=nothing, write=false)
 
 
     # --- Weak form --- #
-    a(u, v) = ∫(∇(v) ⊙ ∇(u)) * dΩ
-    b(v) = neumann_conditions ? ∫(v ⋅ f) * dΩ + sum([∫(v ⋅ h[i]) * dΓ[i] for i in 1:length(neumann_tags)]) : ∫(v ⋅ f) * dΩ
+    a(u, v) = ∫(∇(v) ⋅ ∇(u)) * dΩ
+    b(v) = neumann_conditions ? ∫(v * f) * dΩ + sum([∫(v * (h[i] ⋅ ν[i])) * dΓ[i] for i in 1:length(neumann_tags)]) : ∫(v * f) * dΩ
+    
+    # b(v) = neumann_conditions ? ∫(v * f) * dΩ + sum([∫(v * h[i]) * dΓ[i] for i in 1:length(neumann_tags)]) : ∫(v * f) * dΩ
+    # b(v) = ∫(v * f) * dΩ
 
 
-    tag = 3
+    # tag = 3
 
-    Γ = BoundaryTriangulation(model, tags=[tag])
-    dΓ = Measure(Γ, degree)
-    # h = neumann[tag]
-    h(x) = VectorValue([1000.0, -1000.0])
+    # Γ = BoundaryTriangulation(model, tags=[tag])
+    # dΓ = Measure(Γ, degree)
+    # # h = neumann[tag]
+    # h(x) = VectorValue([1000.0, -1000.0])
 
-    b(v) = ∫(v ⋅ f) * dΩ + ∫(v ⋅ h) * dΓ
+    # b(v) = ∫(v ⋅ f) * dΩ + ∫(v ⋅ h) * dΓ
     # b(v) = ∫(v ⋅ f) * dΩ 
 
 
@@ -115,7 +129,9 @@ function poisson(model, f, dirichlet, neumann, MMS=nothing, write=false)
 end
 
 
-function error_conv(solver, f, dirichlet, neumann, MS)
+
+
+function error_conv(solver, f0, dirichlet, neumann, u0)
 
 
     lc_start = 2
@@ -135,11 +151,7 @@ function error_conv(solver, f, dirichlet, neumann, MS)
         @show path
 
         model = GmshDiscreteModel(path)
-        if p < num_points
-            norm[p] = solver(model, f, dirichlet, neumann, MS)
-        else
-            norm[p] = solver(model, f, dirichlet, neumann, MS, true)
-        end
+        norm[p] = solver(model, f0, dirichlet, neumann, u0)
 
 
         # Put the actual mesh size
@@ -161,25 +173,74 @@ function error_conv(solver, f, dirichlet, neumann, MS)
     slope = b[2]
     println("Convergence rate: ", slope)
 
-    display(p)
+    # display(p)
     return
 
 
 end
 
 
+
+
+# function error_conv(solver, f0, u0, dirichlet, neumann)
+#     path = "/Users/mikkelme/Documents/Github/Simula_SummerProject/PDE_stuff/"
+
+
+#     n_start = 4
+#     num_points = 5
+
+#     norm = zeros(Float64, num_points)
+#     n = zeros(Float64, num_points)
+#     for p in 1:num_points
+
+#         n[p] = n_start^p
+#         model = create_square(n[p])
+#         norm[p] = poisson(model, f0, dirichlet, neumann, u0)
+
+#     end
+
+
+#     X = ones(num_points, 2)
+#     X[:, 2] = log.(n)
+#     p = plot(n, norm, xaxis=:log, yaxis=:log, label="Velocity", marker=:x)
+
+#     println("---------")
+#     println("u l2 norm: ", norm)
+
+#     y = log.(norm)
+#     b = inv(transpose(X) * X) * transpose(X) * y
+#     slope = b[2]
+#     println("Convergence rate: ", slope)
+
+#     # display(p)
+#     return
+
+
+# end
+
+
 # model = GmshDiscreteModel("/Users/mikkelme/Documents/Github/Simula_SummerProject/PDE_stuff/unit_box.msh")
 
 
-u0(x) = VectorValue(sin(π * x[1]), sin(π * x[2]))
-f(x) = VectorValue(π^2 * sin(π * x[1]), π^2 * sin(π * x[2]))
+# u0(x) = VectorValue(sin(π * x[1]), sin(π * x[2]))
+# f(x) = VectorValue(π^2 * sin(π * x[1]), π^2 * sin(π * x[2]))
 
-grad_u(x) = [π*cos(π * x[1]) 0.0; 0.0 π*cos(π * x[2])]
+# grad_u(x) = [π*cos(π * x[1]) 0.0; 0.0 π*cos(π * x[2])]
 
-h1(x) = VectorValue(grad_u(x) * [0.0, -1.0])
-h2(x) = VectorValue(grad_u(x) * [1.0, 0.0])
-h3(x) = VectorValue(grad_u(x) * [0.0, 1.0])
-h4(x) = VectorValue(grad_u(x) * [-1.0, 0.0])
+# h1(x) = VectorValue(grad_u(x) * [0.0, -1.0])
+# h2(x) = VectorValue(grad_u(x) * [1.0, 0.0])
+# h3(x) = VectorValue(grad_u(x) * [0.0, 1.0])
+# h4(x) = VectorValue(grad_u(x) * [-1.0, 0.0])
+
+
+
+u0(x) = cos(π * x[1] * x[2])
+f0(x) = π^2 * (x[1]^2 + x[2]^2) * cos(π * x[1] * x[2])
+h0(x) = VectorValue(-π * x[2] * sin(π * x[1] * x[2]), -π * x[1] * sin(π * x[1] * x[2]))
+
+
+
+# h1(x) = -π * x[2] * sin(π * x[1] * x[2])
 
 
 # h1(x) = VectorValue( π*cos( π * x[1] ), 0)
@@ -187,20 +248,21 @@ h4(x) = VectorValue(grad_u(x) * [-1.0, 0.0])
 # u(x) = VectorValue(x[1]^2, x[2])
 # f(x) = VectorValue(-2, 0)
 
-# h1(x) = VectorValue(x[1] + x[2], 0)
 # h2(x) = 100 * x[2]
 
 # h3(x) = VectorValue([1000.0, -1000.0])
 # dirichlet = Dict([1, 2, 3, 4, 5, 6, 7, 8] => u0)
-dirichlet = Dict([1, 2, 3, 5, 6, 7, 8] => u0)
 
-
-neumann = Dict(4 => h4)
+dirichlet = Dict([1, 2, 3, 4, 5, 6, 7] => u0)
+neumann = Dict(8 => h0)
 # neumann = Dict()
 
 
 
 # dirichlet = Dict()
 # poisson(model, f, dirichlet, neumann, u)
-error_conv(poisson, f, dirichlet, neumann, u0)
+error_conv(poisson, f0, dirichlet, neumann, u0)
+
+
+
 
