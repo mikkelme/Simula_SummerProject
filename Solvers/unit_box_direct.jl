@@ -31,7 +31,7 @@ function create_unit_box(lc, view=false)
     end
 
 
-    # Mark vertices too
+    
     gmsh.model.addPhysicalGroup(0, [A], 5)
     gmsh.model.addPhysicalGroup(0, [B], 6)
     gmsh.model.addPhysicalGroup(0, [C], 7)
@@ -54,6 +54,8 @@ function create_unit_box(lc, view=false)
         gmsh.fltk.initialize()
         gmsh.fltk.run()
     end
+    
+    
 
     
     

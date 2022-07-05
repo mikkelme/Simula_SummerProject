@@ -35,8 +35,7 @@ function poisson(model, f, dirichlet, neumann, MMS=nothing, write=false)
 
 
     order = 1
-    reffe = ReferenceFE(lagrangian, Float64, order) # type of FE interpolation
-
+    reffe = ReferenceFE(lagrangian, Float64, order) 
     labels = get_face_labeling(model)
 
     dirichlet_tags = collect(keys(dirichlet))
@@ -61,7 +60,6 @@ function poisson(model, f, dirichlet, neumann, MMS=nothing, write=false)
     # neumann_tags = neumann_conditions ? collect(keys(neumann)) : Vector{Int}()
     if neumann_conditions
         neumann_tags = collect(keys(neumann))
-
         Γ = [BoundaryTriangulation(model, tags=tag) for tag in neumann_tags]
         ν = [get_normal_vector(Γ[i]) for i in 1:length(neumann_tags)]
         dΓ = [Measure(Γ[i], degree) for i in 1:length(neumann_tags)]
