@@ -2,8 +2,9 @@
 
 
 ## To do list
-- [x] Done task
-- [ ] Wiring for directly importing mesh model (https://github.com/gridap/GridapGmsh.jl/blob/master/src/GmshDiscreteModels.jl)
+- [x] Wiring for directly importing mesh model (https://github.com/gridap/GridapGmsh.jl/blob/master/src/GmshDiscreteModels.jl)
+- [ ] Basbuška
+
 
 ## Introduction 
 
@@ -18,4 +19,3 @@ $$ u = g \ \text{on} \ \Gamma_D, \quad \sigma \cdot v = h \ \text{on} \ \Gamma_N
 
 
 
-- Equations?
