@@ -5,21 +5,19 @@ using Plots
 
 
 include("./unit_box_direct.jl")
-path = "/Users/mikkelme/Documents/Github/Simula_SummerProject/Solvers/"
+path = "/Users/mikkelme/Documents/Github/Simula_SummerProject/PDE_Solvers/"
 if !ispath(path)
-    path = "/home/mirok/Documents/MkSoftware/Simula_SummerProject/Solvers/"
+    path = "/home/mirok/Documents/MkSoftware/Simula_SummerProject/PDE_Solvers/"
 end
 @show path
 
 
 function poisson_solver(model, pgs_dict, f0, g0, h0, dirichlet_tags, neumann_tags; write=false)
-    labels = get_face_labeling(model)
     neumann_conditions = !isempty(neumann_tags)
-
+    
+    labels = get_face_labeling(model)
     dirichlet_tags = [pgs_dict[tag] for tag in dirichlet_tags]
     neumann_tags = [pgs_dict[tag] for tag in neumann_tags]
-
-
     add_tag_from_tags!(labels, "diri", dirichlet_tags)
 
 
@@ -28,7 +26,6 @@ function poisson_solver(model, pgs_dict, f0, g0, h0, dirichlet_tags, neumann_tag
 
 
     V = TestFESpace(model, reffe, labels=labels, conformity=:H1, dirichlet_tags=["diri"])
-
     U = TrialFESpace(V, g0)
 
     # Integration 

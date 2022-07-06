@@ -7,9 +7,9 @@ using Plots
 include("./unit_box_direct.jl")
 
 
-path = "/Users/mikkelme/Documents/Github/Simula_SummerProject/Solvers/"
+path = "/Users/mikkelme/Documents/Github/Simula_SummerProject/PDE_Solvers/"
 if !ispath(path)
-    path = "/home/mirok/Documents/MkSoftware/Simula_SummerProject/Solvers/"
+    path = "/home/mirok/Documents/MkSoftware/Simula_SummerProject/PDE_Solvers/"
 end
 @show path
 
@@ -71,7 +71,7 @@ function stokes_solver(model, pgs_dict, f0, g0, h0, dirichlet_tags, neumann_tags
     # uh = solve(solver, op)
 
 
-    # # --- Check with manufactured solution --- #
+    # --- Check with manufactured solution --- #
     u_error = g0[1] - uh
     p_error = g0[2] - ph
 
@@ -104,7 +104,7 @@ function error_conv(solver, f0, g0, h0, dirichlet_tags, neumann_tags; lc_start=2
         lc[p] = lc_start * (1 / 2)^(p - 1)
         p == num_points && (write = true)
         model, pgs_dict = create_unit_box(lc[p])
-        l2norm[p, :] .= solver(model, pgs_dict, f0, g0, σ, dirichlet_tags, neumann_tags; write)
+        l2norm[p, :] .= solver(model, pgs_dict, f0, g0, h0, dirichlet_tags, neumann_tags; write)
 
         # Get the actual mesh size
         Ω = Triangulation(model)
