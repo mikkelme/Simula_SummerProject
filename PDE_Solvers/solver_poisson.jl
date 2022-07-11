@@ -127,7 +127,7 @@ h0(x) = TensorValue(π * cos(π * x[1]), 0.0, 0.0, π * cos(π * x[2]))
 
 # Boundary tags
 all_btags = [1, 2, 3, 4, 5, 6, 7, 8]
-dirichlet_tags = [1, 3, 4, 5, 6, 7, 8]
+dirichlet_tags = [1, 2, 3, 4, 5, 6, 7, 8]
 neumann_tags = filter(x -> x ∉ dirichlet_tags, all_btags)
 
 
