@@ -33,31 +33,32 @@ function poisson_solver(model, pgs_dict, f0, g0, h0, dirichlet_tags, neumann_tag
     ΓN = BoundaryTriangulation(model, tags=neumann_tags)
 
     order = 2
-    Velm = ReferenceFE(lagrangian, Float64, order)
-    Melm = ReferenceFE(lagrangian, Float64, order)
+    Velm = ReferenceFE(lagrangian, VectorValue{2, Float64}, order)
+    Melm = ReferenceFE(lagrangian, VectorValue{2, Float64}, order)
 
     # What is going on here with Ω instead of "model"
     V = TestFESpace(Ω, Velm, conformity=:H1)
     M = TestFESpace(ΓD, Velm, conformity=:H1)
     W = MultiFieldFESpace([V, M])
 
-    degree = order # might introduce some more flexibility here
+    degree = 3 # might introduce some more flexibility here
     dΩ = Measure(Ω, order)
-    dΓD = Measure(ΓD, 2 * order)
-    dΓN = Measure(ΓD, 2 * order)
-
-
-    if neumann_conditions
-        Γ = [BoundaryTriangulation(model, tags=tag) for tag in neumann_tags]
-        ν = [get_normal_vector(Γ[i]) for i in 1:length(neumann_tags)]
-        dΓ = [Measure(Γ[i], degree) for i in 1:length(neumann_tags)]
-    end
+    dΓD = Measure(ΓD, order)
+    dΓN = Measure(ΓN, order)
+    ν = get_normal_vector(ΓN)
 
 
 
     # Bilinear form
-    a((u, λ), (v, μ)) = ∫(∇(u) ⋅ ∇(v)) * dΩ + ∫(u * v) * dΩ - ∫(λ * v) * dΓD - ∫(u * μ) * dΓD
-    b((v, μ)) = neumann_conditions ? ∫(v * f0) * dΩ - ∫(g0[1] * μ) * dΓD + sum([∫(v * (h0 ⋅ ν[i])) * dΓ[i] for i in 1:length(neumann_tags)]) : ∫(v * f0) * dΩ - ∫(g0[1] * μ) * dΓD
+    # Scalar
+    # a((u, λ), (v, μ)) = ∫(∇(u) ⋅ ∇(v)) * dΩ + ∫(u * v) * dΩ - ∫(λ * v) * dΓD - ∫(u * μ) * dΓD
+    # b((v, μ)) = neumann_conditions ? ∫(v * f0) * dΩ - ∫(g0 * μ) * dΓD + ∫(v * (h0 ⋅ ν)) * dΓN : ∫(v * f0) * dΩ - ∫(g0 * μ) * dΓD
+
+    # Vector 
+    a((u, λ), (v, μ)) = ∫(∇(u) ⊙ ∇(v)) * dΩ + ∫(u ⋅ v) * dΩ - ∫(λ ⋅ v) * dΓD - ∫(u ⋅ μ) * dΓD
+    b((v, μ)) = neumann_conditions ? ∫(v ⋅ f0) * dΩ - ∫(g0 ⋅ μ) * dΓD + ∫(v ⋅ (h0 ⋅ ν)) * dΓN : ∫(v ⋅ f0) * dΩ - ∫(g0 ⋅ μ) * dΓD
+
+
 
 
 
@@ -65,22 +66,24 @@ function poisson_solver(model, pgs_dict, f0, g0, h0, dirichlet_tags, neumann_tag
     op = AffineFEOperator(a, b, W, W)
     uh, λh = solve(op)
 
+    # Why do I need this <----------#
+    Γ = get_triangulation(λh)
+    dΓ = Measure(Γ, order)
+    ν = get_normal_vector(Γ)
 
     # --- Check with manufactured solution --- #
-    u_error = g0[1] - uh
-    λ_error = g0[2] - λh
-    # not sure of the form of λ here
-    return 
+    u_error = g0 - uh
+    λ_error = λh - (h0 ⋅ ν)  # On surface we should be approximating ∇u⋅ν
+
     u_l2norm = sqrt(sum(∫(u_error ⋅ u_error) * dΩ))
-    λ_l2norm = sqrt(sum(∫(λ_error ⋅ λ_error) * ΓN))
+    λ_l2norm = sqrt(sum(∫(λ_error ⋅ λ_error) * dΓ))
+
     @printf("u: l2 norm = %e \n", u_l2norm)
-    @printf("p: l2 norm = %e \n", λ_l2norm)
+    @printf("λ: l2 norm = %e \n", λ_l2norm)
 
-    if write
-        writevtk(Ωₕ, path * "stokes_results", order=2, cellfields=["uh" => uh, "λh" => λh, "u_error" => u_error, "λ_error" => λ_error])
-    end
+    write && writevtk(Ω, path * "poisson_babuska_results", cellfields=["uh" => uh, "u_error" => u_error])
 
-    return l2norm
+    return [u_l2norm, λ_l2norm]
 end
 
 
@@ -168,22 +171,22 @@ end
 
 
 # MS (scalar)
-u0(x) = cos(π * x[1] * x[2])
+# u0(x) = cos(π * x[1] * x[2])
+# f0(x) = π^2 * (x[1]^2 + x[2]^2 + 1 / π^2) * cos(π * x[1] * x[2])
+# h0(x) = VectorValue(-π * x[2] * sin(π * x[1] * x[2]), -π * x[1] * sin(π * x[1] * x[2])) # <---- Unsure of this
 
 
-#--------> Figure out the form of λ. It is assumed in the math derivation <-----------#
-# λ0(x) = π(x[1] + x[2]) * cos(π * x[1] * x[2]) * sin(π * x[1] * x[2])# - ∇u⋅u
-# λ0(x) = VectorValue(π * x[1] * cos(π * x[1] * x[2]) * sin(π * x[1] * x[2]), π * x[2] * cos(π * x[1] * x[2]) * sin(π * x[1] * x[2]))
-
-f0(x) = π^2 * (x[1]^2 + x[2]^2 + 1 / π^2) * cos(π * x[1] * x[2])
-h0(x) = VectorValue(-π * x[2] * sin(π * x[1] * x[2]), -π * x[1] * sin(π * x[1] * x[2])) # <---- Unsure of this
+# MS (vector)
+u0(x) = VectorValue(sin(π * x[1]), sin(π * x[2]))
+f0(x) = VectorValue(π^2 * sin(π * x[1]), π^2 * sin(π * x[2]))
+h0(x) = TensorValue(π * cos(π * x[1]), 0.0, 0.0, π * cos(π * x[2]))
 
 
 all_btags = [1, 2, 3, 4, 5, 6, 7, 8]
-dirichlet_tags = [4, 5, 6, 7, 8]
+dirichlet_tags = [1, 3, 4, 5, 6, 7, 8]
 neumann_tags = filter(x -> x ∉ dirichlet_tags, all_btags)
 
 
-model, pgs_dict = create_unit_box(2, false)
-poisson_solver(model, pgs_dict, f0, (u0, λ0), h0, dirichlet_tags, neumann_tags; write=true)
-# error_conv(poisson_solver, f0, (u0, λ0), h0, dirichlet_tags, neumann_tags; show_plot=false)
+# model, pgs_dict = create_unit_box(2, false)
+# poisson_solver(model, pgs_dict, f0, u0, h0, dirichlet_tags, neumann_tags; write=true)
+error_conv(poisson_solver, f0, u0, h0, dirichlet_tags, neumann_tags; show_plot=false)
