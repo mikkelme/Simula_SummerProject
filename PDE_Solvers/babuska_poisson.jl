@@ -26,7 +26,7 @@ function babuska_poisson_solver(model, pgs_dict, f0, g0, h0, dirichlet_tags, neu
     labels = get_face_labeling(model)
     neumann_conditions = !isempty(neumann_tags)
 
-    # dirichlet_tags = [gs_dict[tag] for tag in dirichlet_tags]
+    # dirichlet_tags = [pgs_dict[tag] for tag in dirichlet_tags]
     #neumann_tags = [pgs_dict[tag] for tag in neumann_tags]
     neumann_tags = Vector{Int}()
     # add_tag_from_tags!(labels, "diri", dirichlet_tags) # is this used????
@@ -38,14 +38,13 @@ function babuska_poisson_solver(model, pgs_dict, f0, g0, h0, dirichlet_tags, neu
 
     order = 2
     Velm = ReferenceFE(lagrangian, VectorValue{2,Float64}, order)
-    Melm = ReferenceFE(lagrangian, VectorValue{2,Float64}, order)
+    Melm = ReferenceFE(lagrangian, VectorValue{2,Float64}, order) # Multiplier
     # Velm = ReferenceFE(lagrangian, Float64, order)
     # Melm = ReferenceFE(lagrangian, Float64, order)
 
 
-    # What is going on here with Ω instead of "model"
     δV = TestFESpace(Ω, Velm, conformity=:H1, dirichlet_tags=[1, 2, 3, 4, 5, 6, 8])
-    δM = TestFESpace(ΓD, Melm, conformity=:H1, dirichlet_tags=[3, 4])
+    δM = TestFESpace(ΓD, Melm, conformity=:H1, dirichlet_tags=[3, 4]) # Multiplier
 
 
     V = TrialFESpace(δV, g0)
