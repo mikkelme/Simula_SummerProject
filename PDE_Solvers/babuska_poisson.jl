@@ -22,15 +22,14 @@ u = g on Γ
 function babuska_poisson_solver(model, pgs_dict, f0, g0, h0, dirichlet_tags, neumann_tags; write=false)
 
     diri_multiplier_tags = [7]
-    diri_trial_tags = []
 
     labels = get_face_labeling(model)
     neumann_conditions = !isempty(neumann_tags)
 
-    dirichlet_tags = [1, 3, 4, 5, 6, 7, 8] #gs_dict[tag] for tag in dirichlet_tags]
+    # dirichlet_tags = [gs_dict[tag] for tag in dirichlet_tags]
     #neumann_tags = [pgs_dict[tag] for tag in neumann_tags]
     neumann_tags = Vector{Int}()
-    add_tag_from_tags!(labels, "diri", dirichlet_tags) # is this used????
+    # add_tag_from_tags!(labels, "diri", dirichlet_tags) # is this used????
 
 
     Ω = Triangulation(model)
@@ -38,20 +37,19 @@ function babuska_poisson_solver(model, pgs_dict, f0, g0, h0, dirichlet_tags, neu
     ΓN = BoundaryTriangulation(model, tags=neumann_tags)
 
     order = 2
-    # Velm = ReferenceFE(lagrangian, VectorValue{2,Float64}, order)
-    # Melm = ReferenceFE(lagrangian, VectorValue{2,Float64}, order)
-    Velm = ReferenceFE(lagrangian, Float64, order)
-    Melm = ReferenceFE(lagrangian, Float64, order)
+    Velm = ReferenceFE(lagrangian, VectorValue{2,Float64}, order)
+    Melm = ReferenceFE(lagrangian, VectorValue{2,Float64}, order)
+    # Velm = ReferenceFE(lagrangian, Float64, order)
+    # Melm = ReferenceFE(lagrangian, Float64, order)
 
 
     # What is going on here with Ω instead of "model"
-    δV = TestFESpace(Ω, Velm, conformity=:H1, dirichlet_tags=[1, 2, 5, 6, 8])
+    δV = TestFESpace(Ω, Velm, conformity=:H1, dirichlet_tags=[1, 2, 3, 4, 5, 6, 8])
     δM = TestFESpace(ΓD, Melm, conformity=:H1, dirichlet_tags=[3, 4])
 
-    @show (δM.nfree, δM.ndirichlet)
 
     V = TrialFESpace(δV, g0)
-    M = TrialFESpace(δM, 0)
+    M = TrialFESpace(δM, VectorValue(0, 0))
 
     δW = MultiFieldFESpace([δV, δM])
     W = MultiFieldFESpace([V, M])
@@ -66,12 +64,12 @@ function babuska_poisson_solver(model, pgs_dict, f0, g0, h0, dirichlet_tags, neu
 
     # Bilinear form
     # Scalar: - Δu + u = f
-    a((u, λ), (v, μ)) = ∫(∇(u) ⋅ ∇(v)) * dΩ + ∫(u * v) * dΩ - ∫(λ * v) * dΓD - ∫(u * μ) * dΓD
-    b((v, μ)) = neumann_conditions ? ∫(v * f0) * dΩ - ∫(g0 * μ) * dΓD + ∫(v * (h0 ⋅ ν)) * dΓN : ∫(v * f0) * dΩ - ∫(g0 * μ) * dΓD
+    # a((u, λ), (v, μ)) = ∫(∇(u) ⋅ ∇(v)) * dΩ + ∫(u * v) * dΩ - ∫(λ * v) * dΓD - ∫(u * μ) * dΓD
+    # b((v, μ)) = neumann_conditions ? ∫(v * f0) * dΩ - ∫(g0 * μ) * dΓD + ∫(v * (h0 ⋅ ν)) * dΓN : ∫(v * f0) * dΩ - ∫(g0 * μ) * dΓD
 
-    # # Vector: - Δu + u = f
-    # a((u, λ), (v, μ)) = ∫(∇(u) ⊙ ∇(v)) * dΩ + ∫(u ⋅ v) * dΩ - ∫(λ ⋅ v) * dΓD - ∫(u ⋅ μ) * dΓD
-    # b((v, μ)) = neumann_conditions ? ∫(v ⋅ f0) * dΩ - ∫(g0 ⋅ μ) * dΓD + ∫(v ⋅ (h0 ⋅ ν)) * dΓN : ∫(v ⋅ f0) * dΩ - ∫(g0 ⋅ μ) * dΓD
+    # Vector: - Δu + u = f
+    a((u, λ), (v, μ)) = ∫(∇(u) ⊙ ∇(v)) * dΩ + ∫(u ⋅ v) * dΩ - ∫(λ ⋅ v) * dΓD - ∫(u ⋅ μ) * dΓD
+    b((v, μ)) = neumann_conditions ? ∫(v ⋅ f0) * dΩ - ∫(g0 ⋅ μ) * dΓD + ∫(v ⋅ (h0 ⋅ ν)) * dΓN : ∫(v ⋅ f0) * dΩ - ∫(g0 ⋅ μ) * dΓD
 
 
     # # Vector: - Δu = f
@@ -160,16 +158,16 @@ function error_conv(solver, f0, g0, h0, dirichlet_tags, neumann_tags; lc_start=2
 end
 
 
-# MS (scalar)
-u0(x) = cos(π * x[1] * x[2])
-f0(x) = π^2 * (x[1]^2 + x[2]^2 + 1 / π^2) * cos(π * x[1] * x[2])
-h0(x) = VectorValue(-π * x[2] * sin(π * x[1] * x[2]), -π * x[1] * sin(π * x[1] * x[2])) # <---- Unsure of this
+# # MS (scalar)
+# u0(x) = cos(π * x[1] * x[2])
+# f0(x) = π^2 * (x[1]^2 + x[2]^2 + 1 / π^2) * cos(π * x[1] * x[2])
+# h0(x) = VectorValue(-π * x[2] * sin(π * x[1] * x[2]), -π * x[1] * sin(π * x[1] * x[2])) # <---- Unsure of this
 
 
-# # MS (vector):  - Δu + u = f
-# u0(x) = VectorValue(sin(π * x[1]), sin(π * x[2]))
-# f0(x) = VectorValue((π^2 + 1) * sin(π * x[1]), (π^2 + 1) * sin(π * x[2]))
-# h0(x) = TensorValue(π * cos(π * x[1]), 0.0, 0.0, π * cos(π * x[2]))
+# MS (vector):  - Δu + u = f
+u0(x) = VectorValue(sin(π * x[1]), sin(π * x[2]))
+f0(x) = VectorValue((π^2 + 1) * sin(π * x[1]), (π^2 + 1) * sin(π * x[2]))
+h0(x) = TensorValue(π * cos(π * x[1]), 0.0, 0.0, π * cos(π * x[2]))
 
 
 # # MS (vector): - Δu = f
