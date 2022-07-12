@@ -21,3 +21,15 @@ $$ u = g \ \text{on} \ \Gamma_D, \quad \sigma \cdot v = h \ \text{on} \ \Gamma_N
 
 
 
+### Babuska Stokes
+
+Start from 
+
+$$ -2 \mu \nabla \cdot(\mathbf{D}(\mathbf{u}))+\nabla p =\rho \mathbf{f}, \quad \text { in } \Omega $$
+$$ \nabla \cdot \mathbf{u} =0, \quad \text { in } \Omega $$
+$$ \mathbf{u} =\mathbf{0 ,} \text { on } \Gamma_{1} $$
+$$ \mathbf{u} \times \mathbf{n} =\mathbf{0}, \quad \text { on } \Gamma_{2}, \text { and } $$
+$$ p =p_{0}, \text { on } \Gamma_{2} $$
+
+
+

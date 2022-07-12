@@ -41,7 +41,7 @@ function create_unit_box(lc, view=false)
     surf = gmsh.model.occ.addPlaneSurface([loop])
     gmsh.model.occ.synchronize()
     gmsh.model.mesh.setTransfiniteSurface(surf)
-    gmsh.option.setNumber("Mesh.RecombineAll", 1)
+    # gmsh.option.setNumber("Mesh.RecombineAll", 1) # For square mesh
 
     # surf_group = gmsh.model.addPhysicalGroup(2, [surf]) # This must be here for some reason when writing
 

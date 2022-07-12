@@ -184,3 +184,15 @@ function _setup_cell_to_vertices(cell_to_nodes, node_to_vertex, nnodes)
     end
     cell_to_vertices
 end
+
+
+function _orient_simplex_connectivities!(nlnodes, i_lnode_to_node, node_to_vertex)
+    aux = zeros(eltype(i_lnode_to_node), nlnodes)
+    offset = nlnodes - 1
+    for i in 1:nlnodes:length(i_lnode_to_node)
+        nodes = i_lnode_to_node[i:i+offset]
+        vertices = view(node_to_vertex, nodes)
+        perm = sortperm(vertices)
+        i_lnode_to_node[i:i+offset] = nodes[perm]
+    end
+end

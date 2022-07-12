@@ -106,7 +106,7 @@ function babuska_poisson_solver(model, pgs_dict, f0, g0, h0, dirichlet_tags, neu
     @printf("λ: l2 norm = %e \n", λ_l2norm)
 
     # u_error = interpolate_everywhere(u_error, V)
-    write && writevtk(Ω, path * "poisson_babuska_results", cellfields=["uh" => uh, "u_error" => u_error])
+    write && writevtk(Ω, path * "vtu_files/" * "poisson_babuska_results", cellfields=["uh" => uh, "u_error" => u_error])
 
     return [u_l2norm, λ_l2norm]
 end

@@ -62,7 +62,7 @@ function poisson_solver(model, pgs_dict, f0, g0, h0, dirichlet_tags, neumann_tag
     @printf("l2 norm = %e \n", l2norm)
 
     if write
-        writevtk(Ω, path * "poisson_results", cellfields=["uh" => uh, "error" => error])
+        writevtk(Ω, path * "vtu_files/" * "poisson_results", cellfields=["uh" => uh, "error" => error])
     end
 
     return l2norm
