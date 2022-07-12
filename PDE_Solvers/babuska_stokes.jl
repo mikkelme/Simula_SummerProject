@@ -32,11 +32,12 @@ function babuska_stokes_solver(model, pgs_dict, f0, g0; write=false)
     order = 2
     reffeᵤ = ReferenceFE(lagrangian, VectorValue{2,Float64}, order)
     reffeₚ = ReferenceFE(lagrangian, Float64, order - 1)
-    reffeₘ = ReferenceFE(lagrangian, Float64, order)
+    reffeₘᵤₗ  = ReferenceFE(lagrangian, Float64, order)
+
 
     δV = TestFESpace(Ω, reffeᵤ, conformity=:H1, dirichlet_tags=Γ1_tags) # Velocity
-    δM = TestFESpace(Ω, reffeₚ, conformity=:H1) # Pressure  <--------- H1 ?????
-    δΛ = TestFESpace(Γ2, reffeₘ, conformity=:H1, dirichlet_tags=corner_tags) # Multiplier
+    δM = TestFESpace(Ω, reffeₚ, conformity=:H1) # Pressure  
+    δΛ = TestFESpace(Γ2, reffeₘᵤₗ, conformity=:H1, dirichlet_tags=corner_tags) # Multiplier
 
     V = TrialFESpace(δV, g0[1])
     M = TrialFESpace(δM)
