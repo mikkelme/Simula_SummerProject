@@ -11,11 +11,6 @@ end
 @show path
 
 
-function pgs_tags(pgs_dict, tags)
-    return [pgs_dict[tag] for tag in tags]
-end
-
-
 
 
 function babuska_stokes_solver(model, pgs_dict, f0, g0; write=false)

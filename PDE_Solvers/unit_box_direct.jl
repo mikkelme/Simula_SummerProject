@@ -5,6 +5,10 @@ using GridapGmsh: gmsh
 
 include("./DiscreteModel_utils.jl")
 
+function pgs_tags(pgs_dict, tags)
+    return [pgs_dict[tag] for tag in tags]
+end
+
 
 function create_unit_box(lc, view=false)
     # Physical tags

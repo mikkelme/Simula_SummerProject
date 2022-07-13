@@ -27,7 +27,6 @@ end
 
 
 
-
 # --- SUPPORT FUNCTIONS COPY-PASTED FROM https://github.com/gridap/GridapGmsh.jl/blob/master/src/GmshDiscreteModels.jl --- #
 
 
