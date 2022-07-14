@@ -149,15 +149,15 @@ function create_coupled_box(lc, view=false)
      
     model, pgs_dict = direct_wiring(gmsh)
     gmsh.finalize()
-    gmsh.finalize()
 
+    return model, pgs_dict
 
 end
 
 
 
 # create_unit_box(2, true)
-create_coupled_box(2, true)
+# create_coupled_box(2, true)
 
 # if abspath(PROGRAM_FILE) == @__FILE__
 #     lc = 0.1
