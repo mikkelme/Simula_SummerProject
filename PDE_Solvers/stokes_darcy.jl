@@ -163,50 +163,29 @@ end
 
 
 
-# #MS1
-# μ = 1.0
-# Κ = 1.0 
-# α(x) = π * (cos(π * x[2]) - sin(π * x[1]))/sin(π * x[2])
-# us0(x) = VectorValue(sin(π * x[2]), cos(π * x[1]))
-# ps0(x) = -sin(π * x[2])
-# fs0(x) = VectorValue(π^2 * sin(π * x[2]), π^2 * cos(π * x[1]) - π * cos(π * x[2]) )
-# σ(x) = TensorValue(-μ*p0(x), μ*π * (cos(π * x[2]) - sin(π * x[1])), μ*π * (cos(π * x[2]) - sin(π * x[1])), -μ*p0(x))
-# pd0(x) = ps0(x)
-# gΓ(x) = -cos(π * x[1]) + Κ*π*cos(π*x[2])
-# fd0(x) = -Κ * π * sin(π * x[2])
-
-# # MS2
-# μ = 1.0
-# Κ = 1.0 
-# α(x) = 2*μ/(1-x[2])
-# us0(x) = VectorValue((1 - x[2])^2, 0)
-# ps0(x) = 4*(x[2]-0.5)^2
-# fs0(x) = VectorValue(2*μ, 8*(x[2]-0.5))
-# pd0(x) = ps0(x) # Should only agree on y = 0.5
-# gΓ(x) = Κ*8*(x[2]-0.5)
-# fd0(x) = -Κ *8
-
-# # MS3
-# μ = 1.0
-# Κ = 1.0 
-# α(x) = μ
-# us0(x) = VectorValue(ℯ^x[2], 0.0)
-# ps0(x) = cos(π*x[1])
-# fs0(x) = VectorValue(π*sin(π*x[1]) + μ*ℯ^x[2], 0.0)
-# pd0(x) = ps0(x) 
-# gΓ(x) = 0.0
-# fd0(x) = Κ*π^2*cos(π*x[1])
-
-# MS4
+#MS1
 μ = 1.0
 Κ = 1.0 
-α(x) = μ*π*(cos(π*x[1]) + cos(π*x[2]))/sin(π*x[2])
-us0(x) = VectorValue(sin(π*x[2]), sin(π*x[1]))
-ps0(x) = sin(π*x[2])
-fs0(x) = VectorValue(μ*π^2*sin(π*x[2]), μ*π^2*sin(π*x[1]) + π*cos(π*x[2]))
-pd0(x) = 2*x[2] 
-gΓ(x) = -sin(π*x[1]) - 2*Κ
-fd0(x) = 0.0
+α(x) = μ*π * (cos(π * x[2]) - sin(π * x[1]))/sin(π * x[2])
+us0(x) = VectorValue(sin(π * x[2]), cos(π * x[1]))
+ps0(x) = -sin(π * x[2])
+fs0(x) = VectorValue(μ*π^2 * sin(π * x[2]), μ*π^2 * cos(π * x[1]) - π*cos(π * x[2]) )
+σ(x) = TensorValue(-p0(x), μ*π * (cos(π * x[2]) - sin(π * x[1])), μ*π * (cos(π * x[2]) - sin(π * x[1])), -p0(x))
+pd0(x) = ps0(x)
+gΓ(x) = -cos(π * x[1]) + Κ*π*cos(π*x[2])
+fd0(x) = -Κ * π^2 * sin(π * x[2])
+
+
+# # MS4
+# μ = 1.0
+# Κ = 1.0 
+# α(x) = μ*π*(cos(π*x[1]) + cos(π*x[2]))/sin(π*x[2])
+# us0(x) = VectorValue(sin(π*x[2]), sin(π*x[1]))
+# ps0(x) = sin(π*x[2])
+# fs0(x) = VectorValue(μ*π^2*sin(π*x[2]), μ*π^2*sin(π*x[1]) + π*cos(π*x[2]))
+# pd0(x) = 2*x[2] 
+# gΓ(x) = -sin(π*x[1]) - 2*Κ
+# fd0(x) = 0.0
 
 
 
