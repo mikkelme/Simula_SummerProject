@@ -15,14 +15,14 @@ end
 
 
 """
-      ---ΓS---
+      ---ΛS---
 ΓS → |   ΩS   | ← ΓS
       ----Γ---
 ΓD → |   ΩD   | ← ΓD
       ---ΓD---
 
 """
-function stokes_darcy_solver(model, pgs_dict, f0, g0, params; write = false)
+function nitsche_stokes_darcy_solver(model, pgs_dict, f0, g0, params; write = false)
     # Unpack input
     fs0, fd0 = f0
     us0, ps0, pd0, gΓ = g0
@@ -31,7 +31,8 @@ function stokes_darcy_solver(model, pgs_dict, f0, g0, params; write = false)
     # --- Boundary tags --- #
     ΩS_tags =  pgs_tags(pgs_dict, [200])
     ΩD_tags =  pgs_tags(pgs_dict, [100])
-    ΓS_tags = pgs_tags(pgs_dict, [5, 6, 7, 10, 11, 12, 13])
+    ΛS_tags = pgs_tags(pgs_dict, [7, 12, 13])
+    ΓS_tags = pgs_tags(pgs_dict, [5, 6])
     ΓD_tags = pgs_tags(pgs_dict, [1, 2, 3, 8, 9])
 
     
@@ -41,7 +42,7 @@ function stokes_darcy_solver(model, pgs_dict, f0, g0, params; write = false)
     ΩD = Triangulation(model, tags=ΩD_tags)
     Γ = InterfaceTriangulation(ΩS, ΩD)
 
-
+    ΛS = BoundaryTriangulation(model, tags=ΛS_tags)
     ΓS = BoundaryTriangulation(model, tags=ΓS_tags)
     ΓD = BoundaryTriangulation(model, tags=ΓD_tags)
 
@@ -51,7 +52,7 @@ function stokes_darcy_solver(model, pgs_dict, f0, g0, params; write = false)
     ref_pd = ReferenceFE(lagrangian, Float64, order)
 
     # Test spaces
-    δVS = TestFESpace(ΩS, ref_us, conformity=:H1, dirichlet_tags=ΓS_tags)
+    δVS = TestFESpace(ΩS, ref_us, conformity=:H1, dirichlet_tags=ΛS_tags)
     δQS = TestFESpace(ΩS, ref_ps, conformity=:H1) 
     δQD = TestFESpace(ΩD, ref_pd, conformity=:H1, dirichlet_tags=ΓD_tags)
 
@@ -68,22 +69,41 @@ function stokes_darcy_solver(model, pgs_dict, f0, g0, params; write = false)
     dΩS = Measure(ΩS, degree)
     dΩD = Measure(ΩD, degree)
     dΓ = Measure(Γ, degree)
+    dΛS = Measure(ΛS, degree)
     dΓS = Measure(ΓS, degree)
     dΓD = Measure(ΓD, degree)
 
     # Normal and tangential vectors
-    n̂Γ = get_normal_vector(Γ) # Should point from stokes into Darcy
-    n̂ΓS = get_normal_vector(ΓS)
+    n̂Γ = get_normal_vector(Γ)
     t̂Γ = TensorValue(0, -1, 1, 0) ⋅ n̂Γ.⁺ 
+    # n̂ΛS = get_normal_vector(ΛS)
+    # n̂ΓS = get_normal_vector(ΓS)
+    # t̂ΓS = TensorValue(0, -1, 1, 0) ⋅ n̂ΓS 
 
+    # Nitsche 
+    # γ = 10^order # Nitsche penalty parameter
+ 
+    # h_ΓS = get_array(∫(1) * dΓS)
+    # h = CellField(lazy_map(h -> h, h_ΓS), ΓS)
+    
     # --- Weak formulation --- #
     ϵ(u) = 1 / 2 * (∇(u) + transpose(∇(u)))
+    σ(u,p) = 2 * μ * ε(u) - p * TensorValue(1, 0, 0, 1)
+    
+    # aΩs(us, ps, vs, qs) = ∫( 2*μ * ϵ(us) ⊙ ϵ(vs) - (∇⋅us)*qs - ps*(∇⋅vs) )dΩS
+    # aΓS((us, ps), (vs, qs)) =  ∫(γ/h * (us⋅t̂ΓS) * (vs ⋅ t̂ΓS)) * dΓS  - ∫( ((n̂ΓS ⋅ σ(us,ps)) ⋅ t̂ΓS) * (vs⋅t̂ΓS) ) * dΓS - ∫( ((n̂ΓS ⋅ σ(vs,qs)) ⋅ t̂ΓS) * (us⋅t̂ΓS) )dΓS
+    # bΓS((vs, qs)) = ∫(ps0 * (-vs ⋅ n̂D)) * dΓD 
+    
 
+    # Remember to include the nitshce functions below
+    # Right now you get: UndefRefError: access to undefined reference
+    # However, the code is not so different to stokes_darcy, so resolve this before adding nitsche
     aΩs((us, ps), (vs, qs)) = ∫( 2*μ * ϵ(us) ⊙ ϵ(vs) - (∇⋅us)*qs - ps*(∇⋅vs) )dΩS
     aΩD((pd, qd)) = ∫( Κ*(∇(pd)⋅∇(qd)) )dΩD
     aΓ((us, pd), (vs, qd)) = ∫( α*(us.⁺⋅t̂Γ)*(vs.⁺⋅t̂Γ) - (us.⁺⋅n̂Γ.⁺)*qd.⁻ + pd.⁻*(n̂Γ.⁺⋅vs.⁺) )dΓ
     a((us, ps, pd), (vs, qs, qd)) =  aΩs((us, ps), (vs, qs)) + aΩD((pd, qd)) + aΓ((us, pd), (vs, qd))
-    b((vs, qs, qd)) = ∫( fs0⋅vs )dΩS + ∫( fd0 * qd )dΩD - ∫(CellField(gΓ, Γ) * qd.⁻)dΓ    # + ∫( σ⋅n̂ΓS⋅vs )dΓS + ∫( Κ*∇(pd)⋅qd )dΓD
+    b((vs, qs, qd)) = ∫( fs0⋅vs )dΩS + ∫( fd0 * qd )dΩD - ∫(CellField(gΓ, Γ) * qd.⁻)dΓ    # + ∫( σ⋅n̂ΛS⋅vs )dΓS + ∫( Κ*∇(pd)⋅qd )dΓD
+    
 
 
     # --- Solve --- #
@@ -104,7 +124,7 @@ function stokes_darcy_solver(model, pgs_dict, f0, g0, params; write = false)
     @printf("ps: l2 norm = %e \n", ps_l2norm)
     @printf("pd: l2 norm = %e \n", pd_l2norm)
 
-    write && writevtk(Ω, path * "vtu_files/" * "stokes_darcy_results", cellfields=["us" => ush, "ps" => psh, "pd" => pdh, "us_error" => us_error, "ps_error" => ps_error, "pd_error" => pd_error])
+    write && writevtk(Ω, path * "vtu_files/" * "nitsche_stokes_darcy_results", cellfields=["us" => ush, "ps" => psh, "pd" => pdh, "us_error" => us_error, "ps_error" => ps_error, "pd_error" => pd_error])
     
     return us_l2norm, ps_l2norm, pd_l2norm
     
@@ -176,27 +196,14 @@ gΓ(x) = -cos(π * x[1]) + Κ*π*cos(π*x[2])
 fd0(x) = -Κ * π^2 * sin(π * x[2])
 
 
-# # MS4
-# μ = 1.0
-# Κ = 1.0 
-# α(x) = μ*π*(cos(π*x[1]) + cos(π*x[2]))/sin(π*x[2])
-# us0(x) = VectorValue(sin(π*x[2]), sin(π*x[1]))
-# ps0(x) = sin(π*x[2])
-# fs0(x) = VectorValue(μ*π^2*sin(π*x[2]), μ*π^2*sin(π*x[1]) + π*cos(π*x[2]))
-# pd0(x) = 2*x[2] 
-# gΓ(x) = -sin(π*x[1]) - 2*Κ
-# fd0(x) = 0.0
-
-
-
-
 
 params = Dict(:μ => μ, :Κ => Κ, :α => α)
 f0 = (fs0, fd0)
 g0 = (us0, ps0, pd0, gΓ)
-# model, pgs_dict = create_coupled_box(2, false)
-# stokes_darcy_solver(model, pgs_dict, f0, g0, params; write = true)
-error_conv(stokes_darcy_solver, f0, g0, params; show_plot=false)
+
+model, pgs_dict = create_coupled_box(2, false)
+nitsche_stokes_darcy_solver(model, pgs_dict, f0, g0, params; write = true)
+# error_conv(nitsche_stokes_darcy_solver, f0, g0, params; show_plot=false)
 
 
 
