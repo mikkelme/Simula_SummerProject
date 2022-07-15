@@ -74,10 +74,10 @@ end
 """
 Unit square (sidelength = 1) with dividing line from (0, 0.5) to (1, 0.5)
 Physical tags
-  (12)--7--(12)
- 5→ |       | ←6
+  (12)--7--(13)
+ 5→ |  200  | ←6
   (10)--4--(11)
- 2→ |       | ←3
+ 2→ |  100  | ←3
    (8)--1--(9)
 
 """
@@ -136,6 +136,13 @@ function create_coupled_box(lc, view=false)
     gmsh.model.addPhysicalGroup(0, [ΓR],11)
     gmsh.model.addPhysicalGroup(0, [D], 12)
     gmsh.model.addPhysicalGroup(0, [C], 13)
+
+    gmsh.model.addPhysicalGroup(2, [surf[1]], 100)
+    gmsh.model.addPhysicalGroup(2, [surf[2]], 200)
+
+
+
+
 
     # # gmsh.option.setNumber("Mesh.RecombineAll", 1) # For square mesh
     gmsh.model.mesh.generate(2)

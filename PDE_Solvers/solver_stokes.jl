@@ -81,9 +81,8 @@ function stokes_solver(model, pgs_dict, f0, g0, h0, dirichlet_tags, neumann_tags
     @printf("u: l2 norm = %e \n", u_l2norm)
     @printf("p: l2 norm = %e \n", p_l2norm)
 
-    if write
-        writevtk(Ωₕ, path * "vtu_files/" * "stokes_results", order=2, cellfields=["uh" => uh, "ph" => ph, "u_error" => u_error, "p_error" => p_error])
-    end
+    write && writevtk(Ωₕ, path * "vtu_files/" * "stokes_results", order=2, cellfields=["uh" => uh, "ph" => ph, "u_error" => u_error, "p_error" => p_error])
+  
 
     return u_l2norm, p_l2norm
 
