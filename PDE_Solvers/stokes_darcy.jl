@@ -83,7 +83,7 @@ function stokes_darcy_solver(model, pgs_dict, f0, g0, params; write = false)
     aΩD((pd, qd)) = ∫( Κ*(∇(pd)⋅∇(qd)) )dΩD
     aΓ((us, pd), (vs, qd)) = ∫( α*(us.⁺⋅t̂Γ)*(vs.⁺⋅t̂Γ) - (us.⁺⋅n̂Γ.⁺)*qd.⁻ + pd.⁻*(n̂Γ.⁺⋅vs.⁺) )dΓ
     a((us, ps, pd), (vs, qs, qd)) =  aΩs((us, ps), (vs, qs)) + aΩD((pd, qd)) + aΓ((us, pd), (vs, qd))
-    b((vs, qs, qd)) = ∫( fs0⋅vs )dΩS + ∫( fd0 * qd )dΩD - ∫(CellField(gΓ, Γ) * qd.⁻)dΓ    # + ∫( σ⋅n̂ΓS⋅vs )dΓS + ∫( Κ*∇(pd)⋅qd )dΓD
+    b((vs, qs, qd)) = ∫( fs0⋅vs )dΩS + ∫( fd0 * qd )dΩD - ∫(CellField(gΓ, Γ) * qd.⁻)dΓ # + neumann 
 
 
     # --- Solve --- #

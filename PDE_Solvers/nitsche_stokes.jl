@@ -58,11 +58,15 @@ function nitsche_stokes_solver(model, pgs_dict, f0, g0; write=false)
     ϵ(u) = 1 / 2 * (∇(u) + transpose(∇(u)))
     σ(u,p) = 2 * μ * ε(u) - p * TensorValue(1, 0, 0, 1)
 
-    aN((u, p), (v, q)) = ∫(γ/h * (u⋅t̂D) * (v ⋅ t̂D)) * dΓD  - ∫( ((n̂D ⋅ σ(u,p)) ⋅ t̂D) * (v ⋅t̂D) ) * dΓD - ∫( ((n̂D ⋅ σ(v,q)) ⋅ t̂D) * (u⋅t̂D) ) * dΓD
-    bN((v, q)) = ∫(p0 * (v ⋅ n̂D)) * dΓD # minus sign is placed when inserted in b(v,q)
+    gΓ2 = u0 × n̂D #
+
+    aN((u, p), (v, q)) = ∫(γ/h * (u⋅t̂D ) * (v ⋅ t̂D)) * dΓD  - ∫( ((n̂D ⋅ σ(u,p)) ⋅ t̂D) * (v ⋅t̂D) ) * dΓD - ∫( ((n̂D ⋅ σ(v,q)) ⋅ t̂D) * (u⋅t̂D ) ) * dΓD
+    bN((v, q)) = ∫(p0 * (-v ⋅ n̂D)) * dΓD + ∫(gΓ2 * (γ/h * (v ⋅ t̂D) - ((n̂D ⋅ σ(v,q)) ⋅ t̂D))) * dΓD
+
     
+
     a((u, p), (v, q)) = ∫(2 * μ * ϵ(u) ⊙ ϵ(v) - p * (∇ ⋅ v) - q * (∇ ⋅ u)) * dΩ + aN((u, p), (v, q))
-    b((v, q)) = ∫(v ⋅ f0) * dΩ - bN((v, q)) # + ∫(v ⋅ (h0 ⋅ n̂N)) * dΓN 
+    b((v, q)) = ∫(v ⋅ f0) * dΩ + bN((v, q)) # + ∫(v ⋅ (h0 ⋅ n̂N)) * dΓN 
     
     
     # --- Solve --- #
@@ -134,22 +138,27 @@ end
 
 μ = 1.0
 
-# MS 
-u0(x) = VectorValue(sin(π * x[2]), sin(π * x[1]))
-p0(x) = cos(π * x[1] * x[2])
-f0(x) = VectorValue(μ * π^2 * sin(π * x[2]) - π * x[2] * sin(π*x[1]*x[2]), μ * π^2 * sin(π * x[1]) - π  * x[1] * sin(π*x[1]*x[2]))
+# # MS 1 (u × n̂ = 0 on Γ2)
+# u0(x) = VectorValue(sin(π * x[2]), sin(π * x[1]))
+# p0(x) = cos(π * x[1] * x[2])
+# f0(x) = VectorValue(μ * π^2 * sin(π * x[2]) - π * x[2] * sin(π*x[1]*x[2]), μ * π^2 * sin(π * x[1]) - π  * x[1] * sin(π*x[1]*x[2]))
+
+# # Visualization of quadratic shape of velocity field (ignore l2 norms here)
+# u0(x) = VectorValue(0.0, 0.0) # u = 0 on boundary
+# pL = 10.0; pR = 1.0
+# p0(x) = (1 - x[1]) * pL + x[1] * pR # Pressure drop from left to right: pL → pR 
+# f0(x) = VectorValue(0.0, 0.0)
 
 
-# Visualization of quadratic shape of velocity field (ignore l2 norms here)
-u0(x) = VectorValue(0.0, 0.0) # u = 0 on boundary
-pL = 10.0; pR = 1.0
-p0(x) = (1 - x[1]) * pL + x[1] * pR # Pressure drop from left to right: pL → pR 
-f0(x) = VectorValue(0.0, 0.0)
+# MS 2 (u × n̂ ≂̸ 0 on Γ2)
+u0(x) = VectorValue(sin(π * x[2]), cos(π * x[1]))
+p0(x) = sin(π * (x[1] + x[2]))
+f0(x) = VectorValue(μ*π^2 * sin(π * x[2]) + π * cos(π * (x[1] + x[2])), μ*π^2 * cos(π * x[1]) + π * cos(π * (x[1] + x[2])))
 
 g0 = (u0, p0)
-model, pgs_dict = create_unit_box(2, false)
-nitsche_stokes_solver(model, pgs_dict, f0, g0; write=true)
-# error_conv(nitsche_stokes_solver, f0, g0)
+# model, pgs_dict = create_unit_box(2, false)
+# nitsche_stokes_solver(model, pgs_dict, f0, g0; write=true)
+error_conv(nitsche_stokes_solver, f0, g0)
 
 
 
