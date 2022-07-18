@@ -4,8 +4,7 @@ using Printf
 using Plots
 
 
-include("./unit_box_direct.jl")
-
+include("../mesh_generators/unit_box_direct.jl")
 
 path = "/Users/mikkelme/Documents/Github/Simula_SummerProject/PDE_Solvers/"
 if !ispath(path)
