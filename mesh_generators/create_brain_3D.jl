@@ -1,4 +1,4 @@
-include("./utils.jl")
+include("./brain_mesh_utils.jl")
 
 
 mutable struct geo3D
@@ -282,8 +282,6 @@ function create_brain_3D(param::model_params)
 
 
    
-
-
 
 end # End of create_brain_3D
 

@@ -1,4 +1,6 @@
-# --- Custom Functions --- # 
+
+
+# --- Custom Function --- # 
 
 function direct_wiring(gmsh; renumber=true)
     renumber && gmsh.model.mesh.renumberNodes()
@@ -27,7 +29,7 @@ end
 
 
 
-# --- SUPPORT FUNCTIONS COPY-PASTED FROM https://github.com/gridap/GridapGmsh.jl/blob/master/src/GmshDiscreteModels.jl --- #
+# --- SUPPORT FUNCTIONS: COPY-PASTED FROM https://github.com/gridap/GridapGmsh.jl/blob/master/src/GmshDiscreteModels.jl --- #
 
 
 function  _setup_nodes_and_vertices(gmsh,node_to_coords)
@@ -42,6 +44,29 @@ function  _setup_nodes_and_vertices(gmsh,node_to_coords)
   end
   vertex_to_node, node_to_vertex
 end
+
+
+function _setup_nodes_and_vertices_periodic(gmsh,dimTags,nnodes)
+    # Assumes linear grid
+    node_to_node_master = fill(GridapGmsh.UNSET,nnodes)
+    GridapGmsh._node_to_node_master!(node_to_node_master,gmsh,dimTags)
+    slave_to_node_slave = findall(node_to_node_master .!= GridapGmsh.UNSET)
+    slave_to_node_master = node_to_node_master[slave_to_node_slave]
+    node_to_vertex = fill(GridapGmsh.UNSET,nnodes)
+    vertex_to_node = findall(node_to_node_master .== GridapGmsh.UNSET)
+    node_to_vertex[vertex_to_node] = 1:length(vertex_to_node)
+    nmax = 20
+    for i in 1:nmax
+      node_to_vertex[slave_to_node_slave] = node_to_vertex[slave_to_node_master]
+      if all(j->j!=0,node_to_vertex)
+        break
+      end
+      if i == nmax
+        Gridap.Helpers.@unreachable
+      end
+    end
+    vertex_to_node, node_to_vertex
+  end
 
 
 function _setup_grid(gmsh, Dc, Dp, node_to_coords, node_to_vertex)
@@ -59,15 +84,15 @@ function _setup_grid(gmsh, Dc, Dp, node_to_coords, node_to_vertex)
 
     if Dp == 3 && Dc == 2
         cell_coords = lazy_map(Broadcasting(Reindex(node_to_coords)), cell_to_nodes)
-        ctype_shapefuns = map(get_shapefuns, reffes)
-        cell_shapefuns = expand_cell_data(ctype_shapefuns, cell_to_type)
-        cell_map = lazy_map(linear_combination, cell_coords, cell_shapefuns)
+        ctype_shapefuns = map(Gridap.ReferenceFEs.get_shapefuns, reffes)
+        cell_shapefuns = Gridap.ReferenceFEs.expand_cell_data(ctype_shapefuns, cell_to_type)
+        cell_map = lazy_map(Gridap.ReferenceFEs.linear_combination, cell_coords, cell_shapefuns)
         ctype_x = fill(zero(VectorValue{Dc,Float64}), length(ctype_shapefuns))
-        cell_x = expand_cell_data(ctype_x, cell_to_type)
+        cell_x = Gridap.ReferenceFEs.expand_cell_data(ctype_x, cell_to_type)
         cell_Jt = lazy_map(∇, cell_map)
-        cell_n = lazy_map(Operation(_unit_outward_normal), cell_Jt)
+        cell_n = lazy_map(Operation(GridapGmsh._unit_outward_normal), cell_Jt)
         cell_nx = lazy_map(evaluate, cell_n, cell_x) |> collect
-        facet_normal = lazy_map(constant_field, cell_nx)
+        facet_normal = lazy_map(Gridap.ReferenceFEs.constant_field, cell_nx)
     else
         facet_normal = nothing
     end

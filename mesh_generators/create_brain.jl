@@ -1,13 +1,21 @@
+using Gridap
+using GridapGmsh
+using GridapGmsh: gmsh
+using Printf
 include("./create_brain_3D.jl")
 include("./create_brain_2D.jl")
+include("./DiscreteModel_utils.jl")
+
+path = "/Users/mikkelme/Documents/Github/Simula_SummerProject/mesh_generators/"
+if !ispath(path)
+    path = "/home/mirok/Documents/MkSoftware/Simula_SummerProject/mesh_generators/"
+end
 
 
-
-function create_brain(param::model_params, view=true, write=false)
+function create_brain(param::model_params; view=true, write=false)
     gmsh.initialize(["", "-clmax", string(param.lc)])
     gmsh.model.add("brain")
     param.arcLen[2] == 0 ? create_brain_2D(param) : create_brain_3D(param)
-
 
     # View and finalize
     if view
@@ -19,23 +27,20 @@ function create_brain(param::model_params, view=true, write=false)
         gmsh.option.setNumber("General.Trackball", 0)
         gmsh.option.setNumber("General.RotationX", -90) # Used if trackball = 0
 
-    
         gmsh.fltk.initialize()
         gmsh.option.setNumber("General.Trackball", 1) # Reenable for better rotation control
-
         gmsh.fltk.run()
     end
 
-    if write
-        gmsh.write("brain.msh")
-    end 
-
+    write && gmsh.write(path * "brain.msh")
+    
+    model, pgs_dict = direct_wiring(gmsh)
     gmsh.finalize()
 
+    return model, pgs_dict
 
 
 end
-
 
 
 if abspath(PROGRAM_FILE) == @__FILE__
@@ -54,5 +59,5 @@ if abspath(PROGRAM_FILE) == @__FILE__
     param = model_params(lc, arcLen, r_brain, d_ratio, r_curv, inner_perturb, outer_perturb, BS_points, field_Lc_lim, field_Dist_lim)
 
 
-    create_brain(param, true, true)
+    create_brain(param; view=true, write=false)
 end

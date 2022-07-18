@@ -1,4 +1,4 @@
-include("./utils.jl")
+include("./brain_mesh_utils.jl")
 
 
 
@@ -8,6 +8,7 @@ mutable struct geo2D
     vertex::Array{Int32,2}            # Vertices of all corners
     arc::Array{Int32,1}               # arcs
     vline::Array{Int32,2}
+    surf::Array{Int32,1}   
     angle::Float64                      # Angle span (z → x-axis)
 
     function geo2D() # Constructor
@@ -15,6 +16,7 @@ mutable struct geo2D
             Matrix{Int32}(undef, 3, 2),
             Vector{Int32}(undef, 3),
             Matrix{Int32}(undef, 2, 2),
+            Vector{Int32}(undef, 2),
              0)
     end
 end
@@ -61,12 +63,12 @@ function connect_and_surfize(brain::geo2D)
     for i in 1:2
         brain.vline[i,:] = [gmsh.model.occ.addLine(brain.vertex[i, j], brain.vertex[i+1, j]) for j in 1:2]
         Loop = gmsh.model.occ.addCurveLoop([brain.vline[i,1], brain.arc[i+1], -brain.vline[i,2], -brain.arc[i]])
-        surf = gmsh.model.occ.addPlaneSurface([Loop])
+        brain.surf[i] = gmsh.model.occ.addPlaneSurface([Loop])
         gmsh.model.occ.synchronize()
 
         # Add physical groups
         [gmsh.model.addPhysicalGroup(1, [line]) for line in brain.vline[i,:]] # vertical lines
-        gmsh.model.addPhysicalGroup(2, [surf])  # surface
+        gmsh.model.addPhysicalGroup(2, [brain.surf[i]])  # surface
 
     end
 end
@@ -150,6 +152,18 @@ function create_brain_2D(param::model_params)
     connect_and_surfize(brain)
     add_mesh_field(brain, param)
     apply_periodic_meshing(brain)
+   
+   
+    # # Add physical groups (might not be allowed)
+    # obj = [brain.surf, brain.arc, brain.vline, brain.vertex, ]
+    # obj_dim = [2, 1, 1, 0]
+    # for k in 1:length(obj)
+    #     for (i, tag) in enumerate(obj[k])
+    #         gmsh.model.addPhysicalGroup(obj_dim[k], [tag])
+    #     end
+    # end
+   
+
 
     # Generate mesh
     gmsh.model.occ.synchronize()
