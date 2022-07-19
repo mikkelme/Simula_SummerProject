@@ -5,6 +5,8 @@ using Plots
 
 
 include("../mesh_generators/create_brain.jl")
+include("../mesh_generators/unit_box_direct.jl")
+
 
 
 path = "/Users/mikkelme/Documents/Github/Simula_SummerProject/brain_simulations/"
@@ -44,6 +46,24 @@ function brain_PDE(model, pgs_dict, data; write = false)
     ΓD_neutags = pgs_tags(pgs_dict, [3, 6, 8, 10, 11, 13, 14]) 
     ΛS_diritags = filter(x -> x ∉ ΛS_neutags, ΛS_tags)
     ΓD_diritags = filter(x -> x ∉ ΓD_neutags, ΓD_tags)
+
+
+
+
+    # # Unit box 
+    # # --- Boundary tags --- #
+    # ΩS_tags =  pgs_tags(pgs_dict, [200])
+    # ΩD_tags =  pgs_tags(pgs_dict, [100])
+    # ΛS_tags = pgs_tags(pgs_dict, [7, 12, 13]) 
+    # ΓD_tags = pgs_tags(pgs_dict, [1, 2, 3, 8, 9, 10, 11])
+    # ΓS_tags = pgs_tags(pgs_dict, [5, 6]) 
+
+    # # Boundary conditions
+    # ΛS_neutags = pgs_tags(pgs_dict, []) 
+    # ΓD_neutags = pgs_tags(pgs_dict, [1, 2, 3, 8, 9, 10, 11]) 
+    # ΛS_diritags = filter(x -> x ∉ ΛS_neutags, ΛS_tags)
+    # ΓD_diritags = filter(x -> x ∉ ΓD_neutags, ΓD_tags)
+    # #####
 
     
     # --- Triangulation and spaces --- #
@@ -99,8 +119,8 @@ function brain_PDE(model, pgs_dict, data; write = false)
     
     # Normal and tangential vectors
     n̂Γ = get_normal_vector(Γ) 
-    tangent = TensorValue(0, -1, 1, 0) ⋅ n̂Γ.⁺ # <----------- Problem
-    return
+    tangent = TensorValue(0, -1, 1, 0) ⋅ n̂Γ.⁺ 
+    
     n̂ΛS = get_normal_vector(ΛS)
     n̂ΓS = get_normal_vector(ΓS)
     n̂D = get_normal_vector(ΓD)
@@ -172,6 +192,7 @@ brain_params = model_params(lc, arcLen, r_brain, d_ratio, r_curv, inner_perturb,
 model, pgs_dict = create_brain(brain_params; view=false, write=false)
 
 
+
 # --- PDE parameters --- #
 μ = 1.0
 Κ = 1.0 
@@ -189,7 +210,9 @@ gΓ(x) = 0
 
 PDE_params = Dict(:μ => μ, :Κ => Κ, :α => α, :gΓS => gΓS, :fs0 => fs0, :fd0 => fd0, :us0 => us0, :ps0 => ps0, :pd0 => pd0, :gΓ => gΓ, :σ0 => σ0, :nab_pd0 => nab_pd0) 
 
+
 # --- Run simulation --- #
+# model, pgs_dict  = create_coupled_box(1, false)
 brain_PDE(model, pgs_dict, PDE_params; write = true)
 
 

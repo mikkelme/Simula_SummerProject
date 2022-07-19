@@ -23,11 +23,22 @@ end
 
 
 
+function spherical_to_cartesian_xy(r, theta, phi)
+    # theta: angle from x-axis in x-y-plane (0 → 2π)
+    # phi: angle from z-axis towards x-y-plane (0 → π)
+    x = r * cos(theta) * sin(phi)
+    y = r * sin(theta) * sin(phi)
+    z = r * cos(phi)
+    return x, z, y # y, z is swapped
+end
+
+
+
 
 function create_arc(brain::geo2D, r)
     vertex = Array{Int32,1}(undef, 2)
-    vertex[1] = gmsh.model.occ.addPoint(spherical_to_cartesian(r, pi, brain.angle / 2)...)
-    vertex[2] = gmsh.model.occ.addPoint(spherical_to_cartesian(r, 0, brain.angle / 2)...)
+    vertex[1] = gmsh.model.occ.addPoint(spherical_to_cartesian_xy(r, pi, brain.angle / 2)...)
+    vertex[2] = gmsh.model.occ.addPoint(spherical_to_cartesian_xy(r, 0, brain.angle / 2)...)
     arc = gmsh.model.occ.addCircleArc(vertex[1], brain.origo, vertex[2])
     gmsh.model.occ.synchronize()
 
@@ -45,7 +56,7 @@ function create_perturbed_arc(brain::geo2D, r, perturbation_func, BS_points)
         phi = - brain.angle / 2 + brain.angle * i
         x_arcLen = r * phi
         r_pert = r + perturbation_func(x_arcLen, 0)
-        append!(pointTags, gmsh.model.occ.addPoint(spherical_to_cartesian(r_pert, 0, phi)...))
+        append!(pointTags, gmsh.model.occ.addPoint(spherical_to_cartesian_xy(r_pert, 0, phi)...))
 
     end
 
@@ -131,7 +142,7 @@ function apply_periodic_meshing(brain::geo2D)
 end
 
 
-function create_brain_2D(param::model_params)
+function create_brain_2D_xy(param::model_params)
     brain = geo2D() # Struct for holding tags and angle
 
     # Calculate derived parameters
@@ -142,14 +153,18 @@ function create_brain_2D(param::model_params)
     
     
     # Add arcs
+    # brain.vertex[1, :], brain.arc[1] = create_arc(brain, rI)
+    # brain.vertex[2, :], brain.arc[2] = create_arc(brain, rD)
+    # brain.vertex[3, :], brain.arc[3] = create_arc(brain, param.r_curv)
+
     brain.vertex[1, :], brain.arc[1] = create_arc(brain, rI)
     brain.vertex[2, :], brain.arc[2] = create_perturbed_arc(brain, rD, param.inner_perturb, param.BS_points[1])
     brain.vertex[3, :], brain.arc[3] = create_perturbed_arc(brain, param.r_curv, param.outer_perturb, param.BS_points[1])
     
   
     connect_and_surfize(brain)
-    add_mesh_field(brain, param)
-    apply_periodic_meshing(brain)
+    # add_mesh_field(brain, param)
+    # apply_periodic_meshing(brain)
     
 
     

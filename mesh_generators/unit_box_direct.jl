@@ -84,6 +84,9 @@ Physical tags
 function create_coupled_box(lc, view=false)
     gmsh.initialize(["", "-clscale", string(lc)])
 
+
+
+
     A = gmsh.model.occ.addPoint(0, 0, 0)
     B = gmsh.model.occ.addPoint(1, 0, 0)
     C = gmsh.model.occ.addPoint(1, 1, 0)
@@ -144,7 +147,7 @@ function create_coupled_box(lc, view=false)
 
 
 
-    # # gmsh.option.setNumber("Mesh.RecombineAll", 1) # For square mesh
+    gmsh.option.setNumber("Mesh.RecombineAll", 1) # For square mesh
     gmsh.model.mesh.generate(2)
 
     if view

@@ -3,7 +3,9 @@ using GridapGmsh
 using GridapGmsh: gmsh
 using Printf
 include("./create_brain_3D.jl")
-include("./create_brain_2D.jl")
+# include("./create_brain_2D.jl")
+include("./create_brain_2D_xy.jl")
+
 include("./DiscreteModel_utils.jl")
 
 path = "/Users/mikkelme/Documents/Github/Simula_SummerProject/mesh_generators/"
@@ -18,6 +20,7 @@ end
 
 function create_brain(param::model_params; view=true, write=false)
     gmsh.initialize(["", "-clmax", string(param.lc)])
+    
 
     # For direct wiring
     gmsh.option.setNumber("Mesh.SaveAll", 1)
@@ -25,22 +28,39 @@ function create_brain(param::model_params; view=true, write=false)
     # gmsh.option.setNumber("Mesh.MedImportGroupsOfNodes", 1)
 
     gmsh.model.add("brain")
-    param.arcLen[2] == 0 ? create_brain_2D(param) : create_brain_3D(param)
+    param.arcLen[2] == 0 ? create_brain_2D_xy(param) : create_brain_3D(param)
 
     # View and finalize
     if view
         # Shift rotation center 
         gmsh.option.setNumber("General.RotationCenterGravity", 0)
-        gmsh.option.setNumber("General.RotationCenterZ", param.r_curv-param.r_brain/2)
+        gmsh.option.setNumber("General.RotationCenterY", param.r_curv-param.r_brain/2)
         
         # Rotate view
-        gmsh.option.setNumber("General.Trackball", 0)
-        gmsh.option.setNumber("General.RotationX", -90) # Used if trackball = 0
+        # gmsh.option.setNumber("General.Trackball", 0)
+        # gmsh.option.setNumber("General.RotationX", -90) # Used if trackball = 0
+        gmsh.option.setNumber("General.TranslationY", -(param.r_curv-param.r_brain/2)) # Used if trackball = 0
+
 
         gmsh.fltk.initialize()
         gmsh.option.setNumber("General.Trackball", 1) # Reenable for better rotation control
         gmsh.fltk.run()
     end
+
+
+    # if view
+    #     # Shift rotation center 
+    #     gmsh.option.setNumber("General.RotationCenterGravity", 0)
+    #     gmsh.option.setNumber("General.RotationCenterZ", param.r_curv-param.r_brain/2)
+        
+    #     # Rotate view
+    #     gmsh.option.setNumber("General.Trackball", 0)
+    #     gmsh.option.setNumber("General.RotationX", -90) # Used if trackball = 0
+
+    #     gmsh.fltk.initialize()
+    #     gmsh.option.setNumber("General.Trackball", 1) # Reenable for better rotation control
+    #     gmsh.fltk.run()
+    # end
 
     write && gmsh.write(path * "brain.msh")
     
@@ -60,8 +80,10 @@ if abspath(PROGRAM_FILE) == @__FILE__
     r_brain = 2
     d_ratio = 0.5
     r_curv = 50
-    inner_perturb(x, y) = 0.2 * cos(pi * abs(x) / 0.5) + 0.2 * cos(pi * abs(y) / 0.5)
-    outer_perturb(x, y) = 0.2 * cos(pi * abs(x) / 2)  + 0.2 * cos(pi * abs(y) / 1)
+    # inner_perturb(x, y) = 0.2 * cos(pi * abs(x) / 0.5) + 0.2 * cos(pi * abs(y) / 0.5)
+    # outer_perturb(x, y) = 0.2 * cos(pi * abs(x) / 2)  + 0.2 * cos(pi * abs(y) / 1)
+    inner_perturb(x, y) = 0
+    outer_perturb(x, y) = 0
     BS_points = (arcLen[1]*20, arcLen[2]*10)
     field_Lc_lim = [1 / 2, 1]
     field_Dist_lim = [0.1, 0.5]
@@ -71,3 +93,7 @@ if abspath(PROGRAM_FILE) == @__FILE__
 
     create_brain(param; view=true, write=false)
 end
+
+
+
+

@@ -104,6 +104,7 @@ function stokes_darcy_solver(model, pgs_dict, f0, g0, h0, params; write = false)
     n̂D = get_normal_vector(ΓD)
     t̂Γ = TensorValue(0, -1, 1, 0) ⋅ n̂Γ.⁺ 
     t̂ΓS = TensorValue(0, -1, 1, 0) ⋅ n̂ΓS 
+
     
     # Nitsche 
     γ = 10^order # Nitsche penalty parameter
