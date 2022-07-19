@@ -153,7 +153,10 @@ function create_brain_2D(param::model_params)
     add_mesh_field(brain, param)
     apply_periodic_meshing(brain)
    
-   
+    # Try just adding points in for-loop and se if this is allowed  (are they consecutive?)
+
+
+
     # # Add physical groups (might not be allowed)
     # obj = [brain.surf, brain.arc, brain.vline, brain.vertex, ]
     # obj_dim = [2, 1, 1, 0]
