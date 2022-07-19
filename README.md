@@ -36,7 +36,7 @@ $$
 
 $$
 \begin{align}
-    \nabla \cdot (-\kappa\nabla p_D) &= f_D \quad \text{in} \ \Omega_D \\
+    \nabla \cdot (-\frac{\kappa}{\mu}\nabla p_D) &= f_D \quad \text{in} \ \Omega_D \\
      P_D &= P_{D,0}  \quad \text{on} \ \partial \Omega_S \setminus \Gamma 
 \end{align}
 $$
@@ -45,15 +45,35 @@ $$
 #### Interface 
 $$
 \begin{align}
-    u_S\cdot\hat{n}_S + (-\kappa\nabla p_D \cdot \hat{n}_D) &= g\Gamma \\
+    u_S\cdot\hat{n}_S + (-\frac{\kappa}{\mu}\nabla p_D \cdot \hat{n}_D) &= g\Gamma \\
     -[\sigma(u_S, p_S)\cdot\hat{n}_S]\cdot\hat{n}_S &= P_D \\
     -[\sigma(u_S, p_S)\cdot\hat{n}_S]\cdot\hat{\tau}_S &= \alpha u_S \cdot\hat{\tau}_S\\
 \end{align}
 $$
+___
 
+### Conditons for the brain simulations
 
+We are going to use 
+$$
+\begin{align}
+    u_{S,0} &= 0 \\
+    
+\end{align}
+$$
+___
 
+### Weak formulation
 
+#### Stokes
+
+$
+\begin{align}
+    \int_{\Omega_S} f_s \cdot v_S =  \int_{\Omega_S} 2\mu \varepsilon(u_S) \odot \varepsilon(v_S) \ dx - \int_{\Omega_S} p_S \nabla\cdot v_S \ dx + \int_{\partial\Omega_S} [-\sigma(u_S, p_S)\cdot\hat{n}_S] \cdot v_S \ dS  \ldots
+\end{align}
+$
+
+#### Darcy 
 
 
 

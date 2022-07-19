@@ -80,10 +80,10 @@ if abspath(PROGRAM_FILE) == @__FILE__
     r_brain = 2
     d_ratio = 0.5
     r_curv = 50
-    # inner_perturb(x, y) = 0.2 * cos(pi * abs(x) / 0.5) + 0.2 * cos(pi * abs(y) / 0.5)
-    # outer_perturb(x, y) = 0.2 * cos(pi * abs(x) / 2)  + 0.2 * cos(pi * abs(y) / 1)
-    inner_perturb(x, y) = 0
-    outer_perturb(x, y) = 0
+    inner_perturb(x, y) = 0.2 * cos(pi * abs(x) / 0.5) + 0.2 * cos(pi * abs(y) / 0.5)
+    outer_perturb(x, y) = 0.2 * cos(pi * abs(x) / 2)  + 0.2 * cos(pi * abs(y) / 1)
+    # inner_perturb(x, y) = 0
+    # outer_perturb(x, y) = 0
     BS_points = (arcLen[1]*20, arcLen[2]*10)
     field_Lc_lim = [1 / 2, 1]
     field_Dist_lim = [0.1, 0.5]

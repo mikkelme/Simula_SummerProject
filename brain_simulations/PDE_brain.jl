@@ -134,23 +134,23 @@ function brain_PDE(model, pgs_dict, data; write = false)
     # --- Weak formulation --- #
     ϵ(u) = 1 / 2 * (∇(u) + transpose(∇(u)))
     σ(u,p) = 2 * data[:μ] * ε(u) - p * TensorValue(1, 0, 0, 1) # Stress matrix
-    gΓS = us0 × n̂ΓS # REMEBER TO REMOVE THIS 
+
     
     # Nitsche on ΓS
     aNΓS((us, ps), (vs, qs)) = ∫(γ/h * (us⋅t̂ΓS) * (vs ⋅ t̂ΓS))dΓS  - ∫( ((n̂ΓS ⋅ σ(us,ps)) ⋅ t̂ΓS) * (vs⋅t̂ΓS) )dΓS - ∫( ((n̂ΓS ⋅ σ(vs,qs)) ⋅ t̂ΓS) * (us⋅t̂ΓS) )dΓS
-    bNΓS((vs, qs)) = ∫(data[:ps0] * (-vs ⋅ n̂ΓS))dΓS + ∫(gΓS * (γ/h * (vs ⋅ t̂ΓS) - ((n̂ΓS ⋅ σ(vs,qs)) ⋅ t̂ΓS)))dΓS
+    bNΓS((vs, qs)) = ∫(data[:ps0] * (-vs ⋅ n̂ΓS))dΓS + ∫(data[:gΓS] * (γ/h * (vs ⋅ t̂ΓS) - ((n̂ΓS ⋅ σ(vs,qs)) ⋅ t̂ΓS)))dΓS
     
     # Stokes domain (left hand side)
     aΩs((us, ps), (vs, qs)) = ∫( 2*data[:μ] * ϵ(us) ⊙ ϵ(vs) - (∇⋅us)*qs - ps*(∇⋅vs) )dΩS
 
     # Darcy Domain (left hand side)
-    aΩD((pd, qd)) = ∫( data[:Κ]*(∇(pd)⋅∇(qd)) )dΩD
+    aΩD((pd, qd)) = ∫( data[:Κ]/data[:μ]*(∇(pd)⋅∇(qd)) )dΩD
 
     # Interface coupling (left hand side)
     aΓ((us, pd), (vs, qd)) = ∫( data[:α]*(us.⁺⋅t̂Γ)*(vs.⁺⋅t̂Γ) - (us.⁺⋅n̂Γ.⁺)*qd.⁻ + pd.⁻*(n̂Γ.⁺⋅vs.⁺) )dΓ
 
     # Neumann conditions (right hand side)
-    b_neumann((vs, qd)) = ∫( (data[:σ0] ⋅ get_normal_vector(ΛS_neu) ) ⋅ vs)dΛSneu + ∫( data[:Κ]*(get_normal_vector(ΓD_neu)⋅data[:nab_pd0])*qd )dΓDneu
+    b_neumann((vs, qd)) = ∫( (data[:σ0] ⋅ get_normal_vector(ΛS_neu) ) ⋅ vs)dΛSneu + ∫( data[:Κ]/data[:μ]*(get_normal_vector(ΓD_neu)⋅data[:∇pd0])*qd )dΓDneu
 
     # Gathering terms
     a((us, ps, pd), (vs, qs, qd)) =  aΩs((us, ps), (vs, qs)) + aΩD((pd, qd)) + aΓ((us, pd), (vs, qd)) + aNΓS((us, ps), (vs, qs))
@@ -176,13 +176,13 @@ end
 
 
 # --- Brain Model --- # 
-lc = 1.0
+lc = 0.1
 arcLen = (5, 0)
 r_brain = 2
 d_ratio = 0.5
 r_curv = 50
-inner_perturb(x, y) = 0
-outer_perturb(x, y) = 0
+inner_perturb(x, y) = 0.2 * cos(pi * abs(x) / 0.5) 
+outer_perturb(x, y) = 0.2 * cos(pi * abs(x) / 2)  
 BS_points = (arcLen[1]*20, arcLen[2]*10)
 field_Lc_lim = [1 / 2, 1]
 field_Dist_lim = [0.1, 0.5]
@@ -192,36 +192,24 @@ model, pgs_dict = create_brain(brain_params; view=false, write=false)
 
 
 # --- PDE parameters --- #
-# μ = 1.0
-# Κ = 1.0 
-# α(x) = 0.0
-# gΓS(x) = 0.0
-# us0(x) = VectorValue(0.0, 0.0) # us = 0 on ΛS
-# ps0(x) = -x # use angle instead?
-# pd0(x) = 0.0
-# fs0(x) = VectorValue(0.0, 0.0) #?
-# fd0(x) = 0.0 #?
+μ = 0.8e-3 # Fluid viscosity 
+Κ = 1e-16 # Permeability in porous brain
+α(x) = 1*μ/sqrt(Κ)
+gΓS(x) = 0.0
+us0(x) = VectorValue(0.0, 0.0) # us = 0 on ΛS (no slip)
+ps0(x) = -x[1] # use angle instead?
+pd0(x) = 0.0 # NOT IN USE
+fs0(x) = VectorValue(0.0, 0.0)
+fd0(x) = 0.0 #?????
 
-# σ0(x) = TensorValue(0.0, 0.0, 0.0, 0.0) # not used right now
-# nab_pd0(x) = VectorValue(0.0, 0.0) # zero flux?
-# gΓ(x) = 0 
+σ0(x) = TensorValue(0.0, 0.0, 0.0, 0.0) # NOT IN USE
+∇pd0(x) = VectorValue(0.0, 0.0) # Zero flux
+gΓ(x) = 0 # Balanced: us ⋅ n̂s = Κ∇pd ⋅ n̂D
 
 
-μ = 1.0
-Κ = 1.0 
-us0(x) = VectorValue(sin(π * x[2]), cos(π * x[1])) 
-ps0(x) = -sin(π * x[2])
-pd0(x) = ps0(x)
-fs0(x) = VectorValue(μ*π^2 * sin(π * x[2]), μ*π^2 * cos(π * x[1]) - π*cos(π * x[2]) )
-fd0(x) = -Κ * π^2 * sin(π * x[2])
 
-σ0(x) = TensorValue(-ps0(x), μ*π * (cos(π * x[2]) - sin(π * x[1])), μ*π * (cos(π * x[2]) - sin(π * x[1])), -ps0(x))
-nab_pd0(x) = VectorValue(0, -π*cos(π * x[2]))
 
-α(x) = μ*π * (cos(π * x[2]) - sin(π * x[1]))/sin(π * x[2])
-gΓ(x) = -cos(π * x[1]) + Κ*π*cos(π*x[2])
-
-PDE_params = Dict(:μ => μ, :Κ => Κ, :α => α, :gΓS => gΓS, :fs0 => fs0, :fd0 => fd0, :us0 => us0, :ps0 => ps0, :pd0 => pd0, :gΓ => gΓ, :σ0 => σ0, :nab_pd0 => nab_pd0) 
+PDE_params = Dict(:μ => μ, :Κ => Κ, :α => α, :gΓS => gΓS, :fs0 => fs0, :fd0 => fd0, :us0 => us0, :ps0 => ps0, :pd0 => pd0, :gΓ => gΓ, :σ0 => σ0, :∇pd0 => ∇pd0) 
 
 
 # --- Run simulation --- #
