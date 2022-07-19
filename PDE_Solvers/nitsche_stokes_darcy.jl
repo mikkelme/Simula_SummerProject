@@ -38,34 +38,18 @@ function stokes_darcy_solver(model, pgs_dict, f0, g0, h0, params; write = false)
     σ0, nab_pd0 = h0
     μ, Κ, α = [params[key] for key in [:μ, :Κ, :α]]
 
-
-
-    # Brain
-    ΩS_tags =  pgs_tags(pgs_dict, [2])
-    ΩD_tags =  pgs_tags(pgs_dict, [1])
-    ΛS_tags = pgs_tags(pgs_dict, [5, 12, 15]) 
-    ΓD_tags = pgs_tags(pgs_dict, [3, 6, 8, 10, 11, 13, 14])
-    ΓS_tags = pgs_tags(pgs_dict, [7, 9]) 
+    # --- Boundary tags --- #
+    ΩS_tags =  pgs_tags(pgs_dict, [200])
+    ΩD_tags =  pgs_tags(pgs_dict, [100])
+    ΛS_tags = pgs_tags(pgs_dict, [7, 12, 13]) 
+    ΓD_tags = pgs_tags(pgs_dict, [1, 2, 3, 8, 9, 10, 11])
+    ΓS_tags = pgs_tags(pgs_dict, [5, 6]) 
 
     # Boundary conditions
     ΛS_neutags = pgs_tags(pgs_dict, []) 
-    ΓD_neutags = pgs_tags(pgs_dict, [3, 6, 8, 10, 11, 13, 14]) 
+    ΓD_neutags = pgs_tags(pgs_dict, [1, 2, 3, 8, 9, 10, 11]) 
     ΛS_diritags = filter(x -> x ∉ ΛS_neutags, ΛS_tags)
     ΓD_diritags = filter(x -> x ∉ ΓD_neutags, ΓD_tags)
-    ####
-
-    # # --- Boundary tags --- #
-    # ΩS_tags =  pgs_tags(pgs_dict, [200])
-    # ΩD_tags =  pgs_tags(pgs_dict, [100])
-    # ΛS_tags = pgs_tags(pgs_dict, [7, 12, 13]) 
-    # ΓD_tags = pgs_tags(pgs_dict, [1, 2, 3, 8, 9, 10, 11])
-    # ΓS_tags = pgs_tags(pgs_dict, [5, 6]) 
-
-    # # Boundary conditions
-    # ΛS_neutags = pgs_tags(pgs_dict, []) 
-    # ΓD_neutags = pgs_tags(pgs_dict, [1, 2, 3, 8, 9, 10, 11]) 
-    # ΛS_diritags = filter(x -> x ∉ ΛS_neutags, ΛS_tags)
-    # ΓD_diritags = filter(x -> x ∉ ΓD_neutags, ΓD_tags)
 
     
     # --- Triangulation and spaces --- #
@@ -191,8 +175,7 @@ function error_conv(solver, f0, g0, h0, params; lc_start=2, num_points=5, show_p
     for p in 1:num_points
         lc[p] = lc_start * (1 / 2)^(p - 1)
         p == num_points && (write = true)
-        model, pgs_dict = create_brain(brain_params; view=false, write=false)
-        # model, pgs_dict = create_coupled_box(lc[p])
+        model, pgs_dict = create_coupled_box(lc[p])
         l2norm[p, :] .= solver(model, pgs_dict, f0, g0, h0, params; write)
 
         # Get the actual mesh size
@@ -259,27 +242,11 @@ gΓ(x) = -cos(π * x[1]) + Κ*π*cos(π*x[2])
 
 
 
+
 params = Dict(:μ => μ, :Κ => Κ, :α => α)
 f0 = (fs0, fd0)
 g0 = (us0, ps0, pd0, gΓ)
 h0 = (σ0, nab_pd0)
-
-
-
-lc = 1.0
-arcLen = (5, 0)
-r_brain = 2
-d_ratio = 0.5
-r_curv = 50
-inner_perturb(x, y) = 0
-outer_perturb(x, y) = 0
-BS_points = (arcLen[1]*20, arcLen[2]*10)
-field_Lc_lim = [1 / 2, 1]
-field_Dist_lim = [0.1, 0.5]
-
-brain_params = model_params(lc, arcLen, r_brain, d_ratio, r_curv, inner_perturb, outer_perturb, BS_points, field_Lc_lim, field_Dist_lim)
-# model, pgs_dict = create_brain(brain_params; view=false, write=false)
-
 
 
 # model, pgs_dict = create_coupled_box(2, false)

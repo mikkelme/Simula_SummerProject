@@ -19,8 +19,7 @@ end
 
 
 function create_brain(param::model_params; view=true, write=false)
-    # gmsh.initialize(["", "-clmax", string(param.lc)])
-    gmsh.initialize(["", "-clscale", string(param.lc)])
+    gmsh.initialize(["", "-clmax", string(param.lc)])
     
 
     # For direct wiring
