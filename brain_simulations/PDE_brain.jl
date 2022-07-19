@@ -31,23 +31,17 @@ Physical tags:
     (10)--3--(13)
 
 """
-function brain_PDE(model, pgs_dict, f0, g0, h0, params; write = false)
-    # Unpack input
-    fs0, fd0 = f0
-    us0, ps0, pd0, gΓ = g0
-    σ0, nab_pd0 = h0
-    μ, Κ, α = [params[key] for key in [:μ, :Κ, :α]]
-
+function brain_PDE(model, pgs_dict, data; write = false)
     # --- Boundary tags --- #
-    ΩS_tags =  pgs_tags(pgs_dict, [200])
-    ΩD_tags =  pgs_tags(pgs_dict, [100])
-    ΛS_tags = pgs_tags(pgs_dict, [7, 12, 13]) 
-    ΓD_tags = pgs_tags(pgs_dict, [1, 2, 3, 8, 9, 10, 11])
-    ΓS_tags = pgs_tags(pgs_dict, [5, 6]) 
+    ΩS_tags =  pgs_tags(pgs_dict, [2])
+    ΩD_tags =  pgs_tags(pgs_dict, [1])
+    ΛS_tags = pgs_tags(pgs_dict, [5, 12, 15]) 
+    ΓD_tags = pgs_tags(pgs_dict, [3, 6, 8, 10, 11, 13, 14])
+    ΓS_tags = pgs_tags(pgs_dict, [7, 9]) 
 
     # Boundary conditions
     ΛS_neutags = pgs_tags(pgs_dict, []) 
-    ΓD_neutags = pgs_tags(pgs_dict, [1, 2, 3]) 
+    ΓD_neutags = pgs_tags(pgs_dict, [3, 6, 8, 10, 11, 13, 14]) 
     ΛS_diritags = filter(x -> x ∉ ΛS_neutags, ΛS_tags)
     ΓD_diritags = filter(x -> x ∉ ΓD_neutags, ΓD_tags)
 
@@ -78,9 +72,9 @@ function brain_PDE(model, pgs_dict, f0, g0, h0, params; write = false)
     δQD = TestFESpace(ΩD, ref_pd, conformity=:H1, dirichlet_tags=ΓD_diritags)
     
     # Trial spaces
-    VS = TrialFESpace(δVS, us0)
+    VS = TrialFESpace(δVS, data[:us0])
     QS = TrialFESpace(δQS)
-    QD = TrialFESpace(δQD, pd0)
+    QD = TrialFESpace(δQD, data[:pd0])
     
     # Multispace
     δW = MultiFieldFESpace([δVS, δQS, δQD]) # Test
@@ -112,28 +106,28 @@ function brain_PDE(model, pgs_dict, f0, g0, h0, params; write = false)
     
     # --- Weak formulation --- #
     ϵ(u) = 1 / 2 * (∇(u) + transpose(∇(u)))
-    σ(u,p) = 2 * μ * ε(u) - p * TensorValue(1, 0, 0, 1) # Stress matrix
-    gΓS = us0 × n̂ΓS # = 0 on brain simulations
+    σ(u,p) = 2 * data[:μ] * ε(u) - p * TensorValue(1, 0, 0, 1) # Stress matrix
+   
     
     # Nitsche on ΓS
     aNΓS((us, ps), (vs, qs)) = ∫(γ/h * (us⋅t̂ΓS) * (vs ⋅ t̂ΓS))dΓS  - ∫( ((n̂ΓS ⋅ σ(us,ps)) ⋅ t̂ΓS) * (vs⋅t̂ΓS) )dΓS - ∫( ((n̂ΓS ⋅ σ(vs,qs)) ⋅ t̂ΓS) * (us⋅t̂ΓS) )dΓS
-    bNΓS((vs, qs)) = ∫(ps0 * (-vs ⋅ n̂ΓS))dΓS + ∫(gΓS * (γ/h * (vs ⋅ t̂ΓS) - ((n̂ΓS ⋅ σ(vs,qs)) ⋅ t̂ΓS)))dΓS
+    bNΓS((vs, qs)) = ∫(data[:ps0] * (-vs ⋅ n̂ΓS))dΓS + ∫(data[:gΓS] * (γ/h * (vs ⋅ t̂ΓS) - ((n̂ΓS ⋅ σ(vs,qs)) ⋅ t̂ΓS)))dΓS
     
     # Stokes domain (left hand side)
-    aΩs((us, ps), (vs, qs)) = ∫( 2*μ * ϵ(us) ⊙ ϵ(vs) - (∇⋅us)*qs - ps*(∇⋅vs) )dΩS
+    aΩs((us, ps), (vs, qs)) = ∫( 2*data[:μ] * ϵ(us) ⊙ ϵ(vs) - (∇⋅us)*qs - ps*(∇⋅vs) )dΩS
 
     # Darcy Domain (left hand side)
-    aΩD((pd, qd)) = ∫( Κ*(∇(pd)⋅∇(qd)) )dΩD
+    aΩD((pd, qd)) = ∫( data[:Κ]*(∇(pd)⋅∇(qd)) )dΩD
 
     # Interface coupling (left hand side)
-    aΓ((us, pd), (vs, qd)) = ∫( α*(us.⁺⋅t̂Γ)*(vs.⁺⋅t̂Γ) - (us.⁺⋅n̂Γ.⁺)*qd.⁻ + pd.⁻*(n̂Γ.⁺⋅vs.⁺) )dΓ
+    aΓ((us, pd), (vs, qd)) = ∫( data[:α]*(us.⁺⋅t̂Γ)*(vs.⁺⋅t̂Γ) - (us.⁺⋅n̂Γ.⁺)*qd.⁻ + pd.⁻*(n̂Γ.⁺⋅vs.⁺) )dΓ
 
     # Neumann conditions (right hand side)
-    b_neumann((vs, qd)) = ∫( (σ0 ⋅ get_normal_vector(ΛS_neu) ) ⋅ vs)dΛSneu + ∫( Κ*(get_normal_vector(ΓD_neu)⋅nab_pd0)*qd )dΓDneu
+    b_neumann((vs, qd)) = ∫( (data[:σ0] ⋅ get_normal_vector(ΛS_neu) ) ⋅ vs)dΛSneu + ∫( data[:Κ]*(get_normal_vector(ΓD_neu)⋅data[:nab_pd0])*qd )dΓDneu
 
     # Gathering terms
     a((us, ps, pd), (vs, qs, qd)) =  aΩs((us, ps), (vs, qs)) + aΩD((pd, qd)) + aΓ((us, pd), (vs, qd)) + aNΓS((us, ps), (vs, qs))
-    b((vs, qs, qd)) = ∫( fs0⋅vs )dΩS + ∫( fd0 * qd )dΩD - ∫(CellField(gΓ, Γ) * qd.⁻)dΓ + bNΓS((vs, qs)) + b_neumann((vs, qd))
+    b((vs, qs, qd)) = ∫( data[:fs0]⋅vs )dΩS + ∫( data[:fd0] * qd )dΩD - ∫(CellField(data[:gΓ], Γ) * qd.⁻)dΓ + bNΓS((vs, qs)) + b_neumann((vs, qd))
         
     
     # --- Solve --- #
@@ -141,33 +135,16 @@ function brain_PDE(model, pgs_dict, f0, g0, h0, params; write = false)
     op = AffineFEOperator(a, b, W, δW)
     println("Solving")
     ush, psh, pdh = solve(op)
+
+    #try ph = psh + pdh better visualization
     
     # --- Check with manufactured solution --- #
-    us_error = us0 - ush
-    ps_error = ps0 - psh
-    pd_error = pd0 - pdh
-
-    us_l2norm = sqrt(sum(∫(us_error ⋅ us_error) * dΩS))
-    ps_l2norm = sqrt(sum(∫(ps_error ⋅ ps_error) * dΩS))
-    pd_l2norm = sqrt(sum(∫(pd_error ⋅ pd_error) * dΩD))
-
-
-    @printf("us: l2 norm = %e \n", us_l2norm)
-    @printf("ps: l2 norm = %e \n", ps_l2norm)
-    @printf("pd: l2 norm = %e \n", pd_l2norm)
-
-    write && writevtk(Ω, path * "vtu_files/" * "nitsche_stokes_darcy_results", cellfields=["us" => ush, "ps" => psh, "pd" => pdh, "us_error" => us_error, "ps_error" => ps_error, "pd_error" => pd_error])
+    write && writevtk(Ω, path * "vtu_files/" * "brain_sim_results", cellfields=["us" => ush, "ps" => psh, "pd" => pdh])
     
     return us_l2norm, ps_l2norm, pd_l2norm
     
 
 end
-
-
-# params = Dict(:μ => μ, :Κ => Κ, :α => α)
-# f0 = (fs0, fd0)
-# g0 = (us0, ps0, pd0, gΓ)
-# h0 = (σ0, nab_pd0)
 
 
 
@@ -183,10 +160,47 @@ BS_points = (arcLen[1]*20, arcLen[2]*10)
 field_Lc_lim = [1 / 2, 1]
 field_Dist_lim = [0.1, 0.5]
 
-param = model_params(lc, arcLen, r_brain, d_ratio, r_curv, inner_perturb, outer_perturb, BS_points, field_Lc_lim, field_Dist_lim)
-model, pgs_dict = create_brain(param; view=true, write=false)
+brain_params = model_params(lc, arcLen, r_brain, d_ratio, r_curv, inner_perturb, outer_perturb, BS_points, field_Lc_lim, field_Dist_lim)
+model, pgs_dict = create_brain(brain_params; view=false, write=false)
 
-# brain_PDE(model, pgs_dict, f0, g0, h0, params; write = false)
+
+# --- PDE parameters --- #
+μ = 1.0
+Κ = 1.0 
+α(x) = 0.0
+gΓS(x) = 0.0
+us0(x) = VectorValue(0.0, 0.0) # us = 0 on ΛS
+ps0(x) = 0.0
+pd0(x) = 0.0
+fs0(x) = VectorValue(0.0, 0.0) #?
+fd0(x) = 0.0 #?
+
+σ0(x) = TensorValue(0.0, 0.0, 0.0, 0.0)
+nab_pd0(x) = VectorValue(0.0, 0.0)
+gΓ(x) = 0 
+
+PDE_params = Dict(:μ => μ, :Κ => Κ, :α => α, :gΓS => gΓS, :fs0 => fs0, :fd0 => fd0, :us0 => us0, :ps0 => ps0, :pd0 => pd0, :gΓ => gΓ, :σ0 => σ0, :nab_pd0 => nab_pd0) 
+
+
+# PDE_params = Dict(:fs0 => fs0, :gΓ => gΓ)
+
+# f0 = (fs0, fd0)
+# g0 = (us0, ps0, pd0, gΓ)
+# h0 = (σ0, nab_pd0)
+
+
+
+# fs0, fd0 = f0
+# us0, ps0, pd0, gΓ = g0
+# σ0, nab_pd0 = h0
+# μ, Κ, α = [params[key] for key in [:μ, :Κ, :α]]
+
+PDE_keys = collect(keys(PDE_params))
+key = PDE_keys[1]
+test = PDE_params[key]
+println(test)
+
+# brain_PDE(model, pgs_dict, params; write = false)
 
 
 

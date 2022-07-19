@@ -4,12 +4,12 @@ include("./brain_mesh_utils.jl")
 
 
 mutable struct geo2D
-    origo::Int32                      # Center of coordinate system
-    vertex::Array{Int32,2}            # Vertices of all corners
-    arc::Array{Int32,1}               # arcs
-    vline::Array{Int32,2}
-    surf::Array{Int32,1}   
-    angle::Float64                      # Angle span (z → x-axis)
+    origo::Int32             # Center of coordinate system
+    vertex::Array{Int32,2}   # Vertices of all corners
+    arc::Array{Int32,1}      # arcs
+    vline::Array{Int32,2}    # Vertical lines
+    surf::Array{Int32,1}     # Surfaces
+    angle::Float64           # Angle span (z → x-axis)
 
     function geo2D() # Constructor
         new(gmsh.model.occ.addPoint(0.0, 0.0, 0.0),
@@ -54,7 +54,7 @@ function create_perturbed_arc(brain::geo2D, r, perturbation_func, BS_points)
     gmsh.model.occ.synchronize()
 
     # Add physical group
-    gmsh.model.addPhysicalGroup(1, [BSpline])
+    # gmsh.model.addPhysicalGroup(1, [BSpline])
 
     return vertex, BSpline
 end
@@ -132,16 +132,13 @@ end
 
 
 function create_brain_2D(param::model_params)
-    # Check of parameters?
-
     brain = geo2D() # Struct for holding tags and angle
 
-    
     # Calculate derived parameters
     rI = param.r_curv - param.r_brain                   # Inner radius  
     rD = param.r_curv - param.d_ratio * param.r_brain   # Radius for dividing line
     arcLen = param.arcLen[1]
-    brain.angle = arcLen / param.r_curv                       # Angle span z -> x -axis
+    brain.angle = arcLen / param.r_curv                 # Angle span z -> x -axis
     
     
     # Add arcs
@@ -151,29 +148,20 @@ function create_brain_2D(param::model_params)
     
     
     connect_and_surfize(brain)
-    # add_mesh_field(brain, param)
-    # apply_periodic_meshing(brain)
+    add_mesh_field(brain, param)
+    apply_periodic_meshing(brain)
     
-    
-    
-    gmsh.model.occ.synchronize()
-    # println(gmsh.model.addPhysicalGroup(0, [brain.origo]))
-    # println(gmsh.model.addPhysicalGroup(0, [brain.vertex[1,1]]))
 
     
-    # Add physical groups (might not be allowed)
-    obj = [brain.surf, brain.arc, brain.vline, brain.vertex, ]
-    obj_dim = [2, 1, 1, 0]
+    # Add physical groups 
+    obj = [(brain.surf, 2), (brain.arc, 1), (brain.vline, 1), (brain.vertex, 0)] # (tag, dim)
     for k in 1:length(obj)
-        for (i, tag) in enumerate(obj[k])
-            gmsh.model.addPhysicalGroup(obj_dim[k], [tag])
+        dim = obj[k][2]
+        for tag in obj[k][1]
+            gmsh.model.addPhysicalGroup(dim, [tag])
         end
     end
     
-    
-    # for (i, tag) in enumerate(brain.vertex)
-    #     println(gmsh.model.addPhysicalGroup(0, [tag]))
-    # end
 
     # Generate mesh
     gmsh.model.occ.synchronize()

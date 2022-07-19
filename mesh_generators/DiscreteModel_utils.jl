@@ -5,10 +5,6 @@ function direct_wiring(gmsh; renumber=true)
     renumber && gmsh.model.mesh.renumberNodes()
     renumber && gmsh.model.mesh.renumberElements()
 
-    # gmsh.finalize()
-    # gmsh.initialize()
-
-
     Dc = GridapGmsh._setup_cell_dim(gmsh)
     Dp = GridapGmsh._setup_point_dim(gmsh, Dc)
     node_to_coords = GridapGmsh._setup_node_coords(gmsh, Dp)
@@ -17,92 +13,15 @@ function direct_wiring(gmsh; renumber=true)
     grid, cell_to_entity = _setup_grid(gmsh, Dc, Dp, node_to_coords, node_to_vertex)
     cell_to_vertices = _setup_cell_to_vertices(Gridap.Geometry.get_cell_node_ids(grid), node_to_vertex, nnodes)
     grid_topology = Gridap.Geometry.UnstructuredGridTopology(grid, cell_to_vertices, vertex_to_node)
-
-    # labeling = my_setup_labeling(gmsh, grid, grid_topology, cell_to_entity, vertex_to_node, node_to_vertex)
-    # exit()
-    # # Trouble line here
     labeling = GridapGmsh._setup_labeling(gmsh, grid, grid_topology, cell_to_entity, vertex_to_node, node_to_vertex)
 
     pgs = gmsh.model.getPhysicalGroups()
-    # gmsh.finalize()
-
-
+ 
     model = Gridap.Geometry.UnstructuredDiscreteModel(grid, grid_topology, labeling)
     pgs_dict = Dict(Int64(pgs[i][2]) => Int64(i) for i in 1:length(pgs)) # Physical group dictionary
   
-
     return model, pgs_dict
 end
-
-
-
-# # For testing
-# function my_setup_labeling(gmsh,grid,grid_topology,cell_to_entity,vertex_to_node,node_to_vertex)
-
-#     D = num_cell_dims(grid)
-#     dim_to_gface_to_nodes, dim_gface_to_entity = my_setup_faces(gmsh,D,node_to_vertex)
-#     #
-#     #
-#     #
-  
-# end
-  
-
-
-# function my_setup_faces(gmsh,D,node_to_vertex)
-#     dim_to_gface_to_nodes = []
-#     dim_gface_to_entity = []
-#     for d in 0:(D-1)
-#       orient_if_simplex = true
-#       face_to_nodes, nmin  = my_setup_connectivity(gmsh,d,node_to_vertex,orient_if_simplex)
-#     #   face_to_entity = _setup_cell_to_entity(gmsh,d,length(face_to_nodes),nmin)
-#     #   push!(dim_to_gface_to_nodes,face_to_nodes)
-#     #   push!(dim_gface_to_entity,face_to_entity)
-#     end
-#     # (dim_to_gface_to_nodes, dim_gface_to_entity)
-# end
-  
-
-# function my_setup_connectivity(gmsh, d, node_to_vertex, orient_if_simplex)
-
-#     elemTypes, elemTags, nodeTags = gmsh.model.mesh.getElements(d)
-
-
-#     if length(elemTypes) == 0
-#         ncells = 0
-#         ndata = 0
-#         nmin = 1
-#         cell_to_nodes_prts = zeros(Int, ncells + 1)
-#         cell_to_nodes_data = zeros(Int32, ndata)
-#         cell_to_nodes = Table(cell_to_nodes_data, cell_to_nodes_prts)
-#         return (cell_to_nodes, nmin)
-#     end
-
-#     ncells, nmin, nmax = my_check_cell_tags(elemTags)
-#     exit()
-
-
-# end
-
-
-# function my_check_cell_tags(elemTags)
-#     nmin::Int = minimum([minimum(t) for t in elemTags])
-#     nmax::Int = maximum([maximum(t) for t in elemTags])
-#     ncells = sum([length(t) for t in elemTags])
-
-
-#     println(nmin)
-#     println(nmax)
-#     println(ncells)
-#     println(nmax-nmin+1)
-    
-#     exit()
-#     if !( (nmax-nmin+1) == ncells)
-#       gmsh.finalize()
-#       error("Only consecutive elem tags allowed.")
-#     end
-#     (ncells,nmin,nmax)
-#   end
 
 
 # --- SUPPORT FUNCTIONS: COPY-PASTED FROM https://github.com/gridap/GridapGmsh.jl/blob/master/src/GmshDiscreteModels.jl --- #

@@ -47,7 +47,7 @@ function stokes_darcy_solver(model, pgs_dict, f0, g0, h0, params; write = false)
 
     # Boundary conditions
     ΛS_neutags = pgs_tags(pgs_dict, []) 
-    ΓD_neutags = pgs_tags(pgs_dict, [1, 2, 3]) 
+    ΓD_neutags = pgs_tags(pgs_dict, [1, 2, 3, 8, 9, 10, 11]) 
     ΛS_diritags = filter(x -> x ∉ ΛS_neutags, ΛS_tags)
     ΓD_diritags = filter(x -> x ∉ ΓD_neutags, ΓD_tags)
 

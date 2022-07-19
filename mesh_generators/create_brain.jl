@@ -15,9 +15,10 @@ end
 function create_brain(param::model_params; view=true, write=false)
     gmsh.initialize(["", "-clmax", string(param.lc)])
 
-    gmsh.option.setNumber("General.Terminal", 1)
+    # For direct wiring
     gmsh.option.setNumber("Mesh.SaveAll", 1)
-    gmsh.option.setNumber("Mesh.MedImportGroupsOfNodes", 1)
+    # gmsh.option.setNumber("General.Terminal", 1)
+    # gmsh.option.setNumber("Mesh.MedImportGroupsOfNodes", 1)
 
     gmsh.model.add("brain")
     param.arcLen[2] == 0 ? create_brain_2D(param) : create_brain_3D(param)
@@ -57,12 +58,12 @@ if abspath(PROGRAM_FILE) == @__FILE__
     r_curv = 50
     inner_perturb(x, y) = 0.2 * cos(pi * abs(x) / 0.5) + 0.2 * cos(pi * abs(y) / 0.5)
     outer_perturb(x, y) = 0.2 * cos(pi * abs(x) / 2)  + 0.2 * cos(pi * abs(y) / 1)
-    BS_points = (arcLen[1]*2, arcLen[2]*10)
+    BS_points = (arcLen[1]*20, arcLen[2]*10)
     field_Lc_lim = [1 / 2, 1]
     field_Dist_lim = [0.1, 0.5]
 
     param = model_params(lc, arcLen, r_brain, d_ratio, r_curv, inner_perturb, outer_perturb, BS_points, field_Lc_lim, field_Dist_lim)
 
 
-    create_brain(param; view=false, write=false)
+    create_brain(param; view=true, write=false)
 end
