@@ -22,10 +22,8 @@ $$
     \nabla \cdot u_S &= 0  \quad \text{in} \ \Omega_S \\
     u_S &= u_{S,0}  \quad \text{on} \ \Lambda_S \\
     p_S &= p_{S,0}  \quad \text{on} \ \Gamma_S \\
-
 \end{align}
 $$
-
 where
 $$
 \begin{align}
