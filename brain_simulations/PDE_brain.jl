@@ -120,7 +120,6 @@ function brain_PDE(model, pgs_dict, data; write = false)
     # Normal and tangential vectors
     n̂Γ = get_normal_vector(Γ) 
     tangent = TensorValue(0, -1, 1, 0) ⋅ n̂Γ.⁺ 
-    
     n̂ΛS = get_normal_vector(ΛS)
     n̂ΓS = get_normal_vector(ΓS)
     n̂D = get_normal_vector(ΓD)
@@ -135,11 +134,11 @@ function brain_PDE(model, pgs_dict, data; write = false)
     # --- Weak formulation --- #
     ϵ(u) = 1 / 2 * (∇(u) + transpose(∇(u)))
     σ(u,p) = 2 * data[:μ] * ε(u) - p * TensorValue(1, 0, 0, 1) # Stress matrix
-   
+    gΓS = us0 × n̂ΓS # REMEBER TO REMOVE THIS 
     
     # Nitsche on ΓS
     aNΓS((us, ps), (vs, qs)) = ∫(γ/h * (us⋅t̂ΓS) * (vs ⋅ t̂ΓS))dΓS  - ∫( ((n̂ΓS ⋅ σ(us,ps)) ⋅ t̂ΓS) * (vs⋅t̂ΓS) )dΓS - ∫( ((n̂ΓS ⋅ σ(vs,qs)) ⋅ t̂ΓS) * (us⋅t̂ΓS) )dΓS
-    bNΓS((vs, qs)) = ∫(data[:ps0] * (-vs ⋅ n̂ΓS))dΓS + ∫(data[:gΓS] * (γ/h * (vs ⋅ t̂ΓS) - ((n̂ΓS ⋅ σ(vs,qs)) ⋅ t̂ΓS)))dΓS
+    bNΓS((vs, qs)) = ∫(data[:ps0] * (-vs ⋅ n̂ΓS))dΓS + ∫(gΓS * (γ/h * (vs ⋅ t̂ΓS) - ((n̂ΓS ⋅ σ(vs,qs)) ⋅ t̂ΓS)))dΓS
     
     # Stokes domain (left hand side)
     aΩs((us, ps), (vs, qs)) = ∫( 2*data[:μ] * ϵ(us) ⊙ ϵ(vs) - (∇⋅us)*qs - ps*(∇⋅vs) )dΩS
@@ -164,12 +163,12 @@ function brain_PDE(model, pgs_dict, data; write = false)
     println("Solving")
     ush, psh, pdh = solve(op)
 
-    #try ph = psh + pdh better visualization
+    ph = psh + pdh 
     
     # --- Check with manufactured solution --- #
-    write && writevtk(Ω, path * "vtu_files/" * "brain_sim_results", cellfields=["us" => ush, "ps" => psh, "pd" => pdh])
+    write && writevtk(Ω, path * "vtu_files/" * "brain_sim_results", cellfields=["us" => ush, "ph" => ph])
     
-    return us_l2norm, ps_l2norm, pd_l2norm
+    return  ush, psh, pdh
     
 
 end
@@ -177,7 +176,7 @@ end
 
 
 # --- Brain Model --- # 
-lc = 0.5
+lc = 1.0
 arcLen = (5, 0)
 r_brain = 2
 d_ratio = 0.5
@@ -192,21 +191,35 @@ brain_params = model_params(lc, arcLen, r_brain, d_ratio, r_curv, inner_perturb,
 model, pgs_dict = create_brain(brain_params; view=false, write=false)
 
 
-
 # --- PDE parameters --- #
+# μ = 1.0
+# Κ = 1.0 
+# α(x) = 0.0
+# gΓS(x) = 0.0
+# us0(x) = VectorValue(0.0, 0.0) # us = 0 on ΛS
+# ps0(x) = -x # use angle instead?
+# pd0(x) = 0.0
+# fs0(x) = VectorValue(0.0, 0.0) #?
+# fd0(x) = 0.0 #?
+
+# σ0(x) = TensorValue(0.0, 0.0, 0.0, 0.0) # not used right now
+# nab_pd0(x) = VectorValue(0.0, 0.0) # zero flux?
+# gΓ(x) = 0 
+
+
 μ = 1.0
 Κ = 1.0 
-α(x) = 0.0
-gΓS(x) = 0.0
-us0(x) = VectorValue(0.0, 0.0) # us = 0 on ΛS
-ps0(x) = -x # use angle instead?
-pd0(x) = 0.0
-fs0(x) = VectorValue(0.0, 0.0) #?
-fd0(x) = 0.0 #?
+us0(x) = VectorValue(sin(π * x[2]), cos(π * x[1])) 
+ps0(x) = -sin(π * x[2])
+pd0(x) = ps0(x)
+fs0(x) = VectorValue(μ*π^2 * sin(π * x[2]), μ*π^2 * cos(π * x[1]) - π*cos(π * x[2]) )
+fd0(x) = -Κ * π^2 * sin(π * x[2])
 
-σ0(x) = TensorValue(0.0, 0.0, 0.0, 0.0) # not used right now
-nab_pd0(x) = VectorValue(0.0, 0.0) # zero flux?
-gΓ(x) = 0 
+σ0(x) = TensorValue(-ps0(x), μ*π * (cos(π * x[2]) - sin(π * x[1])), μ*π * (cos(π * x[2]) - sin(π * x[1])), -ps0(x))
+nab_pd0(x) = VectorValue(0, -π*cos(π * x[2]))
+
+α(x) = μ*π * (cos(π * x[2]) - sin(π * x[1]))/sin(π * x[2])
+gΓ(x) = -cos(π * x[1]) + Κ*π*cos(π*x[2])
 
 PDE_params = Dict(:μ => μ, :Κ => Κ, :α => α, :gΓS => gΓS, :fs0 => fs0, :fd0 => fd0, :us0 => us0, :ps0 => ps0, :pd0 => pd0, :gΓ => gΓ, :σ0 => σ0, :nab_pd0 => nab_pd0) 
 

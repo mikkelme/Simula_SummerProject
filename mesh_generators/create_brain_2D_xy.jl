@@ -156,7 +156,6 @@ function create_brain_2D_xy(param::model_params)
     # brain.vertex[1, :], brain.arc[1] = create_arc(brain, rI)
     # brain.vertex[2, :], brain.arc[2] = create_arc(brain, rD)
     # brain.vertex[3, :], brain.arc[3] = create_arc(brain, param.r_curv)
-
     brain.vertex[1, :], brain.arc[1] = create_arc(brain, rI)
     brain.vertex[2, :], brain.arc[2] = create_perturbed_arc(brain, rD, param.inner_perturb, param.BS_points[1])
     brain.vertex[3, :], brain.arc[3] = create_perturbed_arc(brain, param.r_curv, param.outer_perturb, param.BS_points[1])
