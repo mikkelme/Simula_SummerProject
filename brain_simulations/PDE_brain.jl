@@ -7,9 +7,9 @@ using Plots
 include("../mesh_generators/create_brain.jl")
 
 
-path = "/Users/mikkelme/Documents/Github/Simula_SummerProject/PDE_Solvers/"
+path = "/Users/mikkelme/Documents/Github/Simula_SummerProject/brain_simulations/"
 if !ispath(path)
-    path = "/home/mirok/Documents/MkSoftware/Simula_SummerProject/PDE_Solvers/"
+    path = "/home/mirok/Documents/MkSoftware/Simula_SummerProject/brain_simulations/"
 end
 
 
@@ -60,6 +60,12 @@ function brain_PDE(model, pgs_dict, data; write = false)
     ΛS_neu = BoundaryTriangulation(model, tags=ΛS_neutags)
     ΓD_neu = BoundaryTriangulation(model, tags=ΓD_neutags)
     
+    # writevtk(ΩS, path*"model_S")
+    # writevtk(ΩD, path*"model_D")
+    # writevtk(Γ, path*"model_Gamma")
+    # return
+
+
     # Reference elementes
     order = 2
     ref_us = ReferenceFE(lagrangian, VectorValue{2,Float64}, order)
@@ -93,6 +99,8 @@ function brain_PDE(model, pgs_dict, data; write = false)
     
     # Normal and tangential vectors
     n̂Γ = get_normal_vector(Γ) 
+    tangent = TensorValue(0, -1, 1, 0) ⋅ n̂Γ.⁺ # <----------- Problem
+    return
     n̂ΛS = get_normal_vector(ΛS)
     n̂ΓS = get_normal_vector(ΓS)
     n̂D = get_normal_vector(ΓD)
@@ -170,37 +178,19 @@ model, pgs_dict = create_brain(brain_params; view=false, write=false)
 α(x) = 0.0
 gΓS(x) = 0.0
 us0(x) = VectorValue(0.0, 0.0) # us = 0 on ΛS
-ps0(x) = 0.0
+ps0(x) = -x # use angle instead?
 pd0(x) = 0.0
 fs0(x) = VectorValue(0.0, 0.0) #?
 fd0(x) = 0.0 #?
 
-σ0(x) = TensorValue(0.0, 0.0, 0.0, 0.0)
-nab_pd0(x) = VectorValue(0.0, 0.0)
+σ0(x) = TensorValue(0.0, 0.0, 0.0, 0.0) # not used right now
+nab_pd0(x) = VectorValue(0.0, 0.0) # zero flux?
 gΓ(x) = 0 
 
 PDE_params = Dict(:μ => μ, :Κ => Κ, :α => α, :gΓS => gΓS, :fs0 => fs0, :fd0 => fd0, :us0 => us0, :ps0 => ps0, :pd0 => pd0, :gΓ => gΓ, :σ0 => σ0, :nab_pd0 => nab_pd0) 
 
-
-# PDE_params = Dict(:fs0 => fs0, :gΓ => gΓ)
-
-# f0 = (fs0, fd0)
-# g0 = (us0, ps0, pd0, gΓ)
-# h0 = (σ0, nab_pd0)
-
-
-
-# fs0, fd0 = f0
-# us0, ps0, pd0, gΓ = g0
-# σ0, nab_pd0 = h0
-# μ, Κ, α = [params[key] for key in [:μ, :Κ, :α]]
-
-PDE_keys = collect(keys(PDE_params))
-key = PDE_keys[1]
-test = PDE_params[key]
-println(test)
-
-# brain_PDE(model, pgs_dict, params; write = false)
+# --- Run simulation --- #
+brain_PDE(model, pgs_dict, PDE_params; write = true)
 
 
 

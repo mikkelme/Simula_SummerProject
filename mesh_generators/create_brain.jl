@@ -11,6 +11,10 @@ if !ispath(path)
     path = "/home/mirok/Documents/MkSoftware/Simula_SummerProject/mesh_generators/"
 end
 
+function pgs_tags(pgs_dict, tags)
+    return [pgs_dict[tag] for tag in tags]
+end
+
 
 function create_brain(param::model_params; view=true, write=false)
     gmsh.initialize(["", "-clmax", string(param.lc)])
