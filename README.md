@@ -21,7 +21,9 @@ $$
     - \nabla \cdot \sigma(u_S, p_S) &= f_s \quad \text{in} \ \Omega_S \\
     \nabla \cdot u_S &= 0  \quad \text{in} \ \Omega_S \\
     u_S &= u_{S,0}  \quad \text{on} \ \Lambda_S \\
+    u_S \times \hat{n}_S &= 0  \quad \text{on} \ \Gamma_S \\
     p_S &= p_{S,0}  \quad \text{on} \ \Gamma_S \\
+
 \end{align}
 $$
 where
@@ -58,7 +60,7 @@ We are going to use
 $$
 \begin{align}
     u_{S,0} &= 0 \\
-    
+
 \end{align}
 $$
 ___
