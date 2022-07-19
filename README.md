@@ -12,7 +12,7 @@
 ## Theory 
 ### Equations 
 
-$u_S, p_S$ is velocity and pressure in stokes domain $S$, and $p_D$ is pressure in Darcy domain $D$.
+$u_S, p_S$ is velocity and pressure in stokes domain $S$, and $p_D$ is pressure in Darcy domain $D$.$\Kappa$, $\kappa$.
 
 #### Stokes
 
