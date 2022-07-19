@@ -12,7 +12,7 @@
 ## Theory 
 ### Equations 
 
-$u_S, p_S$ is velocity and pressure in stokes domain $S$, and $p_D$ is pressure in Darcy domain $D$.$\Kappa$, $\kappa$.
+$u_S, p_S$ is velocity and pressure in stokes domain $S$, and $p_D$ is pressure in Darcy domain $D$.
 
 #### Stokes
 
@@ -36,7 +36,7 @@ $$
 
 $$
 \begin{align}
-    \nabla \cdot (-\Kappa\nabla p_D) &= f_D \quad \text{in} \ \Omega_D \\
+    \nabla \cdot (-\kappa\nabla p_D) &= f_D \quad \text{in} \ \Omega_D \\
      P_D &= P_{D,0}  \quad \text{on} \ \partial \Omega_S \setminus \Gamma 
 \end{align}
 $$
@@ -45,7 +45,7 @@ $$
 #### Interface 
 $$
 \begin{align}
-    u_S\cdot\hat{n}_S + (-\Kappa\nabla p_D \cdot \hat{n}_D) &= g\Gamma \\
+    u_S\cdot\hat{n}_S + (-\kappa\nabla p_D \cdot \hat{n}_D) &= g\Gamma \\
     -[\sigma(u_S, p_S)\cdot\hat{n}_S]\cdot\hat{n}_S &= P_D \\
     -[\sigma(u_S, p_S)\cdot\hat{n}_S]\cdot\hat{\tau}_S &= \alpha u_S \cdot\hat{\tau}_S\\
 \end{align}
