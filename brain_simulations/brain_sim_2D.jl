@@ -143,11 +143,19 @@ function brain_PDE(model, pgs_dict, data; write = false)
 end
 
 
-# function evaluate_along_centerline()
-#   cl_model, cl_pgs_dict = create_centerline(brain_params; view = true)
+function evaluate_along_centerline()
+  cl_model, cl_pgs_dict = create_centerline(brain_params; view = true)
+
+  cl_tags =  pgs_tags(cl_pgs_dict, [1, 2, 3])
+  L = BoundaryTriangulation(cl_model, tags=cl_tags)
+  dL = Measure(L, 2)
+
+  # integral = sqrt(sum(∫(ush ⋅ ush)dL))
+  integral = sqrt(sum(∫(ush ⋅ ush) * dL))
+  println(integral)
 
 
-# end
+end
 
 
 
@@ -181,6 +189,6 @@ PDE_params = Dict(:μ => μ, :Κ => Κ, :α => α, :fs0 => fs0, :fd0 => fd0, :ps
 
 # --- Run simulation --- #
 model, pgs_dict = create_brain(brain_params; view=false, write=false)
-u, p = brain_PDE(model, pgs_dict, PDE_params; write = true)
+ush, ph = brain_PDE(model, pgs_dict, PDE_params; write = true)
 
 
