@@ -130,7 +130,7 @@ function create_brain_2D_xy(param::model_params)
     # Connect and refine mesh
     connect_and_surfize(brain)
     add_mesh_field(brain, param)
-    apply_periodic_meshing(brain)
+    # apply_periodic_meshing(brain)
     
     
     # Add physical groups 
