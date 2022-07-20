@@ -42,12 +42,9 @@ function brain_PDE(model, pgs_dict, data; write = false)
     ΓS_tags = pgs_tags(pgs_dict, [7, 9]) 
 
     # Boundary conditions
-    # ΛS_neutags =  pgs_tags(pgs_dict, []) #---EMPTY---#
     ΓD_neutags =  pgs_tags(pgs_dict, [3, 6, 8, 10, 11, 13, 14]) 
     ΛS_diritags = pgs_tags(pgs_dict, [5, 12, 15]) 
-    # ΓD_diritags = pgs_tags(pgs_dict, [])  #---EMPTY---#
 
-    
     
     # --- Triangulation and spaces --- #
     # Surface domains
@@ -55,14 +52,13 @@ function brain_PDE(model, pgs_dict, data; write = false)
     ΩS = Triangulation(model, tags=ΩS_tags)
     ΩD = Triangulation(model, tags=ΩD_tags)
 
-    # Boundary and interface
+    # Boundary & interface
     Γ = InterfaceTriangulation(ΩS, ΩD)   
     ΛS = BoundaryTriangulation(model, tags=ΛS_tags)
     ΓS = BoundaryTriangulation(model, tags=ΓS_tags)
     ΓD = BoundaryTriangulation(model, tags=ΓD_tags)
     ΓD_neu = BoundaryTriangulation(model, tags=ΓD_neutags)
     
-
     # Reference elementes
     order = 2
     ref_us = ReferenceFE(lagrangian, VectorValue{2,Float64}, order)
@@ -93,7 +89,7 @@ function brain_PDE(model, pgs_dict, data; write = false)
     dΓD = Measure(ΓD, degree)    
     dΓDneu = Measure(ΓD_neu, degree) 
     
-    # Normal and tangential vectors
+    # Normal & tangential vectors
     n̂Γ = get_normal_vector(Γ) 
     n̂ΓS = get_normal_vector(ΓS)
     n̂D = get_normal_vector(ΓD)
@@ -109,7 +105,6 @@ function brain_PDE(model, pgs_dict, data; write = false)
     ϵ(u) = 1 / 2 * (∇(u) + transpose(∇(u)))
     σ(u,p) = 2 * data[:μ] * ε(u) - p * TensorValue(1, 0, 0, 1) # Stress matrix
 
-    
     # Nitsche on ΓS
     aNΓS((us, ps), (vs, qs)) = ∫(γ/h * (us⋅t̂ΓS) * (vs ⋅ t̂ΓS))dΓS  - ∫( ((n̂ΓS ⋅ σ(us,ps)) ⋅ t̂ΓS) * (vs⋅t̂ΓS) )dΓS - ∫( ((n̂ΓS ⋅ σ(vs,qs)) ⋅ t̂ΓS) * (us⋅t̂ΓS) )dΓS
     bNΓS((vs, qs)) = ∫(data[:ps0] * (-vs ⋅ n̂ΓS))dΓS 
@@ -132,16 +127,14 @@ function brain_PDE(model, pgs_dict, data; write = false)
         
     
     # --- Solve --- #
-    println("Setting up matrix and vector")
+    println("#---Assembling matrix and vector---#")
     op = AffineFEOperator(a, b, W, δW)
-    println("Solving")
+    println("#---Solving---#")
     ush, psh, pdh = solve(op)
-
-    ph = psh + pdh 
+    ph = psh + pdh # Gather pressure into one variable
     
-    # --- Check with manufactured solution --- #
+    # --- Write & return results --- #
     write && writevtk(Ω, path * "vtu_files/" * "brain_sim_results", cellfields=["us" => ush, "ph" => ph])
-    
     return  ush, psh, pdh
     
 
