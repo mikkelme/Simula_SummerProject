@@ -16,11 +16,11 @@ end
 
 
 function spherical_to_cartesian(r, theta, phi)
-    # theta: angle from x-axis in x-y-plane (0 → 2π)
-    # phi: angle from z-axis towards x-y-plane (0 → π)
+    # theta: angle from x-axis in x-z-plane (0 → 2π)
+    # phi: angle from y-axis towards x-z-plane (0 → π)
     x = r * cos(theta) * sin(phi)
-    y = r * sin(theta) * sin(phi)
-    z = r * cos(phi)
+    z = r * sin(theta) * sin(phi)
+    y = r * cos(phi)
     return x, y, z
 end
 

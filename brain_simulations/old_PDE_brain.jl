@@ -42,12 +42,29 @@ function brain_PDE(model, pgs_dict, data; write = false)
     ΓS_tags = pgs_tags(pgs_dict, [7, 9]) 
 
     # Boundary conditions
-    # ΛS_neutags =  pgs_tags(pgs_dict, []) #---EMPTY---#
-    ΓD_neutags =  pgs_tags(pgs_dict, [3, 6, 8, 10, 11, 13, 14]) 
-    ΛS_diritags = pgs_tags(pgs_dict, [5, 12, 15]) 
-    ΓD_diritags = pgs_tags(pgs_dict, []) 
+    ΛS_neutags = pgs_tags(pgs_dict, []) 
+    ΓD_neutags = pgs_tags(pgs_dict, [3, 6, 8, 10, 11, 13, 14]) 
+    ΛS_diritags = filter(x -> x ∉ ΛS_neutags, ΛS_tags)
+    ΓD_diritags = filter(x -> x ∉ ΓD_neutags, ΓD_tags)
 
-    
+
+
+
+    # # Unit box 
+    # # --- Boundary tags --- #
+    # ΩS_tags =  pgs_tags(pgs_dict, [200])
+    # ΩD_tags =  pgs_tags(pgs_dict, [100])
+    # ΛS_tags = pgs_tags(pgs_dict, [7, 12, 13]) 
+    # ΓD_tags = pgs_tags(pgs_dict, [1, 2, 3, 8, 9, 10, 11])
+    # ΓS_tags = pgs_tags(pgs_dict, [5, 6]) 
+
+    # # Boundary conditions
+    # ΛS_neutags = pgs_tags(pgs_dict, []) 
+    # ΓD_neutags = pgs_tags(pgs_dict, [1, 2, 3, 8, 9, 10, 11]) 
+    # ΛS_diritags = filter(x -> x ∉ ΛS_neutags, ΛS_tags)
+    # ΓD_diritags = filter(x -> x ∉ ΓD_neutags, ΓD_tags)
+    # #####
+
     
     # --- Triangulation and spaces --- #
     # Surface domains
@@ -60,9 +77,14 @@ function brain_PDE(model, pgs_dict, data; write = false)
     ΛS = BoundaryTriangulation(model, tags=ΛS_tags)
     ΓS = BoundaryTriangulation(model, tags=ΓS_tags)
     ΓD = BoundaryTriangulation(model, tags=ΓD_tags)
-    # ΛS_neu = BoundaryTriangulation(model, tags=ΛS_neutags) #---EMPTY---#
+    ΛS_neu = BoundaryTriangulation(model, tags=ΛS_neutags)
     ΓD_neu = BoundaryTriangulation(model, tags=ΓD_neutags)
     
+    # writevtk(ΩS, path*"model_S")
+    # writevtk(ΩD, path*"model_D")
+    # writevtk(Γ, path*"model_Gamma")
+    # return
+
 
     # Reference elementes
     order = 2
@@ -76,7 +98,7 @@ function brain_PDE(model, pgs_dict, data; write = false)
     δQD = TestFESpace(ΩD, ref_pd, conformity=:H1, dirichlet_tags=ΓD_diritags)
     
     # Trial spaces
-    VS = TrialFESpace(δVS, VectorValue(0.0, 0.0)) # No slip on ΛS
+    VS = TrialFESpace(δVS, data[:us0])
     QS = TrialFESpace(δQS)
     QD = TrialFESpace(δQD, data[:pd0])
     
@@ -92,11 +114,13 @@ function brain_PDE(model, pgs_dict, data; write = false)
     dΛS = Measure(ΛS, degree)
     dΓS = Measure(ΓS, degree)
     dΓD = Measure(ΓD, degree)    
-    # dΛSneu = Measure(ΛS_neu, degree) #---EMPTY---#
+    dΛSneu = Measure(ΛS_neu, degree) 
     dΓDneu = Measure(ΓD_neu, degree) 
     
     # Normal and tangential vectors
     n̂Γ = get_normal_vector(Γ) 
+    tangent = TensorValue(0, -1, 1, 0) ⋅ n̂Γ.⁺ 
+    n̂ΛS = get_normal_vector(ΛS)
     n̂ΓS = get_normal_vector(ΓS)
     n̂D = get_normal_vector(ΓD)
     t̂Γ = TensorValue(0, -1, 1, 0) ⋅ n̂Γ.⁺ 
@@ -126,7 +150,7 @@ function brain_PDE(model, pgs_dict, data; write = false)
     aΓ((us, pd), (vs, qd)) = ∫( data[:α]*(us.⁺⋅t̂Γ)*(vs.⁺⋅t̂Γ) - (us.⁺⋅n̂Γ.⁺)*qd.⁻ + pd.⁻*(n̂Γ.⁺⋅vs.⁺) )dΓ
 
     # Neumann conditions (right hand side)
-    b_neumann((vs, qd)) = ∫( data[:Κ]/data[:μ]*(get_normal_vector(ΓD_neu)⋅data[:∇pd0])*qd )dΓDneu
+    b_neumann((vs, qd)) = ∫( (data[:σ0] ⋅ get_normal_vector(ΛS_neu) ) ⋅ vs)dΛSneu + ∫( data[:Κ]/data[:μ]*(get_normal_vector(ΓD_neu)⋅data[:∇pd0])*qd )dΓDneu
 
     # Gathering terms
     a((us, ps, pd), (vs, qs, qd)) =  aΩs((us, ps), (vs, qs)) + aΩD((pd, qd)) + aΓ((us, pd), (vs, qd)) + aNΓS((us, ps), (vs, qs))
@@ -151,59 +175,47 @@ end
 
 
 
-function simulate_brain_2D(Δp)
+# --- Brain Model --- # 
+lc = 0.1
+arcLen = (5, 0)
+r_brain = 2
+d_ratio = 0.5
+r_curv = 50
+inner_perturb(x, y) = 0.2 * cos(pi * abs(x) / 0.5) 
+outer_perturb(x, y) = 0.2 * cos(pi * abs(x) / 2)  
+BS_points = (arcLen[1]*20, arcLen[2]*10)
+field_Lc_lim = [1 / 2, 1]
+field_Dist_lim = [0.1, 0.5]
 
-    # --- Brain Model --- # 
-    lc = 0.1
-    arcLen = (5, 0)
-    r_brain = 2
-    d_ratio = 0.5
-    r_curv = 50
-    inner_perturb(x, y) = 0.2 * cos(pi * abs(x) / 0.5) 
-    outer_perturb(x, y) = 0.2 * cos(pi * abs(x) / 2)  
-    BS_points = (arcLen[1]*20, arcLen[2]*10)
-    field_Lc_lim = [1 / 2, 1]
-    field_Dist_lim = [0.1, 0.5]
-    
-    brain_params = model_params(lc, arcLen, r_brain, d_ratio, r_curv, inner_perturb, outer_perturb, BS_points, field_Lc_lim, field_Dist_lim)
-    model, pgs_dict = create_brain(brain_params; view=false, write=false)
-    
-    
-    # --- PDE parameters --- #
-    μ = 0.8e-3 # Fluid viscosity 
-    Κ = 1e-16 # Permeability in porous brain
-    α(x) = 1*μ/sqrt(Κ)
-    gΓS(x) = 0.0
-    us0(x) = VectorValue(0.0, 0.0) # us = 0 on ΛS (no slip)
-    ps0(x) = -x[1] # # ps0(x) = x[1] < 0 ? ΔP : 0
+brain_params = model_params(lc, arcLen, r_brain, d_ratio, r_curv, inner_perturb, outer_perturb, BS_points, field_Lc_lim, field_Dist_lim)
+model, pgs_dict = create_brain(brain_params; view=false, write=false)
 
 
-    pd0(x) = 0.0 # NOT IN USE
-    
-    fs0(x) = VectorValue(0.0, 0.0)
-    fd0(x) = 0.0 #?????
-    
-    σ0(x) = TensorValue(0.0, 0.0, 0.0, 0.0) # NOT IN USE
-    ∇pd0(x) = VectorValue(0.0, 0.0) # Zero flux
-    gΓ(x) = 0 # Balanced: us ⋅ n̂s = Κ∇pd ⋅ n̂D
-    
-    
-    
-    
-    PDE_params = Dict(:μ => μ, :Κ => Κ, :α => α, :gΓS => gΓS, :fs0 => fs0, :fd0 => fd0, :us0 => us0, :ps0 => ps0, :pd0 => pd0, :gΓ => gΓ, :σ0 => σ0, :∇pd0 => ∇pd0) 
-    
-    
-    # --- Run simulation --- #
-    brain_PDE(model, pgs_dict, PDE_params; write = true)
-    
-  
-  
-end
+# --- PDE parameters --- #
+μ = 0.8e-3 # Fluid viscosity 
+Κ = 1e-16 # Permeability in porous brain
+α(x) = 1*μ/sqrt(Κ)
+gΓS(x) = 0.0
+us0(x) = VectorValue(0.0, 0.0) # us = 0 on ΛS (no slip)
+ps0(x) = -x[1] # use angle instead?
+pd0(x) = 0.0 # NOT IN USE
+fs0(x) = VectorValue(0.0, 0.0)
+fd0(x) = 0.0 #?????
 
-
-Δp = 1 # Pressure difference (Δp on left and 0 on right)
+σ0(x) = TensorValue(0.0, 0.0, 0.0, 0.0) # NOT IN USE
+∇pd0(x) = VectorValue(0.0, 0.0) # Zero flux
+gΓ(x) = 0 # Balanced: us ⋅ n̂s = Κ∇pd ⋅ n̂D
 
 
 
 
-simulate_brain_2D(Δp)
+PDE_params = Dict(:μ => μ, :Κ => Κ, :α => α, :gΓS => gΓS, :fs0 => fs0, :fd0 => fd0, :us0 => us0, :ps0 => ps0, :pd0 => pd0, :gΓ => gΓ, :σ0 => σ0, :∇pd0 => ∇pd0) 
+
+
+# --- Run simulation --- #
+# model, pgs_dict  = create_coupled_box(1, false)
+brain_PDE(model, pgs_dict, PDE_params; write = true)
+
+
+
+

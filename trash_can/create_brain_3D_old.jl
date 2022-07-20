@@ -1,5 +1,6 @@
 include("./brain_mesh_utils.jl")
 
+
 mutable struct geo3D
     origo::Int32                      # Center of coordinate system
     vertex::Array{Int32,2}            # Vertices of all corners
@@ -20,31 +21,30 @@ end
 
 
 
+
+
 function sphere_patch_corners(r, angle, pert_func=f(x, y) = 0)
     # Calculate corners of sphere patch, 
     # using interception of inclined circles: 
     # x^2 + (z + α_y * y)^2 = y^2 + (z + α_x * x)^2 = r^2
 
-    yx_angle, yz_angle = angle
+    zx_angle, zy_angle = angle
 
-    x, y_x, _ = spherical_to_cartesian(r, 0, yx_angle / 2)
-    _, y_z, z = spherical_to_cartesian(r, pi / 2, yz_angle / 2)
+    x, _, z_x = spherical_to_cartesian(r, 0, zx_angle / 2)
+    _, y, z_y = spherical_to_cartesian(r, pi / 2, zy_angle / 2)
 
-
-
-    alpha_x = (r - y_x) / x
-    alpha_z = (r - y_z) / z
+    alpha_x = (r - z_x) / x
+    alpha_y = (r - z_y) / y
 
     a = 2 * alpha_x / (1 - alpha_x^2)
-    b = 2 * alpha_z / (1 - alpha_z^2)
+    b = 2 * alpha_y / (1 - alpha_y^2)
     c = r / sqrt(a^2 + b^2 + 1)
 
-    
-    A = [a * c, c, b * c]
-    B = [-a * c, c, b * c]
-    C = [-a * c, c, -b * c]
-    D = [a * c, c, -b * c]
-    
+    # Non perturbed points 
+    A = [a * c, b * c, c]
+    B = [-a * c, b * c, c]
+    C = [-a * c, -b * c, c]
+    D = [a * c, -b * c, c]
     NonPerturbed = [A, B, C, D]
 
     # Add perturbation
@@ -84,21 +84,21 @@ function cartesian_to_surface_cord(x, y, z)
 
     r = sqrt(x^2 + y^2 + z^2)
 
-    c = y
+    c = z
     a = x / c
-    b = z / c
+    b = y / c
 
 
     alpha_x = -(1 - sqrt(1 + a^2)) / a
-    alpha_z = -(1 - sqrt(1 + b^2)) / b
+    alpha_y = -(1 - sqrt(1 + b^2)) / b
 
     angle_x = 2 * atan(alpha_x)
-    angle_z = 2 * atan(alpha_z)
+    angle_y = 2 * atan(alpha_y)
 
     x_arcLen = r * angle_x
-    z_arcLen = r * angle_z
+    y_arcLen = r * angle_y
 
-   return x_arcLen, z_arcLen
+   return x_arcLen, y_arcLen
 
 end
 
@@ -116,7 +116,7 @@ function add_perturbed_arc(start_tag, center_tag, end_tag, NonPerturbed_start, N
     direction = end_point - start_point
 
     # Calculate spline points in given direction
-    BS_points = Int(sum(abs.(direction / vecNorm(direction))[[1, 3]] .* BS_points))
+    BS_points = Int(sum(abs.(direction / vecNorm(direction))[1:2] .* BS_points))
   
 
     range = LinRange(0, 1, BS_points)
@@ -204,7 +204,6 @@ function add_mesh_field(brain::geo3D, param::model_params)
     gmsh.model.mesh.field.setNumbers(F_distance, "SurfacesList", [brain.tan_surf[2]])
 
 
-
     # Define trheshold field
     F_threshold = gmsh.model.mesh.field.add("Threshold")
     gmsh.model.mesh.field.setNumber(F_threshold, "IField", F_distance)
@@ -224,36 +223,34 @@ end
 
 
 function apply_periodic_meshing(brain::geo3D)
-    yx_angle, yz_angle = brain.angle
-
+    zx_angle, zy_angle = brain.angle
     
 
-    # Rotation around x-axis (do not understand why the minues is needed)
-    Rx = [1, 0, 0, 0,   
-        0, cos(-yz_angle), sin(-yz_angle), 0,
-        0, -sin(-yz_angle), cos(-yz_angle), 0,
+    # Rotation around x-axis 
+    Rx = [1, 0, 0, 0,
+        0, cos(zy_angle), sin(zy_angle), 0,
+        0, -sin(zy_angle), cos(zy_angle), 0,
+        0, 0, 0, 1]
+
+    # Rotation around y-axis 
+    Ry = [cos(zx_angle), 0, -sin(zx_angle), 0,
+        0, 1, 0, 0,
+        sin(zx_angle), 0, cos(zx_angle), 0,
         0, 0, 0, 1]
 
 
-    # Rotation around z-axis 
-    Rz = [  cos(yx_angle), -sin(yx_angle), 0, 0,
-            sin(yx_angle), cos(yx_angle), 0, 0,
-            0, 0, 1, 0,
-            0, 0, 0, 1 ]
-
- 
-    gmsh.model.mesh.setPeriodic(2, [brain.rad_surf[1, 1]], [brain.rad_surf[1, 3]], Rx)
-    gmsh.model.mesh.setPeriodic(2, [brain.rad_surf[1, 2]], [brain.rad_surf[1, 4]], Rz)
 
 
     for i in 1:2
-        gmsh.model.mesh.setPeriodic(2, [brain.rad_surf[i, 1]], [brain.rad_surf[i, 3]], Rx) # From -z → +z surf
-        gmsh.model.mesh.setPeriodic(2, [brain.rad_surf[i, 2]], [brain.rad_surf[i, 4]], Rz) # From +x → -x surf        
+        gmsh.model.mesh.setPeriodic(2, [brain.rad_surf[i, 1]], [brain.rad_surf[i, 3]], Rx) # From -y → +y surf
+        gmsh.model.mesh.setPeriodic(2, [brain.rad_surf[i, 2]], [brain.rad_surf[i, 4]], Ry) # From -x → +x surf        
     end
+
+
 end
 
 
-function create_brain_3D_xy(param::model_params)
+function create_brain_3D(param::model_params)
     #?--> Safety check of parameters? # Should enforce  0 < angle < pi
 
     brain = geo3D() # Struct for holding tags and angle
@@ -261,12 +258,12 @@ function create_brain_3D_xy(param::model_params)
     # Calculate derived parameters
     rI = param.r_curv - param.r_brain                   # Inner radius  
     rD = param.r_curv - param.d_ratio * param.r_brain   # Radius for dividing line
-    x_arcLen, z_arcLen = param.arcLen
-    yx_angle = x_arcLen / param.r_curv                  # Angle span y -> x -axis
-    yz_angle = z_arcLen / param.r_curv                  # Angle span y -> z -axis
+    x_arcLen, y_arcLen = param.arcLen
+    zx_angle = x_arcLen / param.r_curv                  # Angle span z -> x -axis
+    zy_angle = y_arcLen / param.r_curv                  # Angle span z -> x -axis
 
 
-    brain.angle = (yx_angle, yz_angle)
+    brain.angle = (zx_angle, zy_angle)
 
     # Add radial surfaces
     brain.vertex[1, :], brain.arc[1, :], brain.tan_surf[1] = create_surface(brain, rI)
@@ -278,14 +275,13 @@ function create_brain_3D_xy(param::model_params)
     add_mesh_field(brain, param)
     apply_periodic_meshing(brain)
 
-    # To do: set physical groups in a more organized way here (in a loop: se 2D case)
-
 
     # Generate mesh
     gmsh.model.occ.synchronize()
     gmsh.model.mesh.generate(3)
 
 
+   
 
 end # End of create_brain_3D
 
