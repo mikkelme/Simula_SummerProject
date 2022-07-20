@@ -253,7 +253,7 @@ function apply_periodic_meshing(brain::geo3D)
 end
 
 
-function create_brain_3D_xy(param::model_params)
+function create_brain_3D(param::model_params)
     #?--> Safety check of parameters? # Should enforce  0 < angle < pi
 
     brain = geo3D() # Struct for holding tags and angle

@@ -103,8 +103,6 @@ function apply_periodic_meshing(brain::geo2D)
             0, 0, 1, 0,
             0, 0, 0, 1 ]
 
-    # Copy mesh from right (brain.vline[i, 2]) to left (brain.vline[i, 1])  
-    println(brain.vline[1, 1], " ", brain.vline[1, 2])
     gmsh.model.mesh.setPeriodic(1, [brain.vline[1, 1]], [brain.vline[1, 2]], Rz)  # Inner part
     gmsh.model.mesh.setPeriodic(1, [brain.vline[2, 1]], [brain.vline[2, 2]], Rz)  # Outer part
     # dim, tags, tagsMaster, affine
@@ -112,7 +110,7 @@ function apply_periodic_meshing(brain::geo2D)
 end
 
 
-function create_brain_2D_xy(param::model_params)
+function create_brain_2D(param::model_params)
     brain = geo2D() # Struct for holding tags and angle
 
     # Calculate derived parameters
@@ -126,7 +124,14 @@ function create_brain_2D_xy(param::model_params)
     brain.vertex[1, :], brain.arc[1] = create_arc(brain, rI)
     brain.vertex[2, :], brain.arc[2] = create_perturbed_arc(brain, rD, param.inner_perturb, param.BS_points[1])
     brain.vertex[3, :], brain.arc[3] = create_perturbed_arc(brain, param.r_curv, param.outer_perturb, param.BS_points[1])
-    
+
+    # Add centerline for dimension reduction study
+    # comb_func(x,z) = (param.inner_perturb(x,z) + param.outer_perturb(x,z))/2
+    # cl_vertex, cl_arc = create_perturbed_arc(brain, rD + (param.r_curv-rD)/2, comb_func, param.BS_points[1])
+ 
+   
+
+   
     # Connect and refine mesh
     connect_and_surfize(brain)
     add_mesh_field(brain, param)
@@ -141,7 +146,13 @@ function create_brain_2D_xy(param::model_params)
             gmsh.model.addPhysicalGroup(dim, [tag])
         end
     end
-    
+
+    # gmsh.model.addPhysicalGroup(0, [cl_vertex[1]]) #center line (left point)
+    # gmsh.model.addPhysicalGroup(1, [cl_arc]) #center line (arc)
+    # gmsh.model.addPhysicalGroup(0, [cl_vertex[2]]) #center line (right point)
+
+
+
 
     # Generate mesh
     gmsh.model.occ.synchronize()

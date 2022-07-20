@@ -147,7 +147,7 @@ lc = 0.1
 arcLen = (5, 0)
 r_brain = 2
 d_ratio = 0.5
-r_curv = 50
+r_curv = 10
 inner_perturb(x, y) = 0.2 * cos(pi * abs(x) / 0.5) 
 outer_perturb(x, y) = 0.2 * cos(pi * abs(x) / 2)  
 BS_points = (arcLen[1]*20, arcLen[2]*10)
@@ -161,16 +161,16 @@ brain_params = model_params(lc, arcLen, r_brain, d_ratio, r_curv, inner_perturb,
 Κ = 1e-16   # Permeability in porous brain
 α(x) = 1*μ/sqrt(Κ)
 
-ps0(x) = x[1] < 0 ? 10 : 0 
+ps0(x) = x[1] < 0 ? 10 : 0 # go by g amplitude
 fs0(x) = VectorValue(0.0, 0.0)
 fd0(x) = 0.0 
 ∇pd0(x) = VectorValue(0.0, 0.0) # Zero flux
-PDE_params = Dict(:μ => μ, :Κ => Κ, :α => α, :fs0 => fs0, :fd0 => fd0, :us0 => us0, :ps0 => ps0, :∇pd0 => ∇pd0) 
+PDE_params = Dict(:μ => μ, :Κ => Κ, :α => α, :fs0 => fs0, :fd0 => fd0, :ps0 => ps0, :∇pd0 => ∇pd0) 
 
 
 
 # --- Run simulation --- #
-model, pgs_dict = create_brain(brain_params; view=false, write=false)
-brain_PDE(model, pgs_dict, PDE_params; write = true)
+model, pgs_dict = create_brain(brain_params; view=true, write=false)
+# brain_PDE(model, pgs_dict, PDE_params; write = true)
 
 

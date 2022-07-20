@@ -19,9 +19,11 @@ end
 
 function create_brain(param::model_params; view=true, write=false)
     gmsh.initialize(["", "-clmax", string(param.lc)])
+    gmsh.option.setNumber("General.Terminal", 1)
     gmsh.option.setNumber("Mesh.SaveAll", 1)  # For direct wiring
+    gmsh.option.setNumber("Mesh.MedImportGroupsOfNodes", 1)
     gmsh.model.add("brain")
-    param.arcLen[2] == 0 ? create_brain_2D_xy(param) : create_brain_3D_xy(param)
+    param.arcLen[2] == 0 ? create_brain_2D(param) : create_brain_3D(param)
 
     # View and finalize
     if view
@@ -39,8 +41,9 @@ function create_brain(param::model_params; view=true, write=false)
 
     write && gmsh.write(path * "brain.msh")    
     model, pgs_dict = direct_wiring(gmsh)
-    gmsh.finalize()
 
+    gmsh.finalize()
+    # model = GmshDiscreteModel("/Users/mikkelme/Documents/Github/Simula_SummerProject/mesh_generators/brain.msh") # Test the mesh
     return model, pgs_dict
 
 
@@ -62,7 +65,7 @@ if abspath(PROGRAM_FILE) == @__FILE__
     field_Dist_lim = [0.1, 0.5]
 
     param = model_params(lc, arcLen, r_brain, d_ratio, r_curv, inner_perturb, outer_perturb, BS_points, field_Lc_lim, field_Dist_lim)
-    create_brain(param; view=true, write=false)
+    create_brain(param; view=false, write=false)
 end
 
 
