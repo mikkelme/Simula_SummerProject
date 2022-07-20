@@ -129,7 +129,6 @@ function create_brain_2D(param::model_params)
     # comb_func(x,z) = (param.inner_perturb(x,z) + param.outer_perturb(x,z))/2
     # cl_vertex, cl_arc = create_perturbed_arc(brain, rD + (param.r_curv-rD)/2, comb_func, param.BS_points[1])
  
-   
 
    
     # Connect and refine mesh
@@ -147,9 +146,6 @@ function create_brain_2D(param::model_params)
         end
     end
 
-    # gmsh.model.addPhysicalGroup(0, [cl_vertex[1]]) #center line (left point)
-    # gmsh.model.addPhysicalGroup(1, [cl_arc]) #center line (arc)
-    # gmsh.model.addPhysicalGroup(0, [cl_vertex[2]]) #center line (right point)
 
 
 

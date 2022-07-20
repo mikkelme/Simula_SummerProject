@@ -6,6 +6,8 @@ using Plots
 
 include("../mesh_generators/create_brain.jl")
 include("../mesh_generators/unit_box_direct.jl")
+include("../mesh_generators/generate_center_line.jl")
+
 
 
 
@@ -127,18 +129,26 @@ function brain_PDE(model, pgs_dict, data; write = false)
         
     
     # --- Solve --- #
-    println("#---Assembling matrix and vector---#")
+    println("#--- Assembling ---#")
     op = AffineFEOperator(a, b, W, δW)
-    println("#---Solving---#")
+    println("#--- Solving ---#")
     ush, psh, pdh = solve(op)
     ph = psh + pdh # Gather pressure into one variable
     
     # --- Write & return results --- #
     write && writevtk(Ω, path * "vtu_files/" * "brain_sim_results", cellfields=["us" => ush, "ph" => ph])
-    return  ush, psh, pdh
+    return  ush, ph
     
 
 end
+
+
+# function evaluate_along_centerline()
+#   cl_model, cl_pgs_dict = create_centerline(brain_params; view = true)
+
+
+# end
+
 
 
 
@@ -170,7 +180,7 @@ PDE_params = Dict(:μ => μ, :Κ => Κ, :α => α, :fs0 => fs0, :fd0 => fd0, :ps
 
 
 # --- Run simulation --- #
-model, pgs_dict = create_brain(brain_params; view=true, write=false)
-# brain_PDE(model, pgs_dict, PDE_params; write = true)
+model, pgs_dict = create_brain(brain_params; view=false, write=false)
+u, p = brain_PDE(model, pgs_dict, PDE_params; write = true)
 
 
