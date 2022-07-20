@@ -32,18 +32,15 @@ function create_brain(param::model_params; view=true, write=false)
 
     # View and finalize
     if view
-        # Shift rotation center 
+        # Change rotation center 
         gmsh.option.setNumber("General.RotationCenterGravity", 0)
         gmsh.option.setNumber("General.RotationCenterY", param.r_curv-param.r_brain/2)
         
-        # Rotate view
-        # gmsh.option.setNumber("General.Trackball", 0)
-        # gmsh.option.setNumber("General.RotationX", -90) # Used if trackball = 0
-        gmsh.option.setNumber("General.TranslationY", -(param.r_curv-param.r_brain/2)) # Used if trackball = 0
+        # Shift view
+        gmsh.option.setNumber("General.TranslationY", -1/2*(param.r_curv-param.r_brain/2)) 
 
-
+        # View
         gmsh.fltk.initialize()
-        gmsh.option.setNumber("General.Trackball", 1) # Reenable for better rotation control
         gmsh.fltk.run()
     end
 
@@ -75,7 +72,7 @@ end
 
 if abspath(PROGRAM_FILE) == @__FILE__
 
-    lc = 1
+    lc = 0.5
     arcLen = (5, 0)
     r_brain = 2
     d_ratio = 0.5
@@ -85,7 +82,7 @@ if abspath(PROGRAM_FILE) == @__FILE__
     # inner_perturb(x, y) = 0
     # outer_perturb(x, y) = 0
     BS_points = (arcLen[1]*20, arcLen[2]*10)
-    field_Lc_lim = [1 / 2, 1]
+    field_Lc_lim = [1 / 4, 1]
     field_Dist_lim = [0.1, 0.5]
 
     param = model_params(lc, arcLen, r_brain, d_ratio, r_curv, inner_perturb, outer_perturb, BS_points, field_Lc_lim, field_Dist_lim)
@@ -93,7 +90,6 @@ if abspath(PROGRAM_FILE) == @__FILE__
 
     create_brain(param; view=true, write=false)
 end
-
 
 
 
