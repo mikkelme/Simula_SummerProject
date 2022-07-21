@@ -167,11 +167,11 @@ function evaluate_along_centerline()
   ph(VectorValue(-1.93, 9.3))
 
 
-  brain_params.
+
   cl_model, cl_pgs_dict = create_centerline(brain_params; view = true)
   # model = GmshDiscreteModel("./foo.msh") # Test the mesh
   cl_tags =  pgs_tags(cl_pgs_dict, [1, 2, 3])
-  L = Triangulation(cl_model)#, tags=cl_tags)
+  L = Triangulation(cl_model, tags=pgs_tags(cl_pgs_dict, [2, 5]))
   # L = B
   #L = Triangulation(box)
   dL = Measure(L, 1)
@@ -210,8 +210,8 @@ arcLen = (5, 0)
 r_brain = 2
 d_ratio = 0.5
 r_curv = 10
-inner_perturb(x, y) = 0.2 * cos(pi * abs(x) / 0.5) 
-outer_perturb(x, y) = 0.2 * cos(pi * abs(x) / 2)  
+# inner_perturb(x, y) = 0.2 * cos(pi * abs(x) / 0.5) 
+# outer_perturb(x, y) = 0.2 * cos(pi * abs(x) / 2)  
 inner_perturb(x, y) = 0.0
 outer_perturb(x, y) = 0.0
 BS_points = (arcLen[1]*20, arcLen[2]*10)

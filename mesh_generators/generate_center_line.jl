@@ -4,11 +4,11 @@ using GridapGmsh: gmsh
 include("./brain_mesh_utils.jl")
 
 
-function cl_perturbed_arc(param::model_params)
+function cl_perturbed_arc(param::model_params, distort = 0)
     pointTags = []
    
     arcLen = param.arcLen[1]  
-    r_cl = param.r_curv - (param.d_ratio * param.r_brain)/2 
+    r_cl = param.r_curv - (param.d_ratio * param.r_brain)/2 + distort
     angle = arcLen / param.r_curv   
     @show angle*r_cl
     perturbation_func(x,z) = (param.inner_perturb(x,z) + param.outer_perturb(x,z))/2
@@ -33,10 +33,17 @@ function create_centerline(param::model_params; view = false)
     gmsh.option.setNumber("Mesh.SaveAll", 1)  # For direct wiring
 
     vertex, BSpline = cl_perturbed_arc(param)
-
     gmsh.model.addPhysicalGroup(0, [vertex[1]]) # center line (left point)
     gmsh.model.addPhysicalGroup(1, [BSpline])   # center line (arc)
     gmsh.model.addPhysicalGroup(0, [vertex[2]]) # center line (right point)
+
+
+    vertex, BSpline = cl_perturbed_arc(param, 1)
+    gmsh.model.addPhysicalGroup(0, [vertex[1]]) # center line (left point)
+    gmsh.model.addPhysicalGroup(1, [BSpline])   # center line (arc)
+    gmsh.model.addPhysicalGroup(0, [vertex[2]]) # center line (right point)
+
+
     
     gmsh.model.mesh.generate(1)
 
