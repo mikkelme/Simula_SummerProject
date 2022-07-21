@@ -125,7 +125,7 @@ function brain_PDE(model, pgs_dict, data; write = false)
 
     # Gathering terms
     a((us, ps, pd), (vs, qs, qd)) =  aΩs((us, ps), (vs, qs)) + aΩD((pd, qd)) + aΓ((us, pd), (vs, qd)) + aNΓS((us, ps), (vs, qs))
-    b((vs, qs, qd)) = ∫( data[:fs0]⋅vs )dΩS + ∫( data[:fd0] * qd )dΩD + bNΓS((vs, qs)) + b_neumann((vs, qd))
+    b((vs, qs, qd)) = bNΓS((vs, qs)) + b_neumann((vs, qd)) # +∫( data[:fs0]⋅vs )dΩS + ∫( data[:fd0] * qd )dΩD
         
     
     # --- Solve --- #
@@ -196,8 +196,8 @@ end
 # end
 
 
-function evaluate_radial_var(num_lines; degree = 2, view = false)
-  rad_model, _ =  create_radial_lines(brain_params, num_lines; view = view)
+function evaluate_radial_var(brain_param, psh, num_lines; degree = 2, view = false)
+  rad_model, _ =  create_radial_lines(brain_param, num_lines; view = view)
   ip = Interpolable(psh)
 
   mean_pos = []
@@ -258,4 +258,4 @@ end
 
 
 # num_lines = 5
-# evaluate_radial_var(num_lines)
+# evaluate_radial_var(psh, num_lines)
