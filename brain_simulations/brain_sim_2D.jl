@@ -1,5 +1,6 @@
 using Gridap
 using GridapGmsh
+using Gridap.CellData
 using Printf
 using Plots
 
@@ -133,26 +134,69 @@ function brain_PDE(model, pgs_dict, data; write = false)
     op = AffineFEOperator(a, b, W, δW)
     println("#--- Solving ---#")
     ush, psh, pdh = solve(op)
-    ph = psh + pdh # Gather pressure into one variable
+    # ph = psh + pdh # Gather pressure into one variable
     
     # --- Write & return results --- #
-    write && writevtk(Ω, path * "vtu_files/" * "brain_sim_results", cellfields=["us" => ush, "ph" => ph])
-    return  ush, ph
+    write && writevtk(Ω, path * "vtu_files/" * "brain_sim_results", cellfields=["us" => ush, "psh" => psh, "pdh" => pdh])
+    return  ush, psh, pdh
     
 
 end
 
 
 function evaluate_along_centerline()
-  cl_model, cl_pgs_dict = create_centerline(brain_params; view = true)
 
+  # f(x) = x[1] + x[2]
+  domain = (-0.5, 0.5, 9.5, 9.6)
+  partition = (5,5)
+  box = CartesianDiscreteModel(domain, partition)
+  B = BoundaryTriangulation(box)
+  # reffe₁ = ReferenceFE(lagrangian, Float64, 1)
+  # V₁ = FESpace(𝒯₁, reffe₁)
+  
+
+  # fₕ = interpolate_everywhere(f,V₁)
+
+
+
+  iu = Interpolable(ush)
+  ip = Interpolable(psh; searchmethod=KDTreeSearch(num_nearest_vertices=4))
+
+
+  ip(VectorValue(-1.93, 9.3))
+  ph(VectorValue(-1.93, 9.3))
+
+
+  brain_params.
+  cl_model, cl_pgs_dict = create_centerline(brain_params; view = true)
+  # model = GmshDiscreteModel("./foo.msh") # Test the mesh
   cl_tags =  pgs_tags(cl_pgs_dict, [1, 2, 3])
-  L = BoundaryTriangulation(cl_model, tags=cl_tags)
-  dL = Measure(L, 2)
+  L = Triangulation(cl_model)#, tags=cl_tags)
+  # L = B
+  #L = Triangulation(box)
+  dL = Measure(L, 1)
+
+  Vi = TestFESpace(L, ReferenceFE(lagrangian, Float64, 1))
+  #phL = interpolate_everywhere(ip, Vi)
+  val = sum(∫(1)*dL)
+
+
+  # test = sqrt(sum(∫(ush ⋅ ush) * dΩS))
+  test = sum(∫(ip)dΩS)
+
+
+
+
+
+
+  # gp = Gridap.FESpaces.interpolate_everywhere(ip, V2)
+  # gp = interpolate(ip, V2)
+
 
   # integral = sqrt(sum(∫(ush ⋅ ush)dL))
-  integral = sqrt(sum(∫(ush ⋅ ush) * dL))
-  println(integral)
+  # integral = sqrt(sum(∫(iu ⋅ iu) * dL))
+  # val  = ∫( px )dL
+
 
 
 end
@@ -168,6 +212,8 @@ d_ratio = 0.5
 r_curv = 10
 inner_perturb(x, y) = 0.2 * cos(pi * abs(x) / 0.5) 
 outer_perturb(x, y) = 0.2 * cos(pi * abs(x) / 2)  
+inner_perturb(x, y) = 0.0
+outer_perturb(x, y) = 0.0
 BS_points = (arcLen[1]*20, arcLen[2]*10)
 field_Lc_lim = [1 / 2, 1]
 field_Dist_lim = [0.1, 0.5]
@@ -188,7 +234,7 @@ PDE_params = Dict(:μ => μ, :Κ => Κ, :α => α, :fs0 => fs0, :fd0 => fd0, :ps
 
 
 # --- Run simulation --- #
-model, pgs_dict = create_brain(brain_params; view=false, write=false)
-ush, ph = brain_PDE(model, pgs_dict, PDE_params; write = true)
+model, pgs_dict = create_brain(brain_params; view=true, write=false)
+ush, psh, pdh = brain_PDE(model, pgs_dict, PDE_params; write = true)
 
 

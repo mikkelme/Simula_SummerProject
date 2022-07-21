@@ -10,6 +10,7 @@ function cl_perturbed_arc(param::model_params)
     arcLen = param.arcLen[1]  
     r_cl = param.r_curv - (param.d_ratio * param.r_brain)/2 
     angle = arcLen / param.r_curv   
+    @show angle*r_cl
     perturbation_func(x,z) = (param.inner_perturb(x,z) + param.outer_perturb(x,z))/2
   
     angle = arcLen / param.r_curv  
@@ -39,6 +40,7 @@ function create_centerline(param::model_params; view = false)
     
     gmsh.model.mesh.generate(1)
 
+    # @show gmsh.model.mesh.getNodes()
     if view
         gmsh.fltk.initialize()
         gmsh.fltk.run()

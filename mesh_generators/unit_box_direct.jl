@@ -62,7 +62,7 @@ function create_unit_box(lc, view=false)
     end
     
     
-    
+    gmsh.write("my_unitbox.msh")
     model, pgs_dict = direct_wiring(gmsh)
     gmsh.finalize()
 
@@ -167,6 +167,7 @@ end
 
 
 # create_unit_box(2, true)
+# model = GmshDiscreteModel("./my_unitbox.msh") # Test the mesh
 # create_coupled_box(2, true)
 
 # if abspath(PROGRAM_FILE) == @__FILE__

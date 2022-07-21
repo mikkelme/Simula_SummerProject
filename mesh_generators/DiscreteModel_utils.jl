@@ -6,7 +6,8 @@ function direct_wiring(gmsh; renumber=true)
     renumber && gmsh.model.mesh.renumberElements()
 
     Dc = GridapGmsh._setup_cell_dim(gmsh)
-    Dp = GridapGmsh._setup_point_dim(gmsh, Dc)
+    Dp = my_setup_point_dim(gmsh, Dc)
+    # Dp = 2
     node_to_coords = GridapGmsh._setup_node_coords(gmsh, Dp)
     nnodes = length(node_to_coords)
     vertex_to_node, node_to_vertex = _setup_nodes_and_vertices(gmsh, node_to_coords)
@@ -19,10 +20,38 @@ function direct_wiring(gmsh; renumber=true)
  
     model = Gridap.Geometry.UnstructuredDiscreteModel(grid, grid_topology, labeling)
     pgs_dict = Dict(Int64(pgs[i][2]) => Int64(i) for i in 1:length(pgs)) # Physical group dictionary
-  
+    @show Dc, Dp 
     return model, pgs_dict
 end
 
+
+
+function my_setup_point_dim(gmsh,Dc)
+    D3 = GridapGmsh.D3
+    if Dc == D3
+      return Dc
+    end
+    nodeTags, coord, parametricCoord = gmsh.model.mesh.getNodes()
+    for node in nodeTags # 3D check
+      j = D3
+      k = (node-1)*D3 + j
+      xj = coord[k]
+      if !(xj + 1 ≈ 1)
+        return D3
+      end
+    end
+    for node in nodeTags # 2D check
+    j = D3
+    k = (node-1)*D3 + j
+    xj = coord[k-1]
+    if !(xj + 1 ≈ 1)
+        return 2
+    end
+    end
+    Dc
+  end
+  
+  
 
 # --- SUPPORT FUNCTIONS: COPY-PASTED FROM https://github.com/gridap/GridapGmsh.jl/blob/master/src/GmshDiscreteModels.jl --- #
 
