@@ -8,6 +8,8 @@ using Plots
 include("../mesh_generators/create_brain.jl")
 include("../mesh_generators/unit_box_direct.jl")
 include("../mesh_generators/generate_center_line.jl")
+include("../mesh_generators/generate_radial_lines.jl")
+
 
 
 
@@ -144,64 +146,82 @@ function brain_PDE(model, pgs_dict, data; write = false)
 end
 
 
-function evaluate_along_centerline()
+# function evaluate_along_centerline()
 
-  # f(x) = x[1] + x[2]
-  domain = (-0.5, 0.5, 9.5, 9.6)
-  partition = (5,5)
-  box = CartesianDiscreteModel(domain, partition)
-  B = BoundaryTriangulation(box)
-  # reffe₁ = ReferenceFE(lagrangian, Float64, 1)
-  # V₁ = FESpace(𝒯₁, reffe₁)
+
+#   # f(x) = x[1] + x[2]
+#   domain = (-0.5, 0.5, 9.5, 9.6)
+#   partition = (5,5)
+#   box = CartesianDiscreteModel(domain, partition)
+#   B = BoundaryTriangulation(box)
+#   # reffe₁ = ReferenceFE(lagrangian, Float64, 1)
+#   # V₁ = FESpace(𝒯₁, reffe₁)
   
 
-  # fₕ = interpolate_everywhere(f,V₁)
+#   # fₕ = interpolate_everywhere(f,V₁)
 
 
 
-  iu = Interpolable(ush)
-  ip = Interpolable(psh; searchmethod=KDTreeSearch(num_nearest_vertices=4))
+#   iu = Interpolable(ush)
+#   ip = Interpolable(psh; searchmethod=KDTreeSearch(num_nearest_vertices=4))
 
 
-  ip(VectorValue(-1.93, 9.3))
-  ph(VectorValue(-1.93, 9.3))
-
-
-
-  cl_model, cl_pgs_dict = create_centerline(brain_params; view = true)
-  # model = GmshDiscreteModel("./foo.msh") # Test the mesh
-  cl_tags =  pgs_tags(cl_pgs_dict, [1, 2, 3])
-  L = Triangulation(cl_model, tags=pgs_tags(cl_pgs_dict, [2, 5]))
-  # L = B
-  #L = Triangulation(box)
-  dL = Measure(L, 1)
-
-  Vi = TestFESpace(L, ReferenceFE(lagrangian, Float64, 1))
-  #phL = interpolate_everywhere(ip, Vi)
-  val = sum(∫(1)*dL)
-
-
-  # test = sqrt(sum(∫(ush ⋅ ush) * dΩS))
-  test = sum(∫(ip)dΩS)
+#   ip(VectorValue(-1.93, 9.3))
+#   ph(VectorValue(-1.93, 9.3))
 
 
 
+#   cl_model, cl_pgs_dict = create_centerline(brain_params; view = true)
+#   # model = GmshDiscreteModel("./foo.msh") # Test the mesh
+#   cl_tags =  pgs_tags(cl_pgs_dict, [1, 2, 3])
+#   L = Triangulation(cl_model, tags=pgs_tags(cl_pgs_dict, [2, 5]))
+#   # L = B
+#   #L = Triangulation(box)
+#   dL = Measure(L, 1)
+
+#   Vi = TestFESpace(L, ReferenceFE(lagrangian, Float64, 1))
+#   #phL = interpolate_everywhere(ip, Vi)
+#   val = sum(∫(1)*dL)
 
 
-
-  # gp = Gridap.FESpaces.interpolate_everywhere(ip, V2)
-  # gp = interpolate(ip, V2)
-
-
-  # integral = sqrt(sum(∫(ush ⋅ ush)dL))
-  # integral = sqrt(sum(∫(iu ⋅ iu) * dL))
-  # val  = ∫( px )dL
+#   # test = sqrt(sum(∫(ush ⋅ ush) * dΩS))
+#   test = sum(∫(ip)dΩS)
 
 
+#   # gp = Gridap.FESpaces.interpolate_everywhere(ip, V2)
+#   # gp = interpolate(ip, V2)
 
+
+#   # integral = sqrt(sum(∫(ush ⋅ ush)dL))
+#   # integral = sqrt(sum(∫(iu ⋅ iu) * dL))
+#   # val  = ∫( px )dL
+
+# end
+
+
+function evaluate_radial_var(num_lines; degree = 2, view = false)
+  rad_model, _ =  create_radial_lines(brain_params, num_lines; view = view)
+  ip = Interpolable(psh)
+
+  mean_pos = []
+  var =[]
+  for i in 1:num_lines
+    # --- Get line triangulation and measure --- #
+    L = Triangulation(rad_model, tags=[i])
+    dL = Measure(L, 2)
+
+    # --- Calculate metrics --- #
+    len = sum(∫(1)*dL)                              # Line length
+    mean_p = sum(∫(ip)*dL)/len                      # Mean pressure
+    append!(mean_pos, [sum(∫( identity )*dL)/len])  # Mean position
+    rel_diff = (psh - mean_p)/mean_p                # Relative difference to mean
+    sq_diff = Interpolable((rel_diff)*(rel_diff))   # squared relative difference
+    append!(var, sum(∫(sq_diff)*dL) / len)          # Variance
+  end
+  
+  return mean_pos, var
+  
 end
-
-
 
 
 # --- Brain Model --- # 
@@ -210,10 +230,10 @@ arcLen = (5, 0)
 r_brain = 2
 d_ratio = 0.5
 r_curv = 10
-# inner_perturb(x, y) = 0.2 * cos(pi * abs(x) / 0.5) 
-# outer_perturb(x, y) = 0.2 * cos(pi * abs(x) / 2)  
-inner_perturb(x, y) = 0.0
-outer_perturb(x, y) = 0.0
+inner_perturb(x, y) = 0.2 * cos(pi * abs(x) / 0.5) 
+outer_perturb(x, y) = 0.2 * cos(pi * abs(x) / 2)  
+# inner_perturb(x, y) = 0.0
+# outer_perturb(x, y) = 0.0
 BS_points = (arcLen[1]*20, arcLen[2]*10)
 field_Lc_lim = [1 / 2, 1]
 field_Dist_lim = [0.1, 0.5]
@@ -234,7 +254,9 @@ PDE_params = Dict(:μ => μ, :Κ => Κ, :α => α, :fs0 => fs0, :fd0 => fd0, :ps
 
 
 # --- Run simulation --- #
-model, pgs_dict = create_brain(brain_params; view=true, write=false)
+model, pgs_dict = create_brain(brain_params; view=false, write=false)
 ush, psh, pdh = brain_PDE(model, pgs_dict, PDE_params; write = true)
 
 
+num_lines = 5
+evaluate_radial_var(num_lines)

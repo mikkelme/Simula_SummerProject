@@ -37,13 +37,6 @@ function create_centerline(param::model_params; view = false)
     gmsh.model.addPhysicalGroup(1, [BSpline])   # center line (arc)
     gmsh.model.addPhysicalGroup(0, [vertex[2]]) # center line (right point)
 
-
-    vertex, BSpline = cl_perturbed_arc(param, 1)
-    gmsh.model.addPhysicalGroup(0, [vertex[1]]) # center line (left point)
-    gmsh.model.addPhysicalGroup(1, [BSpline])   # center line (arc)
-    gmsh.model.addPhysicalGroup(0, [vertex[2]]) # center line (right point)
-
-
     
     gmsh.model.mesh.generate(1)
 

@@ -125,12 +125,6 @@ function create_brain_2D(param::model_params)
     brain.vertex[2, :], brain.arc[2] = create_perturbed_arc(brain, rD, param.inner_perturb, param.BS_points[1])
     brain.vertex[3, :], brain.arc[3] = create_perturbed_arc(brain, param.r_curv, param.outer_perturb, param.BS_points[1])
 
-    # Add centerline for dimension reduction study
-    # comb_func(x,z) = (param.inner_perturb(x,z) + param.outer_perturb(x,z))/2
-    # cl_vertex, cl_arc = create_perturbed_arc(brain, rD + (param.r_curv-rD)/2, comb_func, param.BS_points[1])
- 
-
-   
     # Connect and refine mesh
     connect_and_surfize(brain)
     add_mesh_field(brain, param)
@@ -145,7 +139,6 @@ function create_brain_2D(param::model_params)
             gmsh.model.addPhysicalGroup(dim, [tag])
         end
     end
-
 
 
 

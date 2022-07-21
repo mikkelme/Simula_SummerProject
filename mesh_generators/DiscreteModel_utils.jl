@@ -7,7 +7,6 @@ function direct_wiring(gmsh; renumber=true)
 
     Dc = GridapGmsh._setup_cell_dim(gmsh)
     Dp = my_setup_point_dim(gmsh, Dc)
-    # Dp = 2
     node_to_coords = GridapGmsh._setup_node_coords(gmsh, Dp)
     nnodes = length(node_to_coords)
     vertex_to_node, node_to_vertex = _setup_nodes_and_vertices(gmsh, node_to_coords)
@@ -20,7 +19,7 @@ function direct_wiring(gmsh; renumber=true)
  
     model = Gridap.Geometry.UnstructuredDiscreteModel(grid, grid_topology, labeling)
     pgs_dict = Dict(Int64(pgs[i][2]) => Int64(i) for i in 1:length(pgs)) # Physical group dictionary
-    @show Dc, Dp 
+
     return model, pgs_dict
 end
 
