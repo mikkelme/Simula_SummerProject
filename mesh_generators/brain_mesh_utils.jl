@@ -1,5 +1,5 @@
 
-struct model_params
+mutable struct model_params
     # Parameters defining the brain model
     lc::Float64                       # Mesh size
     arcLen::Tuple{Float64,Float64}    # Outer arc length (x, y)-direction

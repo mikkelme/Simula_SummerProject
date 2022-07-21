@@ -143,6 +143,7 @@ function create_brain_2D(param::model_params)
 
 
 
+
     # Generate mesh
     gmsh.model.occ.synchronize()
     gmsh.model.mesh.generate(2)

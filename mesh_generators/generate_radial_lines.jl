@@ -43,7 +43,6 @@ end
 
 
 
-
 function create_radial_lines(param::model_params, num_lines; view = false)
     gmsh.initialize(["", "-clmax", string(param.lc)])
     gmsh.option.setNumber("Mesh.SaveAll", 1)  # For direct wiring

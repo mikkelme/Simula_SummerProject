@@ -17,7 +17,7 @@ function pgs_tags(pgs_dict, tags)
 end
 
 
-function create_brain(param::model_params; view=true, write=false)
+function create_brain(param::model_params; view=false, write=false)
     gmsh.initialize(["", "-clmax", string(param.lc)])
     # gmsh.option.setNumber("General.Terminal", 1)
     gmsh.option.setNumber("Mesh.SaveAll", 1)  # For direct wiring

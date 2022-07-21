@@ -6,11 +6,8 @@ using Plots
 
 
 include("../mesh_generators/create_brain.jl")
-include("../mesh_generators/unit_box_direct.jl")
-include("../mesh_generators/generate_center_line.jl")
+# include("../mesh_generators/unit_box_direct.jl")
 include("../mesh_generators/generate_radial_lines.jl")
-
-
 
 
 
@@ -204,6 +201,7 @@ function evaluate_radial_var(num_lines; degree = 2, view = false)
   ip = Interpolable(psh)
 
   mean_pos = []
+  rad_len = []
   var =[]
   for i in 1:num_lines
     # --- Get line triangulation and measure --- #
@@ -217,46 +215,47 @@ function evaluate_radial_var(num_lines; degree = 2, view = false)
     rel_diff = (psh - mean_p)/mean_p                # Relative difference to mean
     sq_diff = Interpolable((rel_diff)*(rel_diff))   # squared relative difference
     append!(var, sum(∫(sq_diff)*dL) / len)          # Variance
+    append!(rad_len, len)
   end
   
-  return mean_pos, var
+  return mean_pos, rad_len, var
   
 end
 
 
-# --- Brain Model --- # 
-lc = 0.1
-arcLen = (5, 0)
-r_brain = 2
-d_ratio = 0.5
-r_curv = 10
-inner_perturb(x, y) = 0.2 * cos(pi * abs(x) / 0.5) 
-outer_perturb(x, y) = 0.2 * cos(pi * abs(x) / 2)  
-# inner_perturb(x, y) = 0.0
-# outer_perturb(x, y) = 0.0
-BS_points = (arcLen[1]*20, arcLen[2]*10)
-field_Lc_lim = [1 / 2, 1]
-field_Dist_lim = [0.1, 0.5]
-brain_params = model_params(lc, arcLen, r_brain, d_ratio, r_curv, inner_perturb, outer_perturb, BS_points, field_Lc_lim, field_Dist_lim)
+# # --- Brain Model --- # 
+# lc = 0.1
+# arcLen = (5, 0)
+# r_brain = 2
+# d_ratio = 0.5
+# r_curv = 10
+# inner_perturb(x, y) = 0.2 * cos(pi * abs(x) / 0.5) 
+# outer_perturb(x, y) = 0.2 * cos(pi * abs(x) / 2)  
+# # inner_perturb(x, y) = 0.0
+# # outer_perturb(x, y) = 0.0
+# BS_points = (arcLen[1]*20, arcLen[2]*10)
+# field_Lc_lim = [1 / 2, 1]
+# field_Dist_lim = [0.1, 0.5]
+# brain_params = model_params(lc, arcLen, r_brain, d_ratio, r_curv, inner_perturb, outer_perturb, BS_points, field_Lc_lim, field_Dist_lim)
 
 
-# --- PDE parameters --- #
-μ = 0.8e-3  # Fluid viscosity 
-Κ = 1e-16   # Permeability in porous brain
-α(x) = 1*μ/sqrt(Κ)
+# # --- PDE parameters --- #
+# μ = 0.8e-3  # Fluid viscosity 
+# Κ = 1e-16   # Permeability in porous brain
+# α(x) = 1*μ/sqrt(Κ)
 
-ps0(x) = x[1] < 0 ? 10 : 0 # go by g amplitude
-fs0(x) = VectorValue(0.0, 0.0)
-fd0(x) = 0.0 
-∇pd0(x) = VectorValue(0.0, 0.0) # Zero flux
-PDE_params = Dict(:μ => μ, :Κ => Κ, :α => α, :fs0 => fs0, :fd0 => fd0, :ps0 => ps0, :∇pd0 => ∇pd0) 
-
-
-
-# --- Run simulation --- #
-model, pgs_dict = create_brain(brain_params; view=false, write=false)
-ush, psh, pdh = brain_PDE(model, pgs_dict, PDE_params; write = true)
+# ps0(x) = x[1] < 0 ? 10 : 0 # go by g amplitude
+# fs0(x) = VectorValue(0.0, 0.0)
+# fd0(x) = 0.0 
+# ∇pd0(x) = VectorValue(0.0, 0.0) # Zero flux
+# PDE_params = Dict(:μ => μ, :Κ => Κ, :α => α, :fs0 => fs0, :fd0 => fd0, :ps0 => ps0, :∇pd0 => ∇pd0) 
 
 
-num_lines = 5
-evaluate_radial_var(num_lines)
+
+# # --- Run simulation --- #
+# model, pgs_dict = create_brain(brain_params; view=false, write=false)
+# ush, psh, pdh = brain_PDE(model, pgs_dict, PDE_params; write = true)
+
+
+# num_lines = 5
+# evaluate_radial_var(num_lines)
