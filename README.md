@@ -23,7 +23,6 @@ $$
     u_S &= u_{S,0}  \quad \text{on} \ \Lambda_S \\
     u_S \times \hat{n}_S &= 0  \quad \text{on} \ \Gamma_S \\
     p_S &= p_{S,0}  \quad \text{on} \ \Gamma_S \\
-
 \end{align}
 $$
 where
