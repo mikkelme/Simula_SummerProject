@@ -61,20 +61,20 @@ function open_file_general(filename, title, brain_param, PDE_param)
 
     @printf(outfile,"# %s\n", title)
     write(outfile, "#\n# --- Brain parameters (fixed) --- #\n")
-    @printf(outfile,"# lc = %e\n", brain_param.lc)
-    @printf(outfile,"# arcLen = %f\n", brain_param.arcLen[1]) 
-    @printf(outfile,"# r_brain = %f\n", brain_param.r_brain)
+    @printf(outfile,"# lc = %e \n", brain_param.lc)
+    @printf(outfile,"# arcLen = %f m\n", brain_param.arcLen[1]) 
+    @printf(outfile,"# r_brain = %f m\n", brain_param.r_brain)
     @printf(outfile,"# d_ratio = %f\n", brain_param.d_ratio)
-    @printf(outfile,"# r_curv = %f\n", brain_param.r_curv)
+    @printf(outfile,"# r_curv = %f m\n", brain_param.r_curv)
     # @printf(outfile,"# inner_perturb = %f\n", brain_param.inner_perturb)
     # @printf(outfile,"# outer_perturb = %f\n", brain_param.outer_perturb)
     @printf(outfile,"# BS_points = %d\n", brain_param.BS_points[1])
-    @printf(outfile,"# field_Lc_lim = (%f, %f) \n", brain_param.field_Lc_lim[1], brain_param.field_Lc_lim[1])
-    @printf(outfile,"# field_Dist_lim = (%f, %f) \n", brain_param.field_Dist_lim[1], brain_param.field_Dist_lim[1])
+    @printf(outfile,"# field_Lc_lim = (%f, %f) \n", brain_param.field_Lc_lim[1], brain_param.field_Lc_lim[2])
+    @printf(outfile,"# field_Dist_lim = (%f, %f) m \n", brain_param.field_Dist_lim[1], brain_param.field_Dist_lim[2])
 
     write(outfile, "#\n# --- PDE parameters (fixed=) --- #\n")
-    @printf(outfile,"# μ = %e\n", PDE_param[:μ])
-    @printf(outfile,"# Κ = %e\n", PDE_param[:Κ])
+    @printf(outfile,"# μ = %e Pa*s\n", PDE_param[:μ])
+    @printf(outfile,"# Κ = %e m^2\n", PDE_param[:Κ])
     # @printf(outfile,"# α(x) = %f\n", PDE_param[:α])
     # @printf(outfile,"# ps0(X) = %f\n", PDE_param[:ps0])
     # @printf(outfile,"# ∇pd0(x) = %f\n", PDE_param[:∇pd0])
@@ -140,7 +140,7 @@ function evaluate_radial_var(brain_param, psh, num_lines; degree = 2, view = fal
 function calculate_mean_ps(ps, ΩS; degree = 2)
     dΩS = Measure(ΩS, degree)
     A = sum(∫(1)*dΩS) # Areq   
-    mean_p = sum(∫(psh)*dΩS)/A
+    mean_p = sum(∫(ps)*dΩS)/A
     return mean_p     
 end
 
@@ -153,8 +153,9 @@ function eval_ps_var(brain_param, PDE_param, start_width, end_width, num_samples
     brain_param.d_ratio = NaN
     outfile = open_file_general(filename, title, brain_param, PDE_param)
 
-    width_diff = end_width - start_width 
-    width = [start_width + width_diff * i for i in LinRange(0, 1, num_samples)]
+    width = LinRange(start_width, end_width, num_samples)
+
+
 
     write(outfile, "#\n# --- Sampling --- #\n")
     @printf(outfile,"# num_samples = %d\n", num_samples)
@@ -183,14 +184,14 @@ function eval_ps_var(brain_param, PDE_param, start_width, end_width, num_samples
 end
 
 
-function mean_pressure_vs_lc(brain_param, start_lc, end_lc, num_samples; filename = "mean_ps.txt")
+function mean_pressure_vs_lc(brain_param, start_lc, end_lc, num_samples; logrange = true, filename = "mean_ps.txt")
 
         title = "2D brain simulation: Mean stokes pressure as a function of mesh size lc"
         brain_param.lc = NaN
         outfile = open_file_general(filename, title, brain_param, PDE_param)
 
         lc_diff = end_lc - start_lc 
-        lc = [start_lc + lc_diff * i for i in LinRange(0, 1, num_samples)]
+        lc = logrange ?  10 .^(range(log10(start_lc),stop=log10(end_lc),length=num_samples)) : LinRange(start_lc, end_lc, num_samples)
 
         write(outfile, "#\n# --- Sampling --- #\n")
         @printf(outfile,"# num_samples = %d\n", num_samples)
@@ -220,7 +221,7 @@ end
 
 
 
-# --- Brain Model (length unit in meter) --- # 
+# --- Brain Model [length unit: meter] --- # 
 lc = 1e-3 
 arcLen = (100e-3, 0)
 r_brain = 10e-3  
@@ -228,7 +229,7 @@ d_ratio = 1.5e-3/r_brain
 r_curv = 150e-3 
 inner_perturb(x, y) = 0.0 
 outer_perturb(x, y) = 0.0 
-BS_points = (20, 0) 
+BS_points = (100, 0) 
 field_Lc_lim = [1 / 2, 1]
 field_Dist_lim = [1e-3, 5e-3] 
 brain_param = model_params(lc, arcLen, r_brain, d_ratio, r_curv, inner_perturb, outer_perturb, BS_points, field_Lc_lim, field_Dist_lim)
@@ -241,26 +242,22 @@ ps0(x) = x[1] < 0 ? 10 : 0 # go by g amplitude
 ∇pd0(x) = VectorValue(0.0, 0.0) # Zero flux
 PDE_param = Dict(:μ => μ, :Κ => Κ, :α => α, :ps0 => ps0, :∇pd0 => ∇pd0) 
 
+# model, pgs_dict = create_brain(brain_param; view=true, write=false)
+# ush, psh, pdh, ΩS = brain_PDE(model, pgs_dict, PDE_param; write = true)
 
-# --- Evaluation parameter --- #
+# --- Evaluations --- #
+
 start_width = 5e-3
 end_width = 0.5e-3
-num_samples = 3
+num_samples = 5
 num_rad_lines = 10
-
-
-model, pgs_dict = create_brain(brain_param; view=true, write=false)
-ush, psh, pdh, ΩS = brain_PDE(model, pgs_dict, PDE_param; write = true)
-
-# mean_pos, rad_len, var = evaluate_radial_var(brain_param, psh, num_rad_lines, view = true)
-
-
 eval_ps_var(brain_param, PDE_param, start_width, end_width, num_samples, num_rad_lines)
 
 
 
-start_lc = 1e-3
-end_lc = 1e-4
-mean_pressure_vs_lc(brain_param, start_lc, end_lc, num_samples)
+# start_lc = 1e-2
+# end_lc = 1e-4
+# num_samples = 10
+# mean_pressure_vs_lc(brain_param, start_lc, end_lc, num_samples, logrange = true)
 
 
