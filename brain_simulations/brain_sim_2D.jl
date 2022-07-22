@@ -133,7 +133,7 @@ function brain_PDE(model, pgs_dict, data; write = false)
     op = AffineFEOperator(a, b, W, δW)
     println("#--- Solving ---#")
     ush, psh, pdh = solve(op)
-    # ph = psh + pdh # Gather pressure into one variable
+
     
     # --- Write & return results --- #
     write && writevtk(Ω, path * "vtu_files/" * "brain_sim_results", cellfields=["us" => ush, "psh" => psh, "pdh" => pdh])
@@ -196,31 +196,6 @@ end
 # end
 
 
-function evaluate_radial_var(brain_param, psh, num_lines; degree = 2, view = false)
-  rad_model, _ =  create_radial_lines(brain_param, num_lines; view = view)
-  ip = Interpolable(psh)
-
-  mean_pos = []
-  rad_len = []
-  var =[]
-  for i in 1:num_lines
-    # --- Get line triangulation and measure --- #
-    L = Triangulation(rad_model, tags=[i])
-    dL = Measure(L, 2)
-
-    # --- Calculate metrics --- #
-    len = sum(∫(1)*dL)                              # Line length
-    mean_p = sum(∫(ip)*dL)/len                      # Mean pressure
-    append!(mean_pos, [sum(∫( identity )*dL)/len])  # Mean position
-    rel_diff = (psh - mean_p)/mean_p                # Relative difference to mean
-    sq_diff = Interpolable((rel_diff)*(rel_diff))   # squared relative difference
-    append!(var, sum(∫(sq_diff)*dL) / len)          # Variance
-    append!(rad_len, len)
-  end
-  
-  return mean_pos, rad_len, var
-  
-end
 
 
 # # --- Brain Model --- # 
