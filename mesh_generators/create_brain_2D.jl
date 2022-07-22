@@ -31,12 +31,22 @@ function create_arc(brain::geo2D, r)
 end
 
 function create_perturbed_arc(brain::geo2D, r, perturbation_func, BS_points)
+    # @show perturbation_func
+    # @show Meta.parse(perturbation_func)
+    # @show eval(Meta.parse(perturbation_func))
+    # perturbation_func = eval(Meta.parse(perturbation_func))
+    # func = Meta.parse(perturbation_func)
+    # f = eval(func)
+    # perturbation_func = ((x,z) -> Base.invokelatest(f, x, z))
+
+
+    # perturbation_func = ((x,z) -> Base.invokelatest(eval(Meta.parse(perturbation_func)), x, z))
     pointTags = []
 
     for i in LinRange(0, 1, BS_points)
         phi = - brain.angle / 2 + brain.angle * i
         x_arcLen = r * phi
-        r_pert = r + perturbation_func(x_arcLen, 0)
+        r_pert = r + perturbation_func(x_arcLen, 0.0)
         append!(pointTags, gmsh.model.occ.addPoint(spherical_to_cartesian(r_pert, 0, phi)...))
     end
 

@@ -35,6 +35,11 @@ function perturbed_radial_line(param::model_params, angle)
     ϵ_safety(x,z) = 0.01*(param.d_ratio * param.r_brain) # To avoid crossing the B-spline
     P1 = get_perturbed_point(rD, angle, (x,z) -> param.inner_perturb(x,z) + ϵ_safety(x,z)) 
     P2 = get_perturbed_point(param.r_curv, angle, (x,z) -> param.outer_perturb(x,z) - ϵ_safety(x,z)) 
+
+    # ϵ_safety = " + 0.01*(param.d_ratio * param.r_brain)" # To avoid crossing the B-spline
+    # P1 = get_perturbed_point(rD, angle, param.inner_perturb * ϵ_safety) 
+    # P2 = get_perturbed_point(param.r_curv, angle, param.outer_perturb * ϵ_safety) 
+
    
     # Connect with line
     line = gmsh.model.occ.addLine(P1, P2)

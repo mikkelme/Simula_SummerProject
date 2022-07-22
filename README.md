@@ -1,9 +1,9 @@
 # Simula_SummerProject
 
 
-<!-- ## To do list
-- [x] Wiring for directly importing mesh model (https://github.com/gridap/GridapGmsh.jl/blob/master/src/GmshDiscreteModels.jl)
-- [ ] Basbuška -->
+## To do list
+- [ ] Consider closing outfile and appending during simulation in order to save the data if it crashes
+- [ ] Make struct for PDE parameters for printing of function body
 
 
 ## Introduction 
