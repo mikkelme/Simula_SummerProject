@@ -245,16 +245,16 @@ ps0(x) = x[1] < 0 ? 10 : 0 # go by g amplitude
 ∇pd0(x) = VectorValue(0.0, 0.0) # Zero flux
 PDE_param = Dict(:μ => μ, :Κ => Κ, :α => α, :ps0 => ps0, :∇pd0 => ∇pd0) 
 
-# model, pgs_dict = create_brain(brain_param; view=false, write=false)
-# ush, psh, pdh, ΩS = brain_PDE(model, pgs_dict, PDE_param; write = true)
+model, pgs_dict = create_brain(brain_param; view=false, write=false)
+ush, psh, pdh, ΩS = brain_PDE(model, pgs_dict, PDE_param; write = true)
 
 # --- Evaluations --- #
 
-start_width = 5e-3
-end_width = 1e-3
-num_samples = 5
-num_rad_lines = 5
-eval_ps_var(brain_param, PDE_param, start_width, end_width, num_samples, num_rad_lines)
+# start_width = 5e-3
+# end_width = 1e-3
+# num_samples = 5
+# num_rad_lines = 5
+# eval_ps_var(brain_param, PDE_param, start_width, end_width, num_samples, num_rad_lines)
 
 
 
