@@ -25,7 +25,9 @@ $$
     p_S &= p_{S,0}  \quad \text{on} \ \Gamma_S \\
 \end{align}
 $$
+
 where
+
 $$
 \begin{align}
    \sigma(u_S, p_S) &= 2\mu \varepsilon(u_S) - p_S \mathbb{I} \\
