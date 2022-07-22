@@ -1,0 +1,25 @@
+# 2D brain simulation: Mean stokes pressure as a function of mesh size lc
+#
+# --- Brain parameters (fixed) --- #
+# lc = 1.000000e-03
+# arcLen = 0.100000
+# r_brain = 0.010000
+# d_ratio = 0.150000
+# r_curv = 0.150000
+# BS_points = 20
+# field_Lc_lim = (0.500000, 0.500000) 
+# field_Dist_lim = (0.001000, 0.001000) 
+#
+# --- PDE parameters (fixed=) --- #
+# μ = 8.000000e-04
+# Κ = 1.000000e-16
+#
+# --- Sampling --- #
+# num_samples = 3
+# lc = [1.000e-03, 5.500e-04, 1.000e-04]
+#
+# --- Data --- #
+# lc, mean_ps
+1.000000e-03, 5.000000e+00
+5.500000e-04, 5.000000e+00
+1.000000e-04, 5.000000e+00
