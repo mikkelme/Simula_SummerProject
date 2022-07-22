@@ -136,7 +136,9 @@ function brain_PDE(model, pgs_dict, data; write = false)
 
     
     # --- Write & return results --- #
-    write && writevtk(Ω, path * "vtu_files/" * "brain_sim_results", cellfields=["us" => ush, "psh" => psh, "pdh" => pdh])
+    write && writevtk(ΩS, path * "vtu_files/" * "brain_sim_stokes", cellfields=["us" => ush, "psh" => psh])
+    write && writevtk(ΩD, path * "vtu_files/" * "brain_sim_darcy", cellfields=["pdh" => pdh])
+
     return  ush, psh, pdh, ΩS
     
 

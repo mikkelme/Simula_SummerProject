@@ -32,7 +32,7 @@ function perturbed_radial_line(param::model_params, angle)
     rD = param.r_curv - param.d_ratio * param.r_brain 
 
     # Inner (P1) and outer (P2) point
-    ϵ_safety(x,z) = 0.001*(param.d_ratio * param.r_brain) # To avoid crossing the B-spline
+    ϵ_safety(x,z) = 0.01*(param.d_ratio * param.r_brain) # To avoid crossing the B-spline
     P1 = get_perturbed_point(rD, angle, (x,z) -> param.inner_perturb(x,z) + ϵ_safety(x,z)) 
     P2 = get_perturbed_point(param.r_curv, angle, (x,z) -> param.outer_perturb(x,z) - ϵ_safety(x,z)) 
    

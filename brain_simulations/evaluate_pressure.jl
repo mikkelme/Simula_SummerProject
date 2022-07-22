@@ -226,10 +226,12 @@ lc = 1e-3
 arcLen = (100e-3, 0)
 r_brain = 10e-3  
 d_ratio = 1.5e-3/r_brain
-r_curv = 150e-3 
-inner_perturb(x, y) = 0.0 
-outer_perturb(x, y) = 0.0 
-BS_points = (100, 0) 
+r_curv = 50e-3 
+# inner_perturb(x, y) = 0.0 
+# outer_perturb(x, y) = 0.0 
+inner_perturb(x, y) = 0.5e-3 * cos(pi * abs(x) / 1e-3) 
+outer_perturb(x, y) = 0.0
+BS_points = (1000, 0) 
 field_Lc_lim = [1 / 2, 1]
 field_Dist_lim = [1e-3, 5e-3] 
 brain_param = model_params(lc, arcLen, r_brain, d_ratio, r_curv, inner_perturb, outer_perturb, BS_points, field_Lc_lim, field_Dist_lim)
@@ -237,20 +239,21 @@ brain_param = model_params(lc, arcLen, r_brain, d_ratio, r_curv, inner_perturb, 
 # --- PDE parameters --- #
 μ = 0.8e-3  # Cerobrospinal fluid viscosity [Pa * s]
 Κ = 1e-16   # Permeability in brain parenchyma [m^2] 
+# Κ = 1e-6
 α(x) = 1*μ/sqrt(Κ) # Slip factor on Γ [Pa * s / m]
 ps0(x) = x[1] < 0 ? 10 : 0 # go by g amplitude
 ∇pd0(x) = VectorValue(0.0, 0.0) # Zero flux
 PDE_param = Dict(:μ => μ, :Κ => Κ, :α => α, :ps0 => ps0, :∇pd0 => ∇pd0) 
 
-# model, pgs_dict = create_brain(brain_param; view=true, write=false)
+# model, pgs_dict = create_brain(brain_param; view=false, write=false)
 # ush, psh, pdh, ΩS = brain_PDE(model, pgs_dict, PDE_param; write = true)
 
 # --- Evaluations --- #
 
 start_width = 5e-3
-end_width = 0.5e-3
+end_width = 1e-3
 num_samples = 5
-num_rad_lines = 10
+num_rad_lines = 5
 eval_ps_var(brain_param, PDE_param, start_width, end_width, num_samples, num_rad_lines)
 
 
