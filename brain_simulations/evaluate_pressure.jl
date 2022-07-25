@@ -15,7 +15,7 @@ end
 function create_file(filename, title, brain_param, PDE_param)
     # Add timestamp to avoid overwritten files
     timestamp = Dates.format(now(), "d_m_HH_MM_")
-    filenane = timestamp*filename 
+    filename = timestamp*filename 
 
     # Create file
     outfile = open(path*"txt_files/"*filename, "w") 
@@ -233,9 +233,8 @@ function solution_convergence_vs_lc(brain_param, start_lc, end_lc, num_samples; 
     write(outfile, "lc, l²_Δus, l²_Δps, l²_Δpd\n")
     close(outfile)
 
-
+    return
     brain_param.lc = last(lc)
-    @show last(lc)
     model, pgs_dict = create_brain(brain_param)
     ref_us, ref_ps, ref_pd, ref_ΩS, ref_ΩD, ref_Γ  = brain_PDE(model, pgs_dict, PDE_param)
     add_sample_to_file(filename, [last(lc), 0.0, 0.0, 0.0], 0)
@@ -286,18 +285,18 @@ PDE_param = PDE_params(μ, Κ, α, ps0, ∇pd0)
 
 
 
-start_width = 5e-3
-end_width = 2e-3
-num_samples = 5
-num_rad_lines = 5
-eval_ps_var(brain_param, PDE_param, start_width, end_width, num_samples, num_rad_lines)
+# start_width = 5e-3
+# end_width = 2e-3
+# num_samples = 5
+# num_rad_lines = 5
+# eval_ps_var(brain_param, PDE_param, start_width, end_width, num_samples, num_rad_lines)
 
 
 
-# start_lc = 1e-2
-# end_lc = 1e-4
-# num_samples = 3
-# solution_convergence_vs_lc(brain_param, start_lc, end_lc, num_samples)
+start_lc = 1e-2
+end_lc = 1e-3
+num_samples = 3
+solution_convergence_vs_lc(brain_param, start_lc, end_lc, num_samples)
 # mean_pressure_vs_lc(brain_param, start_lc, end_lc, num_samples, logrange = true)
 
 
