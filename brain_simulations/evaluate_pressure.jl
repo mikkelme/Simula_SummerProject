@@ -11,50 +11,6 @@ if !ispath(path)
 end
 
 
-# function open_file(filename, brain_param, PDE_param, width, num_samples, num_rad_lines)
-#     outfile = open(path*filename, "w")
-
-#     write(outfile, "# 2D brain simulation: Pressure variance in radial direction under decrease of fluid path width\n")
-#     write(outfile, "#\n# --- Brain parameters --- #\n")
-#     @printf(outfile,"# lc = %e\n", brain_param.lc)
-#     @printf(outfile,"# arcLen = %f\n", brain_param.arcLen[1]) 
-#     @printf(outfile,"# r_brain = %f\n", brain_param.r_brain)
-#     @printf(outfile, "# d_ratio = [")
-#     [@printf(outfile,"%f, ", width[i]/brain_param.r_curv) for i in 1:length(width)-1]
-#     @printf(outfile, "%f]\n", last(width)/brain_param.r_curv)
-
-#     @printf(outfile,"# r_curv = %f\n", brain_param.r_curv)
-#     # @printf(outfile,"# inner_perturb = %f\n", brain_param.inner_perturb)
-#     # @printf(outfile,"# outer_perturb = %f\n", brain_param.outer_perturb)
-#     @printf(outfile,"# BS_points = %d\n", brain_param.BS_points[1])
-#     @printf(outfile,"# field_Lc_lim = (%f, %f) \n", brain_param.field_Lc_lim[1], brain_param.field_Lc_lim[1])
-#     @printf(outfile,"# field_Dist_lim = (%f, %f) \n", brain_param.field_Dist_lim[1], brain_param.field_Dist_lim[1])
-
-#     write(outfile, "#\n# --- PDE parameters --- #\n")
-#     @printf(outfile,"# μ = %e\n", PDE_param[:μ])
-#     @printf(outfile,"# Κ = %e\n", PDE_param[:Κ])
-#     # @printf(outfile,"# α(x) = %f\n", PDE_param[:α])
-#     # @printf(outfile,"# ps0(X) = %f\n", PDE_param[:ps0])
-#     # @printf(outfile,"# ∇pd0(x) = %f\n", PDE_param[:∇pd0])
-    
-#     # Print body of function
- 
-#     write(outfile, "#\n# --- Sampling --- #\n")
-#     @printf(outfile,"# num_samples = %d\n", num_samples)
-#     @printf(outfile,"# num_rad_lines = %d\n", num_rad_lines)
-#     @printf(outfile, "# width = [")
-#     [@printf(outfile,"%.3e, ", width[i]) for i in 1:length(width)-1]
-#     @printf(outfile, "%.3e]\n", last(width))
-
-
-#     write(outfile, "#\n# --- Data --- #\n")
-#     write(outfile, "# mean_pos_x, mean_pos_y, rad_len, variance\n")
-
-
-#     return outfile
-   
-# end
-
 
 
 function create_file(filename, title, brain_param, PDE_param)
@@ -76,9 +32,9 @@ function create_file(filename, title, brain_param, PDE_param)
     write(outfile, "#\n# --- PDE parameters (fixed=) --- #\n")
     @printf(outfile,"# μ = %e Pa*s\n", PDE_param.μ)
     @printf(outfile,"# Κ = %e m^2\n", PDE_param.Κ)
-    # @printf(outfile,"# α(x) = %f\n", PDE_param[:α])
-    # @printf(outfile,"# ps0(X) = %f\n", PDE_param[:ps0])
-    # @printf(outfile,"# ∇pd0(x) = %f\n", PDE_param[:∇pd0])
+    @printf(outfile,"# α = %s\n", PDE_param.α_body)
+    @printf(outfile,"# ps0 = %s\n", PDE_param.ps0_body)
+    @printf(outfile,"# ∇pd0 = %s\n", PDE_param.∇pd0_body)
     
     # Print body of function
  
@@ -202,7 +158,7 @@ function mean_pressure_vs_lc(brain_param, start_lc, end_lc, num_samples; lograng
         @printf(outfile, "%.3e]\n", last(lc))
     
         write(outfile, "#\n# --- Data --- #\n")
-        write(outfile, "# lc, mean_ps\n")
+        write(outfile, "lc, mean_ps\n")
     
     
         for i in 1:num_samples
@@ -222,83 +178,49 @@ end
 
 
 
-function cal_sol_diff(brain_param, pre_res, new_res, ΩS, ΩD; degree = 2)
+function cal_sol_diff(brain_param, coarse_res, fine_res; degree = 2, num_nearest_vertices = 4)
     # Unpack inputs
-    pre_us, pre_ps, pre_pd = pre_res
-    new_us, new_ps, new_pd = new_res
+    coarse_us, coarse_ps, coarse_pd = coarse_res
+    fine_us, fine_ps, fine_pd = fine_res
 
-    dΩS = Measure(ΩS, degree)
-    dΩD = Measure(ΩD, degree)
+    # Set searchmethod
+    sm = searchmethod=KDTreeSearch(num_nearest_vertices=num_nearest_vertices)
 
-    # Stokes domain
+    #--- Stokes domain ---#
     Stokes_CL, _ = create_centerline(brain_param, "S"; view = false)
     SL = Triangulation(Stokes_CL)
     dSL = Measure(SL, degree) 
     Slen = sum(∫(1)*dSL)   # Length of centerline
+    # writevtk(SL, path*"SL")
 
-
-      
     # us
-    diff =  Interpolable(new_us) - pre_us
-    Δus_l2norm = sqrt(sum(∫(Interpolable(diff ⋅ diff)) * dSL))/Slen 
+    us_diff =  Interpolable(coarse_us, searchmethod = sm) - fine_us
+    Δus_l2norm = sqrt(sum(∫(Interpolable(us_diff ⋅ us_diff, searchmethod = sm )) * dSL))/Slen 
 
-    #ps
-    diff =  Interpolable(new_ps) - pre_ps
-    Δps_l2norm = sqrt(sum(∫(Interpolable(diff * diff)) * dSL))/Slen 
+    # #ps
+    ps_diff =  Interpolable(coarse_ps, searchmethod = sm) - fine_ps
+    Δps_l2norm = sqrt(sum(∫(Interpolable(ps_diff * ps_diff, searchmethod = sm)) * dSL))/Slen 
 
-
-    # Darcy domain
+    #--- Darcy domain ---#
     Darcy_CL, _ = create_centerline(brain_param, "D"; view = false)
     DL = Triangulation(Darcy_CL)
     dDL = Measure(DL, degree) 
     Dlen = sum(∫(1)*dDL)   # Length of centerline
-    writevtk(DL, path*"DL")
+    # writevtk(DL, path*"DL")
+
 
     # pd
-    diff =  Interpolable(new_pd) - pre_pd
-    Δpd_l2norm = sqrt(sum(∫(Interpolable(diff * diff)) * dDL))/Dlen 
+    pd_diff =  Interpolable(coarse_pd, searchmethod = sm) - fine_pd
+    Δpd_l2norm = sqrt(sum(∫(Interpolable(pd_diff * pd_diff, searchmethod = sm)) * dDL))/Dlen 
 
-   
-    @show Δus_l2norm
-    @show Δps_l2norm
-    @show Δpd_l2norm
-
-
-
-
- 
-
-
-   
-    # diff = 
-    # test =  sum(∫(Interpolable(pre_us))*dΩS)     
-    # test =  sum(∫(Interpolable(pre_us) - new_us)*dΩS)     
-    # @show test
-
-
-   
-    
-
-    # Δps =  Interpolable(pre_ps) - Interpolable(new_ps)
-    # Δpd =  Interpolable(pre_pd) - Interpolable(new_pd)
-
-    # Δps_l2norm = sqrt(sum(∫(Δps ⋅ Δps) * dL))
-
-
-
-    # # # Calculate l²-norm
-    # Δps_l2norm = sqrt(sum(∫(Δps ⋅ Δps) * dL))
-    # # Δpd_l2norm = sqrt(sum(∫(Δpd ⋅ Δpd) * dΩD))
-
-
-    return [0.0, 0.0, 0.0]
+    return [Δus_l2norm, Δps_l2norm, Δpd_l2norm]
 
 
     
 end
 
 function solution_convergence_vs_lc(brain_param, start_lc, end_lc, num_samples; logrange = true, filename = "sol_conv.txt")
-    title = "2D brain simulation: l²-norm difference between previous lc and decreased lc as a function of lc"
+    title = "2D brain simulation: l²-norm difference between final lc and previous lc respectively"
     brain_param.lc = NaN
     outfile = create_file(filename, title, brain_param, PDE_param)
 
@@ -306,26 +228,50 @@ function solution_convergence_vs_lc(brain_param, start_lc, end_lc, num_samples; 
 
     write(outfile, "#\n# --- Sampling --- #\n")
     @printf(outfile,"# num_samples = %d\n", num_samples)
+    # @printf(outfile, "# lc = [")
+    # [@printf(outfile,"%.3e, ", lc[i]) for i in 1:length(lc)-1]
+    # @printf(outfile, "%.3e]\n", last(lc))
     @printf(outfile, "# lc = [")
-    [@printf(outfile,"%.3e, ", lc[i]) for i in 1:length(lc)-1]
-    @printf(outfile, "%.3e]\n", last(lc))
+    [@printf(outfile,"%.3e, ", lc[1 + length(lc) - i]) for i in 1:length(lc)-1]
+    @printf(outfile, "%.3e]\n", lc[1])
 
     write(outfile, "#\n# --- Data --- #\n")
-    write(outfile, "# lc, l²_Δus, l²_Δps, l²__Δpd\n")
+    write(outfile, "lc, l²_Δus, l²_Δps, l²_Δpd\n")
     close(outfile)
 
+    # # Initial lc
+    # brain_param.lc = lc[1]
+    # model, pgs_dict = create_brain(brain_param)
+    # pre_us, pre_ps, pre_pd, pre_ΩS, pre_ΩD, pre_Γ  = brain_PDE(model, pgs_dict, PDE_param)
+    # add_sample_to_file(filename, [lc[1], NaN, NaN, NaN], 0)
 
-    brain_param.lc = lc[1]
+    # # Convergence
+    # for i in 2:num_samples
+    #     @printf("i = %d/%d | lc = %e -> %e\n", i-1, num_samples-1, lc[i-1], lc[i])
+    #     brain_param.lc = lc[i]
+    #     model, pgs_dict = create_brain(brain_param)
+    #     new_us, new_ps, new_pd, new_ΩS, new_ΩD, new_Γ = brain_PDE(model, pgs_dict, PDE_param)
+    #     l2_diff = cal_sol_diff(brain_param, [pre_us, pre_ps, pre_pd], [new_us, new_ps, new_pd])
+    #     add_sample_to_file(filename, [lc[i], l2_diff...], 0)
+    #     pre_us, pre_ps, pre_pd, pre_ΩS, pre_ΩD, pre_Γ = new_us, new_ps, new_pd, new_ΩS, new_ΩD, new_Γ 
+    # end
+
+
+    brain_param.lc = last(lc)
+    @show last(lc)
     model, pgs_dict = create_brain(brain_param)
-    pre_us, pre_ps, pre_pd, pre_ΩS, pre_ΩD, pre_Γ  = brain_PDE(model, pgs_dict, PDE_param)
-    for i in 1:num_samples-1
-        @printf("i = %d/%d | lc = %e -> %e\n", i, num_samples-1, lc[i], lc[i+1])
-        brain_param.lc = lc[i+1]
+    ref_us, ref_ps, ref_pd, ref_ΩS, ref_ΩD, ref_Γ  = brain_PDE(model, pgs_dict, PDE_param)
+    add_sample_to_file(filename, [last(lc), 0.0, 0.0, 0.0], 0)
+  
+    # Convergence
+    for i in 2:num_samples
+        idx = 1 + num_samples - i
+        @printf("i = %d/%d | lc = %e\n", i-1, num_samples-1, lc[i])
+        brain_param.lc = lc[idx]
         model, pgs_dict = create_brain(brain_param)
-        new_us, new_ps, new_pd, new_ΩS, new_ΩD, new_Γ = brain_PDE(model, pgs_dict, PDE_param)
-        l2_diff = cal_sol_diff(brain_param, [pre_us, pre_ps, pre_pd], [new_us, new_ps, new_pd], new_ΩS, new_ΩD)
-        add_sample_to_file(filename, [lc[i], l2_diff...], 0)
-        return
+        us, ps, pd, ΩS, ΩD, Γ = brain_PDE(model, pgs_dict, PDE_param)
+        l2_diff = cal_sol_diff(brain_param, [us, ps, pd], [ref_us, ref_ps, ref_pd])
+        add_sample_to_file(filename, [lc[idx], l2_diff...], 0)
     end
     
 close(outfile)
@@ -350,13 +296,12 @@ brain_param = model_params(lc, arcLen, r_brain, d_ratio, r_curv, inner_perturb, 
 Κ = 1e-16   # Permeability in brain parenchyma [m^2] 
 # Δp = 1 * 133.3224 #[Pa]
 α = "(x) -> 1*μ/sqrt(Κ)" # Slip factor on Γ [Pa * s / m]
-# ps0 = "(x) -> x[1] < 0 ? 1*133.3224 : 0" # 1*mmHg [Pa]
 ps0 = "(x) -> x[1] < 0 ? 1*133.3224 : 0." # 1*mmHg [Pa]
-
 ∇pd0 = "(x) -> VectorValue(0.0, 0.0)" # Zero flux
 PDE_param = PDE_params(μ, Κ, α, ps0, ∇pd0)
 
 
+# lc = 1e-2
 # model, pgs_dict = create_brain(brain_param; view=true, write=false)
 # ush, psh, pdh, ΩS, ΩD, Γ = brain_PDE(model, pgs_dict, PDE_param; write = true)
 # mean_pos, rad_len, var = evaluate_radial_var(brain_param, psh, 5, view = true)
@@ -378,9 +323,9 @@ PDE_param = PDE_params(μ, Κ, α, ps0, ∇pd0)
 
 
 
-start_lc = 1e-3
+start_lc = 1e-2
 end_lc = 1e-4
-num_samples = 5
+num_samples = 3
 solution_convergence_vs_lc(brain_param, start_lc, end_lc, num_samples)
 # mean_pressure_vs_lc(brain_param, start_lc, end_lc, num_samples, logrange = true)
 
