@@ -85,3 +85,7 @@ $
 ![Basestructure2D](figures/solution_convergence.png)
 |:--:| 
 | *2D sideview of the base structure* |
+
+
+
+<img align="center" src="figures/solution_convergence.png" alt="...">
