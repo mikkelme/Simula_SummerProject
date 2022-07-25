@@ -81,10 +81,11 @@ $
 
 
 ## Results and Discussion
-
-![Basestructure2D](figures/solution_convergence.png)
-|:--:| 
-| *2D sideview of the base structure* |
+<p align="center">
+    ![Basestructure2D](figures/solution_convergence.png)
+    |:--:| 
+    | *2D sideview of the base structure* |
+</p>
 
 
 <p align="center">
