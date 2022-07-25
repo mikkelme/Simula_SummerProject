@@ -87,5 +87,9 @@ $
 | *2D sideview of the base structure* |
 
 
+<p align="center">
+  <img src="figures/solution_convergence.png" alt="Sublime's custom image"/>
+</p>
+
 
 <img align="center" src="figures/solution_convergence.png" alt="...">
