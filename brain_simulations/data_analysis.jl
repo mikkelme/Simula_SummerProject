@@ -26,7 +26,7 @@ function plot_solution_convergence(filname)
     fig = plot!(lc, Δpd, xaxis=:log,  yaxis=:log, marker=:o, label="pd")
     xlabel!(fig, "Resolution (lc)")
     ylabel!(fig, "l²-norm with respect to finest resolution")
-    savefig(fig, savepath*"solution_convergence.pdf")
+    savefig(fig, savepath*"solution_convergence.png")
     display(fig)
     
 

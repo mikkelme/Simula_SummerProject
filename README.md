@@ -82,7 +82,6 @@ $
 
 ## Results and Discussion
 
-![Alt text](/figures/solution_convergence.pdf "Optional title")
+![Alt text](/figures/solution_convergence.png "Optional title")
 
-
-<img src="/figures/solution_convergence.pdf" alt="Alt text" title="Optional title">
+<img src="/figures/solution_convergence.png" alt="Alt text" title="Optional title">
