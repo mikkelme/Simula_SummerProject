@@ -82,11 +82,6 @@ $
 
 ## Results and Discussion
 
-%![Basestructure2D](figures/solution_convergence.png)
-%|:--:| 
-%| *2D sideview of the base structure* |
-
-
 <p align="center">
   <img src="figures/solution_convergence.png" alt="Sublime's custom image"/>
 </p>
