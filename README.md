@@ -85,3 +85,4 @@ $
 ![Alt text](/figures/solution_convergence.pdf "Optional title")
 
 
+<img src="/figures/solution_convergence.pdf" alt="Alt text" title="Optional title">
