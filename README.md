@@ -82,6 +82,6 @@ $
 
 ## Results and Discussion
 
-![image](/figures/solution_convergence.pdf)
+![Alt text](/figures/solution_convergence.pdf "Optional title")
 
 
