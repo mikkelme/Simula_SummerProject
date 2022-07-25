@@ -108,9 +108,13 @@ end
 
 # end
 
-function evaluate_radial_var(brain_param, ps, num_lines; degree = 2, view = false)
+function evaluate_radial_var(brain_param, ps, num_lines; degree = 2, view = false, num_nearest_vertices = 4)
     rad_model, _ =  create_radial_lines(brain_param, num_lines; view = view)
-    ip = Interpolable(psh)
+
+    # Set searchmethod
+    sm = searchmethod=KDTreeSearch(num_nearest_vertices=num_nearest_vertices)
+    
+    ip = Interpolable(ps, searchmethod = sm)
   
     mean_pos = []
     rad_len = []
@@ -125,7 +129,7 @@ function evaluate_radial_var(brain_param, ps, num_lines; degree = 2, view = fals
       mean_p = sum(∫(ip)*dL)/len                      # Mean pressure
       append!(mean_pos, [sum(∫( identity )*dL)/len])  # Mean position
       rel_diff = (ps - mean_p)/mean_p                # Relative difference to mean
-      sq_diff = Interpolable((rel_diff)*(rel_diff))   # squared relative difference
+      sq_diff = Interpolable((rel_diff)*(rel_diff), searchmethod = sm)   # squared relative difference
       append!(var, sum(∫(sq_diff)*dL) / len)          # Variance
       append!(rad_len, len)
     end
@@ -192,7 +196,7 @@ function cal_sol_diff(brain_param, coarse_res, fine_res; degree = 2, num_nearest
 
     # us
     us_diff =  Interpolable(coarse_us, searchmethod = sm) - fine_us
-    Δus_l2norm = sqrt(sum(∫(Interpolable(us_diff ⋅ us_diff, searchmethod = sm )) * dSL))/Slen 
+    Δus_l2norm = sqrt(sum(∫(Interpolable(us_diff ⋅ us_diff, searchmethod = sm)) * dSL))/Slen 
 
     # #ps
     ps_diff =  Interpolable(coarse_ps, searchmethod = sm) - fine_ps
@@ -285,18 +289,21 @@ PDE_param = PDE_params(μ, Κ, α, ps0, ∇pd0)
 
 
 
-# start_width = 5e-3
-# end_width = 2e-3
-# num_samples = 5
-# num_rad_lines = 5
-# eval_ps_var(brain_param, PDE_param, start_width, end_width, num_samples, num_rad_lines)
+start_width = 5e-3
+end_width = 1e-3
+num_samples = 10
+num_rad_lines = 100
+eval_ps_var(brain_param, PDE_param, start_width, end_width, num_samples, num_rad_lines)
 
 
 
-start_lc = 1e-2
-end_lc = 1e-3
-num_samples = 3
-solution_convergence_vs_lc(brain_param, start_lc, end_lc, num_samples)
+# start_lc = 1e-2
+# end_lc = 1e-3
+# num_samples = 3
+# solution_convergence_vs_lc(brain_param, start_lc, end_lc, num_samples)
+
+
+
 # mean_pressure_vs_lc(brain_param, start_lc, end_lc, num_samples, logrange = true)
 
 
