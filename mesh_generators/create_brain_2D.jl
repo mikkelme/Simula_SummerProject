@@ -31,16 +31,6 @@ function create_arc(brain::geo2D, r)
 end
 
 function create_perturbed_arc(brain::geo2D, r, perturbation_func, BS_points)
-    # @show perturbation_func
-    # @show Meta.parse(perturbation_func)
-    # @show eval(Meta.parse(perturbation_func))
-    # perturbation_func = eval(Meta.parse(perturbation_func))
-    # func = Meta.parse(perturbation_func)
-    # f = eval(func)
-    # perturbation_func = ((x,z) -> Base.invokelatest(f, x, z))
-
-
-    # perturbation_func = ((x,z) -> Base.invokelatest(eval(Meta.parse(perturbation_func)), x, z))
     pointTags = []
 
     for i in LinRange(0, 1, BS_points)

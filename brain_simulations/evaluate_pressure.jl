@@ -2,7 +2,8 @@
 
 include("../mesh_generators/create_brain.jl")
 include("./brain_sim_2D.jl")
-
+include("../mesh_generators/generate_radial_lines.jl")
+include("../mesh_generators/generate_center_line.jl")
 
 path = "/Users/mikkelme/Documents/Github/Simula_SummerProject/brain_simulations/"
 if !ispath(path)
@@ -56,7 +57,7 @@ end
 
 
 
-function open_file_general(filename, title, brain_param, PDE_param)
+function create_file(filename, title, brain_param, PDE_param)
     outfile = open(path*"txt_files/"*filename, "w") # Add timestamp to avoid overwritten files
 
     @printf(outfile,"# %s\n", title)
@@ -73,8 +74,8 @@ function open_file_general(filename, title, brain_param, PDE_param)
     @printf(outfile,"# field_Dist_lim = (%f, %f) m \n", brain_param.field_Dist_lim[1], brain_param.field_Dist_lim[2])
 
     write(outfile, "#\n# --- PDE parameters (fixed=) --- #\n")
-    @printf(outfile,"# μ = %e Pa*s\n", PDE_param[:μ])
-    @printf(outfile,"# Κ = %e m^2\n", PDE_param[:Κ])
+    @printf(outfile,"# μ = %e Pa*s\n", PDE_param.μ)
+    @printf(outfile,"# Κ = %e m^2\n", PDE_param.Κ)
     # @printf(outfile,"# α(x) = %f\n", PDE_param[:α])
     # @printf(outfile,"# ps0(X) = %f\n", PDE_param[:ps0])
     # @printf(outfile,"# ∇pd0(x) = %f\n", PDE_param[:∇pd0])
@@ -87,8 +88,8 @@ end
 
 
 
-function add_sample_to_file(outfile, data, vector_length = 0)
-
+function add_sample_to_file(filename, data, vector_length = 0)
+        outfile = open(path*"txt_files/"*filename, "a") # open i append mode
         data_len = length(data)
         if vector_length == 0
             for i in 1:data_len-1
@@ -104,13 +105,15 @@ function add_sample_to_file(outfile, data, vector_length = 0)
             end
         end
 
+    close(outfile)
+    
 end
     
 
 
 
 
-function evaluate_radial_var(brain_param, psh, num_lines; degree = 2, view = false)
+function evaluate_radial_var(brain_param, ps, num_lines; degree = 2, view = false)
     rad_model, _ =  create_radial_lines(brain_param, num_lines; view = view)
     ip = Interpolable(psh)
   
@@ -126,7 +129,7 @@ function evaluate_radial_var(brain_param, psh, num_lines; degree = 2, view = fal
       len = sum(∫(1)*dL)                              # Line length
       mean_p = sum(∫(ip)*dL)/len                      # Mean pressure
       append!(mean_pos, [sum(∫( identity )*dL)/len])  # Mean position
-      rel_diff = (psh - mean_p)/mean_p                # Relative difference to mean
+      rel_diff = (ps - mean_p)/mean_p                # Relative difference to mean
       sq_diff = Interpolable((rel_diff)*(rel_diff))   # squared relative difference
       append!(var, sum(∫(sq_diff)*dL) / len)          # Variance
       append!(rad_len, len)
@@ -151,7 +154,7 @@ function eval_ps_var(brain_param, PDE_param, start_width, end_width, num_samples
 
     title = "2D brain simulation: Stokes pressure variance in radial direction as a function of fluid path width"
     brain_param.d_ratio = NaN
-    outfile = open_file_general(filename, title, brain_param, PDE_param)
+    outfile = create_file(filename, title, brain_param, PDE_param)
 
     width = LinRange(start_width, end_width, num_samples)
 
@@ -171,10 +174,10 @@ function eval_ps_var(brain_param, PDE_param, start_width, end_width, num_samples
         @printf("i = %d/%d | width = %e\n", i, num_samples, width[i])
         brain_param.d_ratio = width[i]/brain_param.r_brain  
         model, pgs_dict = create_brain(brain_param)
-        ush, psh, pdh, ΩS = brain_PDE(model, pgs_dict, PDE_param)
-        mean_pos, rad_len, var = evaluate_radial_var(brain_param, psh, num_rad_lines)
+        us, ps, pd, ΩS, ΩD, Γ = brain_PDE(model, pgs_dict, PDE_param)
+        mean_pos, rad_len, var = evaluate_radial_var(brain_param, ps, num_rad_lines)
         data = [getindex.(mean_pos, 1), getindex.(mean_pos, 2), rad_len, var]
-        add_sample_to_file(outfile, data, num_rad_lines)
+        add_sample_to_file(filename, data, num_rad_lines)
              
         
     end
@@ -188,7 +191,7 @@ function mean_pressure_vs_lc(brain_param, start_lc, end_lc, num_samples; lograng
 
         title = "2D brain simulation: Mean stokes pressure as a function of mesh size lc"
         brain_param.lc = NaN
-        outfile = open_file_general(filename, title, brain_param, PDE_param)
+        outfile = create_file(filename, title, brain_param, PDE_param)
 
         lc = logrange ?  10 .^(range(log10(start_lc),stop=log10(end_lc),length=num_samples)) : LinRange(start_lc, end_lc, num_samples)
 
@@ -206,54 +209,128 @@ function mean_pressure_vs_lc(brain_param, start_lc, end_lc, num_samples; lograng
             @printf("i = %d/%d | lc = %e\n", i, num_samples, lc[i])
             brain_param.lc = lc[i]
             model, pgs_dict = create_brain(brain_param)
-            ush, psh, pdh, ΩS = brain_PDE(model, pgs_dict, PDE_param)
+            ush, psh, pdh, ΩS, ΩD, Γ = brain_PDE(model, pgs_dict, PDE_param)
             mean_ps = calculate_mean_ps(psh, ΩS)
-            add_sample_to_file(outfile, [lc[i], mean_ps], 0)
-       
-        
+            add_sample_to_file(filename, [lc[i], mean_ps], 0)
+    
         end
         
-    close(outfile)
     
 
 end
 
 
-# function sol_conv(pre_res, new_res)
-    
-# end
 
-# function solution_convergence_vs_lc(brain_param, start_lc, end_lc, num_samples; logrange = true, filename = "sol_conv".txt)
-#     title = "2D brain simulation: l²-norm difference between previous lc and decreased lc as a function of lc"
-#     brain_param.lc = NaN
-#     outfile = open_file_general(filename, title, brain_param, PDE_param)
 
-#     lc = logrange ?  10 .^(range(log10(start_lc),stop=log10(end_lc),length=num_samples)) : LinRange(start_lc, end_lc, num_samples)
+function cal_sol_diff(brain_param, pre_res, new_res, ΩS, ΩD; degree = 2)
+    # Unpack inputs
+    pre_us, pre_ps, pre_pd = pre_res
+    new_us, new_ps, new_pd = new_res
 
-#     write(outfile, "#\n# --- Sampling --- #\n")
-#     @printf(outfile,"# num_samples = %d\n", num_samples)
-#     @printf(outfile, "# lc = [")
-#     [@printf(outfile,"%.3e, ", lc[i]) for i in 1:length(lc)-1]
-#     @printf(outfile, "%.3e]\n", last(lc))
+    dΩS = Measure(ΩS, degree)
+    dΩD = Measure(ΩD, degree)
 
-#     write(outfile, "#\n# --- Data --- #\n")
-#     write(outfile, "# lc, l²_Δus, l²_Δps, l²__Δpd\n")
+    # Stokes domain
+    Stokes_CL, _ = create_centerline(brain_param, "S"; view = false)
+    SL = Triangulation(Stokes_CL)
+    dSL = Measure(SL, degree) 
+    Slen = sum(∫(1)*dSL)   # Length of centerline
 
-#     pre_ush, pre_psh, pre_pdh, pre_ΩS = brain_PDE(model, pgs_dict, PDE_param)
-#     for i in 1:num_samples
-#         @printf("i = %d/%d | lc = %e\n", i, num_samples, lc[i])
-#         brain_param.lc = lc[i]
-#         model, pgs_dict = create_brain(brain_param)
-#         new_ush, new_psh, new_pdh, new_ΩS = brain_PDE(model, pgs_dict, PDE_param)
-#         mean_ps = calculate_sol_l2()-.........
-#         add_sample_to_file(outfile, [lc[i], mean_ps], 0)
+
+      
+    # us
+    diff =  Interpolable(new_us) - pre_us
+    Δus_l2norm = sqrt(sum(∫(Interpolable(diff ⋅ diff)) * dSL))/Slen 
+
+    #ps
+    diff =  Interpolable(new_ps) - pre_ps
+    Δps_l2norm = sqrt(sum(∫(Interpolable(diff * diff)) * dSL))/Slen 
+
+
+    # Darcy domain
+    Darcy_CL, _ = create_centerline(brain_param, "D"; view = false)
+    DL = Triangulation(Darcy_CL)
+    dDL = Measure(DL, degree) 
+    Dlen = sum(∫(1)*dDL)   # Length of centerline
+    writevtk(DL, path*"DL")
+
+    # pd
+    diff =  Interpolable(new_pd) - pre_pd
+    Δpd_l2norm = sqrt(sum(∫(Interpolable(diff * diff)) * dDL))/Dlen 
+
+   
+    @show Δus_l2norm
+    @show Δps_l2norm
+    @show Δpd_l2norm
+
+
+
+
+ 
+
+
+   
+    # diff = 
+    # test =  sum(∫(Interpolable(pre_us))*dΩS)     
+    # test =  sum(∫(Interpolable(pre_us) - new_us)*dΩS)     
+    # @show test
+
+
    
     
-#     end
-    
-# close(outfile)
 
-# end
+    # Δps =  Interpolable(pre_ps) - Interpolable(new_ps)
+    # Δpd =  Interpolable(pre_pd) - Interpolable(new_pd)
+
+    # Δps_l2norm = sqrt(sum(∫(Δps ⋅ Δps) * dL))
+
+
+
+    # # # Calculate l²-norm
+    # Δps_l2norm = sqrt(sum(∫(Δps ⋅ Δps) * dL))
+    # # Δpd_l2norm = sqrt(sum(∫(Δpd ⋅ Δpd) * dΩD))
+
+
+    return [0.0, 0.0, 0.0]
+
+
+    
+end
+
+function solution_convergence_vs_lc(brain_param, start_lc, end_lc, num_samples; logrange = true, filename = "sol_conv.txt")
+    title = "2D brain simulation: l²-norm difference between previous lc and decreased lc as a function of lc"
+    brain_param.lc = NaN
+    outfile = create_file(filename, title, brain_param, PDE_param)
+
+    lc = logrange ?  10 .^(range(log10(start_lc),stop=log10(end_lc),length=num_samples)) : LinRange(start_lc, end_lc, num_samples)
+
+    write(outfile, "#\n# --- Sampling --- #\n")
+    @printf(outfile,"# num_samples = %d\n", num_samples)
+    @printf(outfile, "# lc = [")
+    [@printf(outfile,"%.3e, ", lc[i]) for i in 1:length(lc)-1]
+    @printf(outfile, "%.3e]\n", last(lc))
+
+    write(outfile, "#\n# --- Data --- #\n")
+    write(outfile, "# lc, l²_Δus, l²_Δps, l²__Δpd\n")
+    close(outfile)
+
+
+    brain_param.lc = lc[1]
+    model, pgs_dict = create_brain(brain_param)
+    pre_us, pre_ps, pre_pd, pre_ΩS, pre_ΩD, pre_Γ  = brain_PDE(model, pgs_dict, PDE_param)
+    for i in 1:num_samples-1
+        @printf("i = %d/%d | lc = %e -> %e\n", i, num_samples-1, lc[i], lc[i+1])
+        brain_param.lc = lc[i+1]
+        model, pgs_dict = create_brain(brain_param)
+        new_us, new_ps, new_pd, new_ΩS, new_ΩD, new_Γ = brain_PDE(model, pgs_dict, PDE_param)
+        l2_diff = cal_sol_diff(brain_param, [pre_us, pre_ps, pre_pd], [new_us, new_ps, new_pd], new_ΩS, new_ΩD)
+        add_sample_to_file(filename, [lc[i], l2_diff...], 0)
+        return
+    end
+    
+close(outfile)
+
+end
 
 # --- Brain Model [length unit: meter] --- # 
 lc = 1e-3 
@@ -261,15 +338,8 @@ arcLen = (100e-3, 0)
 r_brain = 10e-3  
 d_ratio = 1.5e-3/r_brain
 r_curv = 50e-3 
-# inner_perturb(x, y) = cos(pi * abs(x) / 2e-3) < 0 ? 0.5e-3 * cos(pi * abs(x) / 2e-3) : 0 
-# outer_perturb(x, y) = 0.0 
-
 inner_perturb = "(x,z) -> 0.3e-3 * cos(pi * abs(x) / 2e-3) "  # 10 - 20 waves pr. cm is a good number
-inner_perturb = "(x,z) -> 0.0 "  # 10 - 20 waves pr. cm is a good number
-
-# perturbation_func = eval(Meta.parse(inner_perturb))
-# @show perturbation_func(1,2)
-
+outer_perturb = "(x,z) -> 0.0 "  # 10 - 20 waves pr. cm is a good number
 BS_points = (1000, 0) 
 field_Lc_lim = [1 / 2, 1]
 field_Dist_lim = [1e-3, 5e-3] 
@@ -278,29 +348,40 @@ brain_param = model_params(lc, arcLen, r_brain, d_ratio, r_curv, inner_perturb, 
 # --- PDE parameters --- #
 μ = 0.8e-3  # Cerobrospinal fluid viscosity [Pa * s]
 Κ = 1e-16   # Permeability in brain parenchyma [m^2] 
-# Κ = 1e-6
-Δp = 1 * 133.3224 #[Pa]
-α(x) = 1*μ/sqrt(Κ) # Slip factor on Γ [Pa * s / m]
-ps0(x) = x[1] < 0 ? Δp : 0 # go by g amplitude
-∇pd0(x) = VectorValue(0.0, 0.0) # Zero flux
-PDE_param = Dict(:μ => μ, :Κ => Κ, :α => α, :ps0 => ps0, :∇pd0 => ∇pd0) 
+# Δp = 1 * 133.3224 #[Pa]
+α = "(x) -> 1*μ/sqrt(Κ)" # Slip factor on Γ [Pa * s / m]
+# ps0 = "(x) -> x[1] < 0 ? 1*133.3224 : 0" # 1*mmHg [Pa]
+ps0 = "(x) -> x[1] < 0 ? 1*133.3224 : 0." # 1*mmHg [Pa]
+
+∇pd0 = "(x) -> VectorValue(0.0, 0.0)" # Zero flux
+PDE_param = PDE_params(μ, Κ, α, ps0, ∇pd0)
+
 
 # model, pgs_dict = create_brain(brain_param; view=true, write=false)
-# ush, psh, pdh, ΩS = brain_PDE(model, pgs_dict, PDE_param; write = true)
+# ush, psh, pdh, ΩS, ΩD, Γ = brain_PDE(model, pgs_dict, PDE_param; write = true)
 # mean_pos, rad_len, var = evaluate_radial_var(brain_param, psh, 5, view = true)
 
 # # --- Evaluations --- #
-start_width = 5e-3
-end_width = 2e-3
+
+
+
+
+
+
+
+
+# start_width = 5e-3
+# end_width = 2e-3
+# num_samples = 5
+# num_rad_lines = 5
+# eval_ps_var(brain_param, PDE_param, start_width, end_width, num_samples, num_rad_lines)
+
+
+
+start_lc = 1e-3
+end_lc = 1e-4
 num_samples = 5
-num_rad_lines = 5
-eval_ps_var(brain_param, PDE_param, start_width, end_width, num_samples, num_rad_lines)
-
-
-
-# start_lc = 1e-2
-# end_lc = 1e-4
-# num_samples = 10
+solution_convergence_vs_lc(brain_param, start_lc, end_lc, num_samples)
 # mean_pressure_vs_lc(brain_param, start_lc, end_lc, num_samples, logrange = true)
 
 

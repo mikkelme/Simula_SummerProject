@@ -7,7 +7,7 @@ using Plots
 
 include("../mesh_generators/create_brain.jl")
 # include("../mesh_generators/unit_box_direct.jl")
-include("../mesh_generators/generate_radial_lines.jl")
+# include("../mesh_generators/generate_radial_lines.jl")
 
 
 
@@ -18,19 +18,22 @@ end
 
 
 
-# mutable struct PDE_param
-#   μ::Float64  
-#   Κ::Float64   
-#   α::Function
-#   α_body::String
-#   ps0::Function
-#   ps0_body::String
-#   ∇pd0::Function
-#   ∇pd0_body::String
-#   function PDE_param(μ, Κ, α_body, ps0_body, ps0_body, ∇pd0_body)
-#       new(μ, Κ, eval(Meta.parse(α_body)), α_body, eval(Meta.parse(ps0_body)), ps0_body, eval(Meta.parse(∇pd0)), ∇pd0_body)
-#   end
-# end
+mutable struct PDE_params
+  μ::Float64  
+  Κ::Float64   
+  α::Function
+  α_body::String
+  ps0::Function
+  ps0_body::String
+  ∇pd0::Function
+  ∇pd0_body::String
+  function PDE_params(μ, Κ, α_body, ps0_body, ∇pd0_body)
+      new(μ, Κ, eval(Meta.parse(α_body)), α_body, eval(Meta.parse(ps0_body)), ps0_body, eval(Meta.parse(∇pd0)), ∇pd0_body)
+  end
+end
+
+
+
 
 
 
@@ -122,23 +125,23 @@ function brain_PDE(model, pgs_dict, data; write = false)
     
     # --- Weak formulation --- #
     ϵ(u) = 1 / 2 * (∇(u) + transpose(∇(u)))
-    σ(u,p) = 2 * data[:μ] * ε(u) - p * TensorValue(1, 0, 0, 1) # Stress matrix
+    σ(u,p) = 2 * data.μ * ε(u) - p * TensorValue(1, 0, 0, 1) # Stress matrix
 
     # Nitsche on ΓS
     aNΓS((us, ps), (vs, qs)) = ∫(γ/h * (us⋅t̂ΓS) * (vs ⋅ t̂ΓS))dΓS  - ∫( ((n̂ΓS ⋅ σ(us,ps)) ⋅ t̂ΓS) * (vs⋅t̂ΓS) )dΓS - ∫( ((n̂ΓS ⋅ σ(vs,qs)) ⋅ t̂ΓS) * (us⋅t̂ΓS) )dΓS
-    bNΓS((vs, qs)) = ∫(data[:ps0] * (-vs ⋅ n̂ΓS))dΓS 
+    bNΓS((vs, qs)) = ∫(data.ps0 * (-vs ⋅ n̂ΓS))dΓS 
     
     # Stokes domain (left hand side)
-    aΩs((us, ps), (vs, qs)) = ∫( 2*data[:μ] * ϵ(us) ⊙ ϵ(vs) - (∇⋅us)*qs - ps*(∇⋅vs) )dΩS
+    aΩs((us, ps), (vs, qs)) = ∫( 2*data.μ * ϵ(us) ⊙ ϵ(vs) - (∇⋅us)*qs - ps*(∇⋅vs) )dΩS
 
     # Darcy Domain (left hand side)
-    aΩD((pd, qd)) = ∫( data[:Κ]/data[:μ]*(∇(pd)⋅∇(qd)) )dΩD
+    aΩD((pd, qd)) = ∫( data.Κ/data.μ*(∇(pd)⋅∇(qd)) )dΩD
 
     # Interface coupling (left hand side)
-    aΓ((us, pd), (vs, qd)) = ∫( data[:α]*(us.⁺⋅t̂Γ)*(vs.⁺⋅t̂Γ) - (us.⁺⋅n̂Γ.⁺)*qd.⁻ + pd.⁻*(n̂Γ.⁺⋅vs.⁺) )dΓ
+    aΓ((us, pd), (vs, qd)) = ∫( data.α*(us.⁺⋅t̂Γ)*(vs.⁺⋅t̂Γ) - (us.⁺⋅n̂Γ.⁺)*qd.⁻ + pd.⁻*(n̂Γ.⁺⋅vs.⁺) )dΓ
 
     # Neumann conditions on Darcy (right hand side)
-    b_neumann((vs, qd)) = ∫( data[:Κ]/data[:μ]*(get_normal_vector(ΓD_neu)⋅data[:∇pd0])*qd )dΓDneu
+    b_neumann((vs, qd)) = ∫( data.Κ/data.μ*(get_normal_vector(ΓD_neu)⋅data.∇pd0)*qd )dΓDneu
 
     # Gathering terms
     a((us, ps, pd), (vs, qs, qd)) =  aΩs((us, ps), (vs, qs)) + aΩD((pd, qd)) + aΓ((us, pd), (vs, qd)) + aNΓS((us, ps), (vs, qs))
@@ -156,7 +159,7 @@ function brain_PDE(model, pgs_dict, data; write = false)
     write && writevtk(ΩS, path * "vtu_files/" * "brain_sim_stokes", cellfields=["us" => ush, "psh" => psh])
     write && writevtk(ΩD, path * "vtu_files/" * "brain_sim_darcy", cellfields=["pdh" => pdh])
 
-    return  ush, psh, pdh, ΩS
+    return  ush, psh, pdh, ΩS, ΩD, Γ
     
 
 end
