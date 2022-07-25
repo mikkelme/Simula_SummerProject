@@ -82,10 +82,8 @@ $
 
 ## Results and Discussion
 
-<img src="/figures/solution_convergence.png" alt="Alternative text" title="Solution convergence">
+%<img src="/figures/solution_convergence.png" alt="Alternative text" title="Solution convergence">
 
-
-
-![Basestructure2D](figures/solution_convergence.png)X
+![Basestructure2D](figures/solution_convergence.png)
 |:--:| 
 | *2D sideview of the base structure* |
