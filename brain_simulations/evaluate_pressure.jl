@@ -1,4 +1,4 @@
-
+using Dates
 
 include("../mesh_generators/create_brain.jl")
 include("./brain_sim_2D.jl")
@@ -18,7 +18,7 @@ function create_file(filename, title, brain_param, PDE_param)
     filenane = timestamp*filename 
 
     # Create file
-    outfile = open(path*"txt_files/"filename, "w") 
+    outfile = open(path*"txt_files/"*filename, "w") 
 
     # Write general info of system
     @printf(outfile,"# %s\n", title)
@@ -219,15 +219,12 @@ end
 function solution_convergence_vs_lc(brain_param, start_lc, end_lc, num_samples; logrange = true, filename = "sol_conv.txt")
     title = "2D brain simulation: l²-norm difference between final lc and previous lc respectively"
     brain_param.lc = NaN
-    outfile = create_file(filename, title, brain_param, PDE_param)
+    filename, outfile = create_file(filename, title, brain_param, PDE_param)
 
     lc = logrange ?  10 .^(range(log10(start_lc),stop=log10(end_lc),length=num_samples)) : LinRange(start_lc, end_lc, num_samples)
 
     write(outfile, "#\n# --- Sampling --- #\n")
     @printf(outfile,"# num_samples = %d\n", num_samples)
-    # @printf(outfile, "# lc = [")
-    # [@printf(outfile,"%.3e, ", lc[i]) for i in 1:length(lc)-1]
-    # @printf(outfile, "%.3e]\n", last(lc))
     @printf(outfile, "# lc = [")
     [@printf(outfile,"%.3e, ", lc[1 + length(lc) - i]) for i in 1:length(lc)-1]
     @printf(outfile, "%.3e]\n", lc[1])
@@ -235,23 +232,6 @@ function solution_convergence_vs_lc(brain_param, start_lc, end_lc, num_samples; 
     write(outfile, "#\n# --- Data --- #\n")
     write(outfile, "lc, l²_Δus, l²_Δps, l²_Δpd\n")
     close(outfile)
-
-    # # Initial lc
-    # brain_param.lc = lc[1]
-    # model, pgs_dict = create_brain(brain_param)
-    # pre_us, pre_ps, pre_pd, pre_ΩS, pre_ΩD, pre_Γ  = brain_PDE(model, pgs_dict, PDE_param)
-    # add_sample_to_file(filename, [lc[1], NaN, NaN, NaN], 0)
-
-    # # Convergence
-    # for i in 2:num_samples
-    #     @printf("i = %d/%d | lc = %e -> %e\n", i-1, num_samples-1, lc[i-1], lc[i])
-    #     brain_param.lc = lc[i]
-    #     model, pgs_dict = create_brain(brain_param)
-    #     new_us, new_ps, new_pd, new_ΩS, new_ΩD, new_Γ = brain_PDE(model, pgs_dict, PDE_param)
-    #     l2_diff = cal_sol_diff(brain_param, [pre_us, pre_ps, pre_pd], [new_us, new_ps, new_pd])
-    #     add_sample_to_file(filename, [lc[i], l2_diff...], 0)
-    #     pre_us, pre_ps, pre_pd, pre_ΩS, pre_ΩD, pre_Γ = new_us, new_ps, new_pd, new_ΩS, new_ΩD, new_Γ 
-    # end
 
 
     brain_param.lc = last(lc)
@@ -306,11 +286,11 @@ PDE_param = PDE_params(μ, Κ, α, ps0, ∇pd0)
 
 
 
-# start_width = 5e-3
-# end_width = 2e-3
-# num_samples = 5
-# num_rad_lines = 5
-# eval_ps_var(brain_param, PDE_param, start_width, end_width, num_samples, num_rad_lines)
+start_width = 5e-3
+end_width = 2e-3
+num_samples = 5
+num_rad_lines = 5
+eval_ps_var(brain_param, PDE_param, start_width, end_width, num_samples, num_rad_lines)
 
 
 
