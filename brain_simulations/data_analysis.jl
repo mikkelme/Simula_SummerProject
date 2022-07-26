@@ -143,7 +143,6 @@ function nflow_interface(filename; save = false)
     nflow_abs = sqrt.(nflow_sqr)
 
 
-    
     # fig = plot(width*1e3, nflow*1e3, marker = :o)
     # xlabel!("Width [mm]")
     # ylabel!("u × n̂ [mm/s]")

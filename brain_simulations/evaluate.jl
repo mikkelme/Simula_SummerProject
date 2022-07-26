@@ -1,4 +1,5 @@
 using Dates
+using Printf
 
 include("../mesh_generators/create_brain.jl")
 include("./brain_sim_2D.jl")
@@ -298,7 +299,14 @@ function eval_decreasing_lc(brain_param, PDE_param, start_width, end_width, num_
 
 end
 
-
+function nflow_profile(us, Γ; degree = 2)
+    dΓ = Measure(Γ, degree)
+    n̂Γ = get_normal_vector(Γ) 
+    nflow_field = us.⁺ ⋅ n̂Γ.⁺
+    writevtk(Γ, path * "data_testing/flow_profile", cellfields=["nflow" => nflow_field] )
+    
+end
+nflow_profile(ush, Γ)
 
 
 # --- Brain Model [length unit: meter] --- # 
@@ -323,20 +331,30 @@ ps0 = "(x) -> x[1] < 0 ? 1*133.3224 : 0." # 1*mmHg [Pa]
 PDE_param = PDE_params(μ, Κ, α, ps0, ∇pd0)
 
 
-# lc = 1e-2
-# model, pgs_dict = create_brain(brain_param; view=true, write=false)
-# ush, psh, pdh, ΩS, ΩD, Γ = brain_PDE(model, pgs_dict, PDE_param; write = true)
-# mean_pos, rad_len, var = evaluate_radial_var(brain_param, psh, 5, view = true)
 
+model, pgs_dict = create_brain(brain_param; view=false, write=false)
+ush, psh, pdh, ΩS, ΩD, Γ = brain_PDE(model, pgs_dict, PDE_param; write = (path * "data_testing/", @sprintf("%.2e", lc)))
+nflow_profile(ush, Γ)
+
+
+dΓ = Measure(Γ, 2)
+n̂Γ = get_normal_vector(Γ) 
+nflow_field = ush.⁺ ⋅ n̂Γ.⁺
+val = nflow_field(VectorValue(-0.0354155, 0.0334371))
+val = nflow_field(0.0)
+
+
+ius = Interpolable(ush)
+val = ush(VectorValue(0.0, 0.044))
 # # --- Evaluations --- #
 
 
 
-start_width = 5e-3
-end_width = 0.5e-3
-num_samples = 5
-num_rad_lines = 100
-eval_decreasing_lc(brain_param, PDE_param, start_width, end_width, num_samples, num_rad_lines)
+# start_width = 5e-3
+# end_width = 0.5e-3
+# num_samples = 5
+# num_rad_lines = 100
+# eval_decreasing_lc(brain_param, PDE_param, start_width, end_width, num_samples, num_rad_lines)
 
 
 
