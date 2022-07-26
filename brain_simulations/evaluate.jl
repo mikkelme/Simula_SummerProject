@@ -341,7 +341,9 @@ ush, psh, pdh, ΩS, ΩD, Γ = brain_PDE(model, pgs_dict, PDE_param; write = fals
 dΓ = Measure(Γ, 2)
 n̂Γ = get_normal_vector(Γ) 
 flow_field = ush.⁺ ⋅ n̂Γ.⁺
-# point = [-0.0354155, 0.0334371], should be on the interface
+# point = [-0.0354155, 0.0334371], should be on the interface, 
+# but I do not know how sensitive it is to precision in the decimal numbers,
+# considering that the domain is a line (SkeletonTriangulation)
 
 # norm_val = n̂Γ.⁺(VectorValue(-0.0354155, 0.0334371))
 # val = nflow_field(VectorValue(-0.0354155, 0.0334371))
