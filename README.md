@@ -69,12 +69,18 @@ ___
 ### Weak formulation
 
 #### Stokes
+more derivations on the first line here?
 
-$
+
+$$
 \begin{align}
-    \int_{\Omega_S} f_s \cdot v_S =  \int_{\Omega_S} 2\mu \varepsilon(u_S) \odot \varepsilon(v_S) \ dx - \int_{\Omega_S} p_S \nabla\cdot v_S \ dx + \int_{\partial\Omega_S} [-\sigma(u_S, p_S)\cdot\hat{n}_S] \cdot v_S \ dS  \ldots
+    \int_{\Omega_S} f_s \cdot v_S =  \int_{\Omega_S} 2\mu \ \varepsilon(u_S) \odot \varepsilon(v_S) \ dx - \int_{\Omega_S} p_S \nabla\cdot v_S \ dx + \int_{\partial\Omega_S} [-\sigma(u_S, p_S)\cdot\hat{n}_S] \cdot v_S \ dS  
 \end{align}
-$
+\\
+\begin{align}
+    \int_{\Omega_S} f_s \cdot v_S =  \int_{\Omega_S} 2\mu \ \varepsilon(u_S) \odot \varepsilon(v_S) \ dx - \int_{\Omega_S} p_S \nabla\cdot v_S \ dx + \int_{\partial\Omega_S} [-\sigma(u_S, p_S)\cdot\hat{n}_S] \cdot v_S \ dS  
+\end{align}
+$$
 
 #### Darcy 
 
@@ -83,8 +89,8 @@ $
 ## Results and Discussi
 
 
-<p align="center">
+<!-- <p align="center">
   <img src="figures/solution_convergence.png" alt="Text is not showing?"/>
-</p>
+</p> -->
 
 
