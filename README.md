@@ -71,8 +71,7 @@ ___
 ### Weak formulation
 
 #### Stokes
-
-From equation ... we get 
+From equation (...) we get
 
 $$
 \begin{align}
@@ -85,12 +84,19 @@ In the first equation (put number) Decompose the last term in normal $\hat{n}_S$
 
 $$
 \begin{align}
-  - \int_{\partial\Omega_S} \big(\sigma(u_S, p_S)\cdot\hat{n}_S\big) \cdot v_S \ dS   &=  \int_{\partial\Omega_S} \underbrace{-\Big[\big(\sigma(u_S, p_S)\cdot\hat{n}_S\big) \cdot \hat{n}_S \Big]\Big[\hat{n}_S \cdot v_S \Big]}_{P_D \ \text{on} \ \ \Gamma} -\underbrace{\Big[\big(\sigma(u_S, p_S)\cdot\hat{n}_S\big) \cdot \hat{\tau}_S \Big]\Big[\hat{\tau}_S \cdot v_S \Big]}_{\alpha u_S \cdot\hat{\tau}_S \ \ \text{on} \ \Gamma} \\
-  &= \int_{\partial \Omega_S\setminus\Gamma} \big(\sigma(u_S, p_S)\cdot\hat{n}_S\big) \cdot v_S \ dS  +  \int_{\Gamma} P_D - \alpha u_S \cdot\hat{\tau}_S \ dL
+    - \int_{\partial\Omega_S} \big(\sigma(u_S, p_S)\cdot\hat{n}_S\big) \cdot v_S \ dS   &=  \int_{\partial\Omega_S} \underbrace{-\Big[\big(\sigma(u_S, p_S)\cdot\hat{n}_S\big) \cdot \hat{n}_S \Big]\Big[\hat{n}_S \cdot v_S \Big]}_{P_D \ \text{on} \ \ \Gamma} -\underbrace{\Big[\big(\sigma(u_S, p_S)\cdot\hat{n}_S\big) \cdot \hat{\tau}_S \Big]\Big[\hat{\tau}_S \cdot v_S \Big]}_{\alpha u_S \cdot\hat{\tau}_S \ \ \text{on} \ \Gamma} \\
+    &= \int_{\partial\Omega_S\setminus\Gamma} -\Big[\big(\sigma(u_S, p_S)\cdot\hat{n}_S\big) \cdot \hat{n}_S \Big]\Big[\hat{n}_S \cdot v_S \Big] -\Big[\big(\sigma(u_S, p_S)\cdot\hat{n}_S\big) \cdot \hat{\tau}_S \Big]\Big[\hat{\tau}_S \cdot v_S \Big]  +  \int_{\Gamma} P_D - \alpha u_S \cdot\hat{\tau}_S \ dL  
 \end{align}
 $$
 
-We can than handle the remaining $\partial\Omega_S\setminus\Gamma$ boundary using the Nitsche method (theorem?)....
+We can then handle the remaining $\partial\Omega_S\setminus\Gamma$ boundary using the Nitsche method (theorem?). We write as the decomposition again 
+
+$$
+\begin{align}
+    \int_{\partial\Omega_S\setminus\Gamma} -\big(\sigma(u_S, p_S)\cdot\hat{n}_S\big) \cdot v_S \ dS  &= \int_{\partial\Omega_S\setminus\Gamma} -\Big[\big(\sigma(u_S, p_S)\cdot\hat{n}_S\big) \cdot \hat{n}_S \Big]\Big[\hat{n}_S \cdot v_S \Big] -\Big[\big(\sigma(u_S, p_S)\cdot\hat{n}_S\big) \cdot \hat{\tau}_S \Big]\Big[\hat{\tau}_S \cdot v_S \Big]
+\end{align}
+$$
+
 #### Darcy 
 
 
