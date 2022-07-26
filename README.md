@@ -80,10 +80,11 @@ $
 
 
 
-## Results and Discussion
+## Results and Discussi
+
 
 <p align="center">
-  <img src="figures/solution_convergence.png" alt="Sublime's custom image"/>
+  <img src="figures/solution_convergence.png" alt="Text is not showing?"/>
 </p>
 
 

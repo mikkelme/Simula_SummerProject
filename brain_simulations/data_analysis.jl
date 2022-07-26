@@ -3,19 +3,15 @@ using DelimitedFiles
 using Plots
 
 path = "/Users/mikkelme/Documents/Github/Simula_SummerProject/brain_simulations/"
-readpath = "/Users/mikkelme/Documents/Github/Simula_SummerProject/brain_simulations/txt_files/"
 savepath = "/Users/mikkelme/Documents/Github/Simula_SummerProject/figures/"
 if !ispath(path)
     path = "/home/mikkelme/Simula_SummerProject/brain_simulations/"
-    readpath = "/home/mikkelme/Simula_SummerProject/brain_simulations/txt_files/"
     savepath = "/home/mikkelme/Simula_SummerProject/figures/"
 end
 
 
 
-
-
-function plot_solution_convergence(filename)
+function solution_convergence(filename; save = false)
     data_cells, header_cells =  readdlm(filename, ',', Float64, '\n'; header = true, comments = true)
     m, n = size(data_cells)
 
@@ -28,8 +24,8 @@ function plot_solution_convergence(filename)
     fig = plot!(lc, Δps, xaxis=:log,  yaxis=:log, marker=:o, label="ps")
     fig = plot!(lc, Δpd, xaxis=:log,  yaxis=:log, marker=:o, label="pd")
     xlabel!(fig, "Resolution (lc)")
-    ylabel!(fig, "l²-norm with respect to finest resolution")
-    savefig(fig, savepath*"solution_convergence.png")
+    ylabel!(fig, "l²-norm w.r.t. reference solution")
+    save && savefig(fig, savepath*"solution_convergence.png")
     display(fig)
       
     
@@ -37,10 +33,9 @@ end
 
 
 
-
-
-function plot_pressure_variance(filename)
+function pressure_variance_vs_width(filename; save = false)
     data_cells, header_cells =  readdlm(filename, ',', Float64, '\n'; header = true, comments = true)
+    
     # Get info
     infile = open(filename, "r")
     lines = readlines(infile)
@@ -57,8 +52,6 @@ function plot_pressure_variance(filename)
     num_rad_lines = parse(Int, words[2][2:length(words[2])])
  
 
-    @show num_samples
-    @show num_rad_lines
     width = []
     max_var = []
     mean_var = []
@@ -73,30 +66,93 @@ function plot_pressure_variance(filename)
         append!(mean_var, sum(data_cells[start_index:end_index, 4])/num_rad_lines)
 
     end
-    @show width
-    @show max_var
-    @show mean_var
-    @show filename 
-
-
-    # fig = plot(width)
-
-    maxfig = plot(width, max_var, marker = :o, label="max variance")
-    meanfig = plot(width, mean_var,  marker=:x, label="mean variance") # Get different axis for this one 
-
-    # xlabel!(fig, "Resolution (lc)")
-    # ylabel!(fig, "l²-norm with respect to finest resolution")
-    # savefig(fig, savepath*"solution_convergence.png")
-    display(maxfig)
-    display(meanfig)
-
+    
+    fig = plot(width*1e3, max_var, marker = :o, label = "Max variance", ylabel = "Max variance",color = :red, 
+    legend = :topleft, grid = :off,left_margin = 5Plots.mm, right_margin = 18Plots.mm)
+    fig = plot!(twinx(), width*1e3, mean_var, marker = :x, label = "Mean variance", legend = :topright, 
+    box = :on, grid = :off, ylabel = "Mean variance",left_margin = 5Plots.mm, right_margin = 18Plots.mm)
+    plot!([1.5], seriestype = :vline, label = "Typical brain width", color = :black, linestyle = :dash)
+    xlabel!("Width [mm]")
+    save && savefig(savepath*"pressure_variance.png")
+    display(fig)
       
     
 end
 
 
 
-# plot_solution_convergence(readpath*"sol_conv.txt")
+function pressure_variance_vs_angle(filename; save = false)
+    data_cells, header_cells =  readdlm(filename, ',', Float64, '\n'; header = true, comments = true)
+    
+    # Get info
+    infile = open(filename, "r")
+    lines = readlines(infile)
+    
+    # number of samples
+    words =  split(lines[23], '=')
+    @assert words[1] == "# num_samples " "Reading wrong line for num_samples"
+    num_samples = parse(Int, words[2][2:length(words[2])])
+
+    # number of radial line
+    words =  split(lines[24], '=')
+    @assert words[1] == "# num_rad_lines " "Reading wrong line for num_rad_lines"
+    num_rad_lines = parse(Int, words[2][2:length(words[2])])
 
 
-plot_pressure_variance(readpath * "25_7_15_31_ps_radial_var.txt")
+   
+    fig = plot()
+    for i in 1:num_samples
+        start_index = (i-1)*num_rad_lines + 1
+        end_index = start_index + num_rad_lines - 1
+
+    
+        # Get angle and corresponding variance
+        x_cord = data_cells[start_index:end_index, 1]
+        y_cord = data_cells[start_index:end_index, 2]
+        angle = atan.(y_cord ./x_cord)
+        angle = ifelse.(angle .> 0, angle, angle .+ pi) # fix tan output
+        width =  sum(data_cells[start_index:end_index, 3])/num_rad_lines
+        plot!(angle, data_cells[start_index:end_index, 4], label = "Width =" * string(width))
+
+        
+    end
+    
+
+    
+    xlabel!("Angle [rad]")
+    ylabel!("Variance [Pa²]")
+    # save && savefig(savepath*"pressure_variance_angle.png")
+    # display(fig)
+   
+
+
+end
+
+
+function nflow_interface(filename; save = false)
+    data_cells, header_cells =  readdlm(filename, ',', Float64, '\n'; header = true, comments = true)
+    m, n = size(data_cells)
+
+
+    width = data_cells[1:m, 1]
+    nflow = data_cells[1:m, 2]
+    
+    fig = plot(width*1e3, nflow*1e3, marker = :o)
+    xlabel!("Width [mm]")
+    ylabel!("u × n̂ [mm/s]")
+    save && savefig(savepath*"nflow.png")
+    display(fig)
+
+
+
+
+end
+
+data_folder =  "data_26_7_10_01"
+readpath = path * data_folder * "/txt_files/"
+
+
+# solution_convergence(path * "/txt_files/"*"solution_converge.txt"; save = true)
+# pressure_variance_vs_width(readpath * "ps_radial_var.txt"; save = true)
+pressure_variance_vs_angle(readpath * "ps_radial_var.txt")
+# nflow_interface(readpath * "us_nflow.txt")

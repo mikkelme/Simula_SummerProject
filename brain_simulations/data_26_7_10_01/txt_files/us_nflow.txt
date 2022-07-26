@@ -1,0 +1,37 @@
+# 2D brain simulation: Stokes normal velocity on interface as a function of fluid path width
+#
+# --- Brain parameters (fixed) --- #
+# lc = 1.000000e-03 
+# arcLen = 0.100000 m
+# r_brain = 0.010000 m
+# d_ratio = NaN
+# r_curv = 0.050000 m
+# inner_perturb = (x,z) -> 0.3e-3 * cos(pi * abs(x) / 2e-3) 
+# outer_perturb = (x,z) -> 0.0 
+# BS_points = 1000
+# field_Lc_lim = (0.500000, 1.000000) 
+# field_Dist_lim = (0.001000, 0.005000) m 
+#
+# --- PDE parameters (fixed=) --- #
+# μ = 8.000000e-04 Pa*s
+# Κ = 1.000000e-16 m^2
+# α = (x) -> 1*μ/sqrt(Κ)
+# ps0 = (x) -> x[1] < 0 ? 1*133.3224 : 0.
+# ∇pd0 = (x) -> VectorValue(0.0, 0.0)
+#
+# --- Sampling --- #
+# num_samples = 10
+# width = [5.000e-03, 4.556e-03, 4.111e-03, 3.667e-03, 3.222e-03, 2.778e-03, 2.333e-03, 1.889e-03, 1.444e-03, 1.000e-03]
+#
+# --- Data --- #
+width, u×n̂
+5.000000e-03, -8.944289e-22
+4.555556e-03, -7.576582e-22
+4.111111e-03, -5.966749e-22
+3.666667e-03, -6.406538e-22
+3.222222e-03, -4.419739e-22
+2.777778e-03, -3.881234e-22
+2.333333e-03, -3.431761e-22
+1.888889e-03, -2.368169e-22
+1.444444e-03, -2.116284e-22
+1.000000e-03, -7.732660e-23
