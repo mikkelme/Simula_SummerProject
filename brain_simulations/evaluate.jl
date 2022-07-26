@@ -306,11 +306,11 @@ function nflow_profile(us, Γ; degree = 2)
     writevtk(Γ, path * "data_testing/flow_profile", cellfields=["nflow" => nflow_field] )
     
 end
-nflow_profile(ush, Γ)
 
 
 # --- Brain Model [length unit: meter] --- # 
-lc = 1e-3 
+# lc = 1e-3 
+lc = 1e-2
 arcLen = (100e-3, 0)
 r_brain = 10e-3  
 d_ratio = 1.5e-3/r_brain
@@ -333,19 +333,23 @@ PDE_param = PDE_params(μ, Κ, α, ps0, ∇pd0)
 
 
 model, pgs_dict = create_brain(brain_param; view=false, write=false)
-ush, psh, pdh, ΩS, ΩD, Γ = brain_PDE(model, pgs_dict, PDE_param; write = (path * "data_testing/", @sprintf("%.2e", lc)))
-nflow_profile(ush, Γ)
+# ush, psh, pdh, ΩS, ΩD, Γ = brain_PDE(model, pgs_dict, PDE_param; write = (path * "data_testing/", @sprintf("%.2e", lc)))
+ush, psh, pdh, ΩS, ΩD, Γ = brain_PDE(model, pgs_dict, PDE_param; write = false)
 
-
+###########################################################
+### Evaluation of normal flow field and or normal vector ###
 dΓ = Measure(Γ, 2)
 n̂Γ = get_normal_vector(Γ) 
-nflow_field = ush.⁺ ⋅ n̂Γ.⁺
-val = nflow_field(VectorValue(-0.0354155, 0.0334371))
-val = nflow_field(0.0)
+flow_field = ush.⁺ ⋅ n̂Γ.⁺
+# point = [-0.0354155, 0.0334371], should be on the interface
+
+# norm_val = n̂Γ.⁺(VectorValue(-0.0354155, 0.0334371))
+# val = nflow_field(VectorValue(-0.0354155, 0.0334371))
+
+###########################################################
 
 
-ius = Interpolable(ush)
-val = ush(VectorValue(0.0, 0.044))
+
 # # --- Evaluations --- #
 
 
