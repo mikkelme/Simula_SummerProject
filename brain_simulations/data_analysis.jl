@@ -139,8 +139,18 @@ function nflow_interface(filename; save = false)
 
     width = data_cells[1:m, 1]
     nflow = data_cells[1:m, 2]
+    nflow_sqr = data_cells[1:m, 3]
+    nflow_abs = sqrt.(nflow_sqr)
+
+
     
-    fig = plot(width*1e3, nflow*1e3, marker = :o)
+    # fig = plot(width*1e3, nflow*1e3, marker = :o)
+    # xlabel!("Width [mm]")
+    # ylabel!("u × n̂ [mm/s]")
+    # save && savefig(savepath*"nflow.png")
+    # display(fig)
+
+    fig = plot(width*1e3, nflow_abs*1e3, marker = :o)
     xlabel!("Width [mm]")
     ylabel!("u × n̂ [mm/s]")
     save && savefig(savepath*"nflow.png")
@@ -151,7 +161,7 @@ function nflow_interface(filename; save = false)
 
 end
 
-data_folder =  "data_26_7_12_52"
+data_folder =  "data_26_7_13_48"
 # data_folder =  "data_ssh1e-4"
 
 readpath = path * data_folder * "/txt_files/"
@@ -160,4 +170,4 @@ readpath = path * data_folder * "/txt_files/"
 # solution_convergence(path * "/txt_files/"*"solution_converge.txt"; save = true)
 # pressure_variance_vs_width(readpath * "ps_radial_var.txt"; save = false)
 # pressure_variance_vs_angle(readpath * "ps_radial_var.txt"; save = false)
-# nflow_interface(readpath * "us_nflow.txt")
+nflow_interface(readpath * "us_nflow.txt")

@@ -222,7 +222,8 @@ function evaluate_nflow(brain_param, us, Γ; degree = 2)
     dΓ = Measure(Γ, degree)
     n̂Γ = get_normal_vector(Γ) 
     nflow = sum(∫(us.⁺ ⋅ n̂Γ.⁺)dΓ) / sum(∫(1)dΓ)
-    return nflow
+    nflow_sqr = sum(∫((us.⁺ ⋅ n̂Γ.⁺)*(us.⁺ ⋅ n̂Γ.⁺))dΓ) / sum(∫(1)dΓ)
+    return nflow, nflow_sqr
 end
   
 
@@ -267,7 +268,7 @@ function eval_decreasing_lc(brain_param, PDE_param, start_width, end_width, num_
     [@printf(outfile,"%.3e, ", width[i]) for i in 1:length(width)-1]
     @printf(outfile, "%.3e]\n", last(width))
     write(outfile, "#\n# --- Data --- #\n")
-    write(outfile, "width, u×n̂\n")
+    write(outfile, "width, u×n̂, (u×n̂)²\n")
     close(outfile)
     
 
@@ -283,11 +284,11 @@ function eval_decreasing_lc(brain_param, PDE_param, start_width, end_width, num_
         
         # Perform evaluations 
         mean_pos, rad_len, var = evaluate_radial_var(brain_param, ps, num_rad_lines)
-        nflow = evaluate_nflow(brain_param, us, Γ)
+        nflow, nflow_sqr = evaluate_nflow(brain_param, us, Γ)
         
         # Write to file
         p_data = [getindex.(mean_pos, 1), getindex.(mean_pos, 2), rad_len, var]
-        nflow_data = [width[i], nflow]
+        nflow_data = [width[i], nflow, nflow_sqr]
         add_sample_to_file(path * folder_name * "txt_files/", p_filename, p_data, num_rad_lines)
         add_sample_to_file(path * folder_name * "txt_files/", nflow_filename, nflow_data, 0)
 
@@ -331,11 +332,11 @@ PDE_param = PDE_params(μ, Κ, α, ps0, ∇pd0)
 
 
 
-# start_width = 5e-3
-# end_width = 0.5e-3
-# num_samples = 5
-# num_rad_lines = 100
-# eval_decreasing_lc(brain_param, PDE_param, start_width, end_width, num_samples, num_rad_lines)
+start_width = 5e-3
+end_width = 0.5e-3
+num_samples = 5
+num_rad_lines = 100
+eval_decreasing_lc(brain_param, PDE_param, start_width, end_width, num_samples, num_rad_lines)
 
 
 
