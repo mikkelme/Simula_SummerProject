@@ -45,12 +45,12 @@ $$
 $$
 
 
-#### Interface 
+#### Interface
 $$
 \begin{align}
-    u_S\cdot\hat{n}_S + (-\frac{\kappa}{\mu}\nabla p_D \cdot \hat{n}_D) &= g\Gamma \\
-    -[\sigma(u_S, p_S)\cdot\hat{n}_S]\cdot\hat{n}_S &= P_D \\
-    -[\sigma(u_S, p_S)\cdot\hat{n}_S]\cdot\hat{\tau}_S &= \alpha u_S \cdot\hat{\tau}_S\\
+    u_S\cdot\hat{n}_S + (-\frac{\kappa}{\mu}\nabla p_D \cdot \hat{n}_D) &= g\Gamma \quad \text{on} \ \Gamma \\ 
+    -[\sigma(u_S, p_S)\cdot\hat{n}_S]\cdot\hat{n}_S &= P_D \quad \text{on} \ \Gamma \\
+    -[\sigma(u_S, p_S)\cdot\hat{n}_S]\cdot\hat{\tau}_S &= \alpha u_S \cdot\hat{\tau}_S \quad \text{on} \ \Gamma \\
 \end{align}
 $$
 ___
@@ -64,26 +64,33 @@ $$
 
 \end{align}
 $$
+
+$\nabla \cdot x$ is the same as $Div(x)$.
 ___
 
 ### Weak formulation
 
 #### Stokes
-more derivations on the first line here?
 
-
-$$
-\begin{align}
-    \int_{\Omega_S} f_s \cdot v_S =  \int_{\Omega_S} 2\mu \ \varepsilon(u_S) \odot \varepsilon(v_S) \ dx - \int_{\Omega_S} p_S \nabla\cdot v_S \ dx + \int_{\partial\Omega_S} [-\sigma(u_S, p_S)\cdot\hat{n}_S] \cdot v_S \ dS  
-\end{align}
-$$
+From equation ... we get 
 
 $$
 \begin{align}
-    \int_{\Omega_S} f_s \cdot v_S =  \int_{\Omega_S} 2\mu \ \varepsilon(u_S) \odot \varepsilon(v_S) \ dx - \int_{\Omega_S} p_S \nabla\cdot v_S \ dx + \int_{\partial\Omega_S} [-\sigma(u_S, p_S)\cdot\hat{n}_S] \cdot v_S \ dS  
+    \int_{\Omega_S} f_s \cdot v_S &=  \int_{\Omega_S} 2\mu \ \varepsilon(u_S) \odot \varepsilon(v_S) \ dx - \int_{\Omega_S} p_S \nabla\cdot v_S \ dx - \int_{\partial\Omega_S} \big(\sigma(u_S, p_S)\cdot\hat{n}_S\big) \cdot v_S \ dS \\ 
+    0 &= - \int_{\Omega_S} (\nabla \cdot u_S) \cdot q_s
 \end{align}
 $$
 
+In the first equation (put number) Decompose the last term in normal $\hat{n}_S$ and tangential $\hat{\tau}_S$ direction
+
+$$
+\begin{align}
+  - \int_{\partial\Omega_S} \big(\sigma(u_S, p_S)\cdot\hat{n}_S\big) \cdot v_S \ dS   &=  \int_{\partial\Omega_S} \underbrace{-\Big[\big(\sigma(u_S, p_S)\cdot\hat{n}_S\big) \cdot \hat{n}_S \Big]\Big[\hat{n}_S \cdot v_S \Big]}_{P_D \ \text{on} \ \ \Gamma} -\underbrace{\Big[\big(\sigma(u_S, p_S)\cdot\hat{n}_S\big) \cdot \hat{\tau}_S \Big]\Big[\hat{\tau}_S \cdot v_S \Big]}_{\alpha u_S \cdot\hat{\tau}_S \ \ \text{on} \ \Gamma} \\
+  &= \int_{\partial \Omega_S\setminus\Gamma} \big(\sigma(u_S, p_S)\cdot\hat{n}_S\big) \cdot v_S \ dS  +  \int_{\Gamma} P_D - \alpha u_S \cdot\hat{\tau}_S \ dL
+\end{align}
+$$
+
+We can than handle the remaining $\partial\Omega_S\setminus\Gamma$ boundary using the Nitsche method (theorem?)....
 #### Darcy 
 
 

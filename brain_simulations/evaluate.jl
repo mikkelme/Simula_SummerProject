@@ -198,18 +198,19 @@ function evaluate_radial_var(brain_param, ps, num_lines; degree = 2, view = fals
     rad_len = []
     var =[]
     for i in 1:num_lines
-      # --- Get line triangulation and measure --- #
-      L = Triangulation(rad_model, tags=[i])
-      dL = Measure(L, 2)
+        # --- Get line triangulation and measure --- #
+        L = Triangulation(rad_model, tags=[i])
+        dL = Measure(L, 2)
   
-      # --- Calculate metrics --- #
-      len = sum(∫(1)*dL)                              # Line length
-      mean_p = sum(∫(ip)*dL)/len                      # Mean pressure
-      append!(mean_pos, [sum(∫( identity )*dL)/len])  # Mean position
-      rel_diff = (ps - mean_p)/mean_p                # Relative difference to mean
-      sq_diff = Interpolable((rel_diff)*(rel_diff), searchmethod = sm)   # squared relative difference
-      append!(var, sum(∫(sq_diff)*dL) / len)          # Variance
-      append!(rad_len, len)
+        # --- Calculate metrics --- #
+        len = sum(∫(1)*dL)                              # Line length
+        mean_p = sum(∫(ip)*dL)/len                      # Mean pressure
+        append!(mean_pos, [sum(∫( identity )*dL)/len])  # Mean position
+        # rel_diff = (ps - mean_p)/mean_p                # Relative difference to mean
+        diff = ps - mean_p               # difference to mean
+        sq_diff = Interpolable((diff)*(diff), searchmethod = sm)   # squared relative difference
+        append!(var, sum(∫(sq_diff)*dL) / len)          # Variance
+        append!(rad_len, len)
     end
     
     return mean_pos, rad_len, var
@@ -278,8 +279,8 @@ function eval_decreasing_lc(brain_param, PDE_param, start_width, end_width, num_
         model, pgs_dict = create_brain(brain_param)
 
         # Solve PDE
-        us, ps, pd, ΩS, ΩD, Γ = brain_PDE(model, pgs_dict, PDE_param; write = (path * folder_name * "vtu_files/", string(width[i]))) # or write = false
-
+        us, ps, pd, ΩS, ΩD, Γ = brain_PDE(model, pgs_dict, PDE_param; write = (path * folder_name * "vtu_files/", @sprintf("%.2e", width[i]))) # or write = false
+        
         # Perform evaluations 
         mean_pos, rad_len, var = evaluate_radial_var(brain_param, ps, num_rad_lines)
         nflow = evaluate_nflow(brain_param, us, Γ)
@@ -330,11 +331,11 @@ PDE_param = PDE_params(μ, Κ, α, ps0, ∇pd0)
 
 
 
-start_width = 5e-3
-end_width = 1e-3
-num_samples = 10
-num_rad_lines = 100
-eval_decreasing_lc(brain_param, PDE_param, start_width, end_width, num_samples, num_rad_lines)
+# start_width = 5e-3
+# end_width = 0.5e-3
+# num_samples = 5
+# num_rad_lines = 100
+# eval_decreasing_lc(brain_param, PDE_param, start_width, end_width, num_samples, num_rad_lines)
 
 
 
