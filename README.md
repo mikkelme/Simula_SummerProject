@@ -105,7 +105,21 @@ $$
 
 with the zero in line (...) comes from theorem something in that paper (REFER).
 
-We can then handle the remaining $\partial\Omega_S\setminus\Gamma$ boundary using the Nitsche method (theorem?).  again 
+We can then handle the remaining tangential component of the  $\partial\Omega_S\setminus\Gamma$ boundary using the Nitsche method (theorem?).  
+
+
+$$
+
+\begin{align}
+    - \int_{\partial\Omega_S\setminus\Gamma} \Big[\big(\sigma(u_S, p_S)\cdot\hat{n}_S\big) \cdot \hat{\tau}_S \Big]\Big[\hat{\tau}_S \cdot v_S \Big] = 
+    &- \int_{\partial\Omega_S\setminus\Gamma}\Big[\big(\sigma(u_S, p_S)\cdot\hat{n}_S\big) \cdot \hat{\tau}_S \Big]\Big[\hat{\tau}_S \cdot v_S \Big] \\
+    &- \int_{\partial\Omega_S\setminus\Gamma}\Big[\big(\sigma(u_S, p_S)\cdot\hat{n}_S\big) \cdot \hat{\tau}_S \Big]\Big[\hat{\tau}_S \cdot u_S - u_{S,\text{tan}} \Big] \\
+    &+ \int_{\partial\Omega_S\setminus\Gamma}\frac{\gamma}{h} \Big[ \hat{\tau}_S \cdot u_S - u_{S,\text{tan}} \Big]\Big[\hat{\tau}_S \cdot u_S \Big]
+
+\end{align}
+$$
+
+where $u_{S,\text{tan}}$ is the condition for the tangential part of the stokes velocity on the $\partial\Omega_S\setminus\Gamma$. We only want the normal component and thus we set $u_{S,\text{tan}}$ = 0
 
 
 

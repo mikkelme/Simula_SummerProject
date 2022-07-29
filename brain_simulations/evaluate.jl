@@ -1,10 +1,13 @@
 using Dates
 using Printf
 
+
 include("../mesh_generators/create_brain.jl")
 include("./brain_sim_2D.jl")
 include("../mesh_generators/generate_radial_lines.jl")
 include("../mesh_generators/generate_center_line.jl")
+include("./interface_evaluation.jl")
+
 
 path = "/Users/mikkelme/Documents/Github/Simula_SummerProject/brain_simulations/"
 if !ispath(path)
@@ -219,15 +222,6 @@ function evaluate_radial_var(brain_param, ps, num_lines; degree = 2, view = fals
   end
 
 
-function evaluate_nflow(brain_param, us, Γ; degree = 2)
-    dΓ = Measure(Γ, degree)
-    n̂Γ = get_normal_vector(Γ) 
-    nflow = sum(∫(us.⁺ ⋅ n̂Γ.⁺)dΓ) / sum(∫(1)dΓ)
-    nflow_sqr = sum(∫((us.⁺ ⋅ n̂Γ.⁺)*(us.⁺ ⋅ n̂Γ.⁺))dΓ) / sum(∫(1)dΓ)
-    return nflow, nflow_sqr
-end
-  
-
 
 function eval_decreasing_lc(brain_param, PDE_param, start_width, end_width, num_samples, num_rad_lines; p_filename = "ps_radial_var.txt", nflow_filename = "us_nflow.txt")
     @assert start_width <= brain_param.r_brain ["start width must be less than radial brain size"]
@@ -299,18 +293,29 @@ function eval_decreasing_lc(brain_param, PDE_param, start_width, end_width, num_
 
 end
 
-function nflow_profile(us, Γ; degree = 2)
+
+function evaluate_nflow(brain_param, us, Γ; degree = 2)
+    dΓ = Measure(Γ, degree)
+    n̂Γ = get_normal_vector(Γ) 
+    nflow = sum(∫(us.⁺ ⋅ n̂Γ.⁺)dΓ) / sum(∫(1)dΓ)
+    nflow_sqr = sum(∫((us.⁺ ⋅ n̂Γ.⁺)*(us.⁺ ⋅ n̂Γ.⁺))dΓ) / sum(∫(1)dΓ)
+    return nflow, nflow_sqr
+end
+  
+
+
+function nflow_profile(us, Γ; degree = 4)
     dΓ = Measure(Γ, degree)
     n̂Γ = get_normal_vector(Γ) 
     nflow_field = us.⁺ ⋅ n̂Γ.⁺
     writevtk(Γ, path * "data_testing/flow_profile", cellfields=["nflow" => nflow_field] )
     
 end
-
+nflow_profile(ush, Γ)
 
 # --- Brain Model [length unit: meter] --- # 
 # lc = 1e-3 
-lc = 1e-2
+lc = 1e-3
 arcLen = (100e-3, 0)
 r_brain = 10e-3  
 d_ratio = 1.5e-3/r_brain
@@ -336,11 +341,20 @@ model, pgs_dict = create_brain(brain_param; view=false, write=false)
 # ush, psh, pdh, ΩS, ΩD, Γ = brain_PDE(model, pgs_dict, PDE_param; write = (path * "data_testing/", @sprintf("%.2e", lc)))
 ush, psh, pdh, ΩS, ΩD, Γ = brain_PDE(model, pgs_dict, PDE_param; write = false)
 
+
+
+include("./interface_evaluation.jl")
+plot_nflow(ush, Γ)
+
+
+
+
+
 ###########################################################
 ### Evaluation of normal flow field and or normal vector ###
-dΓ = Measure(Γ, 2)
-n̂Γ = get_normal_vector(Γ) 
-flow_field = ush.⁺ ⋅ n̂Γ.⁺
+# dΓ = Measure(Γ, 2)
+# n̂Γ = get_normal_vector(Γ) 
+# flow_field = ush.⁺ ⋅ n̂Γ.⁺
 # point = [-0.0354155, 0.0334371], should be on the interface, 
 # but I do not know how sensitive it is to precision in the decimal numbers,
 # considering that the domain is a line (SkeletonTriangulation)
