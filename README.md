@@ -116,10 +116,9 @@ where $u_{S,\text{tan}}$ is the condition for the tangential part of the stokes 
 
 $$
 \begin{align}
-\int_{\Omega_D} f_D \cdot q_d \ d\vec{x} &= \int_{\Omega_D} \frac{\kappa}{\mu} \nabla p_D \cdot \nabla q_D \ dx + \int_{\partial\Omega_D} \underbrace{-\hat{n}_D \cdot \frac{\kappa}{\mu} \nabla p_D}_{g\Gamma - u_S \cdot \hat{n}_S \ \text{on} \ \Gamma} \cdot q_D \ dx \\
-&=  \int_{\Omega_D} \frac{\kappa}{\mu} \nabla p_D \cdot \nabla q_D \ dx + \int_{\Gamma} (g\Gamma - u_S \cdot \hat{n}_S) \cdot q_D - \int_{\partial\Omega\setminus\Gamma} \hat{n}_D \cdot \kappa \nabla p_D \cdot q_D
+    \int_{\Omega_D} f_D \cdot q_d \ d\vec{x} &= \int_{\Omega_D} \frac{\kappa}{\mu} \nabla p_D \cdot \nabla q_D \ dx + \int_{\partial\Omega_D} \underbrace{-\hat{n}_D \cdot \frac{\kappa}{\mu} \nabla p_D}_{g\Gamma - u_S \cdot \hat{n}_S \ \text{on} \ \Gamma} \cdot q_D \ dx \\
+    &=\int_{\Omega_D} \frac{\kappa}{\mu} \nabla p_D \cdot \nabla q_D \ dx + \int_{\Gamma} (g\Gamma - u_S \cdot \hat{n}_S) \cdot q_D - \int_{\partial\Omega\setminus\Gamma} \hat{n}_D \cdot \kappa \nabla p_D \cdot q_D
 \end{align}
-
 $$
 
 where we handle the last term as neuman condition.
