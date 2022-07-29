@@ -18,17 +18,17 @@ We are going to model our brain as a composition of two domains: The *Stokes* do
 
 ### Equations 
 
-We denote $u_S, p_S$ as velocity and pressure respectively in the Stokes domain $S$, and $p_D$ as pressure in the Darcy domain $D$.
+We denote $u_S, p_S$ as velocity and pressure respectively in the Stokes domain $S$, and $p_D$ as pressure in the Darcy domain $D$. We define the problem by the following equations.
 
-#### Stokes
+#### Stokes domain
 
 $$
 \begin{align}
-    - \nabla \cdot \sigma(u_S, p_S) &= f_s \quad \text{in} \ \Omega_S \\
-    \nabla \cdot u_S &= 0  \quad \text{in} \ \Omega_S \\
-    u_S &= u_{S,0}  \quad \text{on} \ \Lambda_S \\
-    u_S \times \hat{n}_S &= 0  \quad \text{on} \ \Gamma_S \\
-    p_S &= p_{S,0}  \quad \text{on} \ \Gamma_S \\
+    - \nabla \cdot \sigma(u_S, p_S) &= f_s  &\text{in} \ \Omega_S \\
+    \nabla \cdot u_S &= 0   &\text{in} \ \Omega_S \\
+    u_S &= u_{S,0}   &\text{on} \ \Lambda_S \\
+    u_S \times \hat{n}_S &= 0   &\text{on} \ \Gamma_S \\
+    p_S &= p_{S,0}   &\text{on} \ \Gamma_S \\
 \end{align}
 $$
 
@@ -41,22 +41,24 @@ $$
 \end{align}
 $$
 
-#### Darcy 
+#### Darcy domain
 
 $$
 \begin{align}
-    \nabla \cdot (-\frac{\kappa}{\mu}\nabla p_D) &= f_D \quad \text{in} \ \Omega_D \\
-     P_D &= P_{D,0}  \quad \text{on} \ \partial \Omega_S \setminus \Gamma 
+    \nabla \cdot (-\frac{\kappa}{\mu}\nabla p_D) &= f_D  &\text{in} \ \Omega_D \\
+     P_D &= P_{D,0}  &\text{on} \ \partial \Omega_S \setminus \Gamma 
 \end{align}
 $$
 
 
-#### Interface
+
+
+#### Interface conditions
 $$
 \begin{align}
-    u_S\cdot\hat{n}_S + (-\frac{\kappa}{\mu}\nabla p_D \cdot \hat{n}_D) &= g\Gamma \quad \text{on} \ \Gamma \\ 
-    -[\sigma(u_S, p_S)\cdot\hat{n}_S]\cdot\hat{n}_S &= P_D \quad \text{on} \ \Gamma \\
-    -[\sigma(u_S, p_S)\cdot\hat{n}_S]\cdot\hat{\tau}_S &= \alpha u_S \cdot\hat{\tau}_S \quad \text{on} \ \Gamma \\
+    u_S\cdot\hat{n}_S + (-\frac{\kappa}{\mu}\nabla p_D \cdot \hat{n}_D) &= g\Gamma  &\text{on} \ \Gamma \\ 
+    -[\sigma(u_S, p_S)\cdot\hat{n}_S]\cdot\hat{n}_S &= P_D  &\text{on} \ \Gamma \\
+    -[\sigma(u_S, p_S)\cdot\hat{n}_S]\cdot\hat{\tau}_S &= \alpha u_S \cdot\hat{\tau}_S  &\text{on} \ \Gamma \\
 \end{align}
 $$
 

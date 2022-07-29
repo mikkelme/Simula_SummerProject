@@ -233,6 +233,8 @@ function eval_decreasing_lc(brain_param, PDE_param, start_width, end_width, num_
     mkdir(path * folder_name)
     mkdir(path *folder_name * "txt_files")
     mkdir(path *folder_name * "vtu_files")
+    mkdir(path *folder_name * "png_files")
+
     
     
     
@@ -280,7 +282,7 @@ function eval_decreasing_lc(brain_param, PDE_param, start_width, end_width, num_
         # Perform evaluations 
         mean_pos, rad_len, var = evaluate_radial_var(brain_param, ps, num_rad_lines)
         nflow, nflow_sqr = evaluate_nflow(brain_param, us, Γ)
-        plot_nflow_profile(brain_param, ush, Γ, path * folder_name,  @sprintf("%.2e", width[i])) 
+        plot_nflow_profile(brain_param, us, Γ, path * folder_name * "vtu_files/",  @sprintf("%.2e", width[i])) 
         
         # Write to file
         p_data = [getindex.(mean_pos, 1), getindex.(mean_pos, 2), rad_len, var]
@@ -340,9 +342,9 @@ PDE_param = PDE_params(μ, Κ, α, ps0, ∇pd0)
 
 
 
-model, pgs_dict = create_brain(brain_param; view=false, write=false)
+# model, pgs_dict = create_brain(brain_param; view=false, write=false)
 # ush, psh, pdh, ΩS, ΩD, Γ = brain_PDE(model, pgs_dict, PDE_param; write = (path * "data_testing/", @sprintf("%.2e", lc)))
-ush, psh, pdh, ΩS, ΩD, Γ = brain_PDE(model, pgs_dict, PDE_param; write = false)
+# ush, psh, pdh, ΩS, ΩD, Γ = brain_PDE(model, pgs_dict, PDE_param; write = false)
 
 
 
@@ -352,11 +354,11 @@ ush, psh, pdh, ΩS, ΩD, Γ = brain_PDE(model, pgs_dict, PDE_param; write = fals
 
 
 
-# start_width = 5e-3
-# end_width = 0.5e-3
-# num_samples = 5
-# num_rad_lines = 100
-# eval_decreasing_lc(brain_param, PDE_param, start_width, end_width, num_samples, num_rad_lines)
+start_width = 5e-3
+end_width = 0.5e-3
+num_samples = 5
+num_rad_lines = 100
+eval_decreasing_lc(brain_param, PDE_param, start_width, end_width, num_samples, num_rad_lines)
 
 
 
