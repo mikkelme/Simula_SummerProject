@@ -282,7 +282,7 @@ function eval_decreasing_lc(brain_param, PDE_param, start_width, end_width, num_
         # Perform evaluations 
         mean_pos, rad_len, var = evaluate_radial_var(brain_param, ps, num_rad_lines)
         nflow, nflow_sqr = evaluate_nflow(brain_param, us, Γ)
-        plot_nflow_profile(brain_param, us, Γ, path * folder_name * "vtu_files/",  @sprintf("%.2e", width[i])) 
+        plot_nflow_profile(brain_param, us, Γ, path * folder_name * "png_files/",  @sprintf("%.2e", width[i])) 
         
         # Write to file
         p_data = [getindex.(mean_pos, 1), getindex.(mean_pos, 2), rad_len, var]
