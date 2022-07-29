@@ -87,11 +87,9 @@ function run_single_sine()
 end
 
 
-
-
-# function run_single_sine()
-#     ...
-# end
+# Complete run_inner_sines for running multiple sine function as inner_perturb
+# Then make plotter function for plotting multiple lc_decrease_simulation in one plot. 
+# Then you can make combinned plots for different frequency different amplitude, or different wave form (thus 3 plots)
 
 function run_inner_sines()
     # Settings
