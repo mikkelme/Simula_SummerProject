@@ -16,11 +16,7 @@ end
 
 
 
-function create_file(path, filename, title, brain_param, PDE_param)
-    # # Add timestamp to avoid overwritten files
-    # timestamp = Dates.format(now(), "d_m_HH_MM_")
-    # filename = timestamp*filename 
-    
+function create_file(path, filename, title, brain_param, PDE_param)    
     # Create file
     outfile = open(path*filename, "w") 
     
@@ -153,6 +149,44 @@ function cal_sol_diff(brain_param, coarse_res, fine_res; degree = 2, num_nearest
     
 end
 
+function evaluate_radial_var(brain_param, ps, num_lines; degree = 2, view = false, num_nearest_vertices = 4)
+    rad_model, _ =  create_radial_lines(brain_param, num_lines; view = view)
+    
+    # Set searchmethod
+    sm = searchmethod=KDTreeSearch(num_nearest_vertices=num_nearest_vertices)
+    
+    ip = Interpolable(ps, searchmethod = sm)
+    
+    mean_pos = []
+    rad_len = []
+    var =[]
+    for i in 1:num_lines
+        # --- Get line triangulation and measure --- #
+        L = Triangulation(rad_model, tags=[i])
+        dL = Measure(L, 2)
+        
+        # --- Calculate metrics --- #
+        len = sum(∫(1)*dL)                              # Line length
+        mean_p = sum(∫(ip)*dL)/len                      # Mean pressure
+        append!(mean_pos, [sum(∫( identity )*dL)/len])  # Mean position
+        # rel_diff = (ps - mean_p)/mean_p                # Relative difference to mean
+        diff = ps - mean_p               # difference to mean
+        sq_diff = Interpolable((diff)*(diff), searchmethod = sm)   # squared relative difference
+        append!(var, sum(∫(sq_diff)*dL) / len)          # Variance
+        append!(rad_len, len)
+    end
+    return mean_pos, rad_len, var
+end
+
+function compute_nflow(brain_param, us, Γ; degree = 2)
+    dΓ = Measure(Γ, degree)
+    n̂Γ = get_normal_vector(Γ) 
+    nflow = sum(∫(us.⁺ ⋅ n̂Γ.⁺)dΓ) / sum(∫(1)dΓ)
+    nflow_sqr = sum(∫((us.⁺ ⋅ n̂Γ.⁺)*(us.⁺ ⋅ n̂Γ.⁺))dΓ) / sum(∫(1)dΓ)
+    return nflow, nflow_sqr
+end
+  
+
 function solution_convergence_vs_lc(brain_param, start_lc, end_lc, num_samples; logrange = true, filename = "sol_conv.txt")
     title = "2D brain simulation: l²-norm difference between final lc and previous lc respectively"
     brain_param.lc = NaN
@@ -185,58 +219,21 @@ function solution_convergence_vs_lc(brain_param, start_lc, end_lc, num_samples; 
         l2_diff = cal_sol_diff(brain_param, [us, ps, pd], [ref_us, ref_ps, ref_pd])
         add_sample_to_file(filename, [lc[idx], l2_diff...], 0)
     end
-    
-close(outfile)
-
+    close(outfile)
 end
 
-function evaluate_radial_var(brain_param, ps, num_lines; degree = 2, view = false, num_nearest_vertices = 4)
-    rad_model, _ =  create_radial_lines(brain_param, num_lines; view = view)
-    
-    # Set searchmethod
-    sm = searchmethod=KDTreeSearch(num_nearest_vertices=num_nearest_vertices)
-    
-    ip = Interpolable(ps, searchmethod = sm)
-  
-    mean_pos = []
-    rad_len = []
-    var =[]
-    for i in 1:num_lines
-        # --- Get line triangulation and measure --- #
-        L = Triangulation(rad_model, tags=[i])
-        dL = Measure(L, 2)
-  
-        # --- Calculate metrics --- #
-        len = sum(∫(1)*dL)                              # Line length
-        mean_p = sum(∫(ip)*dL)/len                      # Mean pressure
-        append!(mean_pos, [sum(∫( identity )*dL)/len])  # Mean position
-        # rel_diff = (ps - mean_p)/mean_p                # Relative difference to mean
-        diff = ps - mean_p               # difference to mean
-        sq_diff = Interpolable((diff)*(diff), searchmethod = sm)   # squared relative difference
-        append!(var, sum(∫(sq_diff)*dL) / len)          # Variance
-        append!(rad_len, len)
-    end
-    
-    return mean_pos, rad_len, var
-    
-  end
 
-
-
-function eval_decreasing_lc(brain_param, PDE_param, start_width, end_width, num_samples, num_rad_lines; p_filename = "ps_radial_var.txt", nflow_filename = "us_nflow.txt")
+function eval_decreasing_lc(brain_param, PDE_param, start_width, end_width, num_samples, num_rad_lines; folder_name = nothing, p_filename = "ps_radial_var.txt", nflow_filename = "us_nflow.txt")
     @assert start_width <= brain_param.r_brain ["start width must be less than radial brain size"]
     @assert num_samples > 1  ["must have at least 2 sample points"]
     
     # Create folder for data
-    timestamp = Dates.format(now(), "d_m_HH_MM")
-    folder_name = "data_" * timestamp * "/"
+    folder_name = isnothing(folder_name) ?  "data_" * Dates.format(now(), "d_m_HH_MM") * "/" : "data_" * folder_name * "/"
     mkdir(path * folder_name)
     mkdir(path *folder_name * "txt_files")
     mkdir(path *folder_name * "vtu_files")
     mkdir(path *folder_name * "png_files")
 
-    
-    
     
     brain_param.d_ratio = NaN
     width = LinRange(start_width, end_width, num_samples)
@@ -281,7 +278,7 @@ function eval_decreasing_lc(brain_param, PDE_param, start_width, end_width, num_
         
         # Perform evaluations 
         mean_pos, rad_len, var = evaluate_radial_var(brain_param, ps, num_rad_lines)
-        nflow, nflow_sqr = evaluate_nflow(brain_param, us, Γ)
+        nflow, nflow_sqr = compute_nflow(brain_param, us, Γ)
         plot_nflow_profile(brain_param, us, Γ, path * folder_name * "png_files/",  @sprintf("%.2e", width[i])) 
         
         # Write to file
@@ -297,49 +294,31 @@ function eval_decreasing_lc(brain_param, PDE_param, start_width, end_width, num_
 end
 
 
-function evaluate_nflow(brain_param, us, Γ; degree = 2)
-    dΓ = Measure(Γ, degree)
-    n̂Γ = get_normal_vector(Γ) 
-    nflow = sum(∫(us.⁺ ⋅ n̂Γ.⁺)dΓ) / sum(∫(1)dΓ)
-    nflow_sqr = sum(∫((us.⁺ ⋅ n̂Γ.⁺)*(us.⁺ ⋅ n̂Γ.⁺))dΓ) / sum(∫(1)dΓ)
-    return nflow, nflow_sqr
-end
-  
-
-
-# function nflow_profile(us, Γ; degree = 2)
-#     dΓ = Measure(Γ, degree)
-#     n̂Γ = get_normal_vector(Γ) 
-#     nflow_field = us.⁺ ⋅ n̂Γ.⁺
-#     # writevtk(Γ, path * "data_testing/flow_profile", cellfields=["nflow" => nflow_field] )
-#     udotu_field = us.⁺ ⋅ us.⁺
-#     writevtk(Γ, path * "data_testing/flow_profile", cellfields=["us" => us.⁺, "nflow" => nflow_field] )
-# end
 
 
 
 
-# --- Brain Model [length unit: meter] --- # 
-lc = 1e-3 
-arcLen = (100e-3, 0)
-r_brain = 10e-3  
-d_ratio = 1.5e-3/r_brain
-r_curv = 50e-3 
-inner_perturb = "(x,z) -> 0.3e-3 * cos(pi * abs(x) / 2e-3) "  # 10 - 20 waves pr. cm is a good number
-outer_perturb = "(x,z) -> 0.0 "  # 10 - 20 waves pr. cm is a good number
-BS_points = (1000, 0) 
-field_Lc_lim = [1 / 2, 1]
-field_Dist_lim = [1e-3, 5e-3] 
-brain_param = model_params(lc, arcLen, r_brain, d_ratio, r_curv, inner_perturb, outer_perturb, BS_points, field_Lc_lim, field_Dist_lim)
 
-# --- PDE parameters --- #
-μ = 0.8e-3  # Cerobrospinal fluid viscosity [Pa * s]
-Κ = 1e-16   # Permeability in brain parenchyma [m^2] 
-α = "(x) -> 1*μ/sqrt(Κ)" # Slip factor on Γ [Pa * s / m]
-ps0 = "(x) -> x[1] < 0 ? 1*133.3224 : 0." # 1*mmHg [Pa]
-∇pd0 = "(x) -> VectorValue(0.0, 0.0)" # Zero flux
-PDE_param = PDE_params(μ, Κ, α, ps0, ∇pd0)
+# # --- Brain Model [length unit: meter] --- # 
+# lc = 1e-3 
+# arcLen = (100e-3, 0)
+# r_brain = 10e-3  
+# d_ratio = 1.5e-3/r_brain
+# r_curv = 50e-3 
+# inner_perturb = "(x,z) -> 0.3e-3 * cos(pi * abs(x) / 2e-3) "  # 10 - 20 waves pr. cm is a good number
+# outer_perturb = "(x,z) -> 0.0 "  # 10 - 20 waves pr. cm is a good number
+# BS_points = (1000, 0) 
+# field_Lc_lim = [1 / 2, 1]
+# field_Dist_lim = [1e-3, 5e-3] 
+# brain_param = model_params(lc, arcLen, r_brain, d_ratio, r_curv, inner_perturb, outer_perturb, BS_points, field_Lc_lim, field_Dist_lim)
 
+# # --- PDE parameters --- #
+# μ = 0.8e-3  # Cerobrospinal fluid viscosity [Pa * s]
+# Κ = 1e-16   # Permeability in brain parenchyma [m^2] 
+# α = "(x) -> 1*μ/sqrt(Κ)" # Slip factor on Γ [Pa * s / m]
+# ps0 = "(x) -> x[1] < 0 ? 1*133.3224 : 0." # 1*mmHg [Pa]
+# ∇pd0 = "(x) -> VectorValue(0.0, 0.0)" # Zero flux
+# PDE_param = PDE_params(μ, Κ, α, ps0, ∇pd0)
 
 
 # model, pgs_dict = create_brain(brain_param; view=false, write=false)
@@ -348,17 +327,15 @@ PDE_param = PDE_params(μ, Κ, α, ps0, ∇pd0)
 
 
 
-
-
 # # --- Evaluations --- #
 
 
 
-start_width = 5e-3
-end_width = 0.5e-3
-num_samples = 5
-num_rad_lines = 100
-eval_decreasing_lc(brain_param, PDE_param, start_width, end_width, num_samples, num_rad_lines)
+# start_width = 5e-3
+# end_width = 0.5e-3
+# num_samples = 5
+# num_rad_lines = 100
+# eval_decreasing_lc(brain_param, PDE_param, start_width, end_width, num_samples, num_rad_lines)
 
 
 

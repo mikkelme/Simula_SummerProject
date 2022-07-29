@@ -52,7 +52,6 @@ $$
 
 
 
-
 #### Interface conditions
 $$
 \begin{align}
@@ -65,12 +64,14 @@ $$
 
 ### Weak formulation
 
+Check consistency with $dx$ or $dV, dS, dL$.
+
 #### Stokes
 From equation (...) we get
 
 $$
 \begin{align}
-    \int_{\Omega_S} f_s \cdot v_S \ dx &=  \int_{\Omega_S} 2\mu \ \varepsilon(u_S) \odot \varepsilon(v_S) \ dx - \int_{\Omega_S} p_S \nabla\cdot v_S \ dx - \int_{\partial\Omega_S} \big(\sigma(u_S, p_S)\cdot\hat{n}_S\big) \cdot v_S \ dS \\ 
+    \int_{\Omega_S} f_s \cdot v_S \ dx &=  \int_{\Omega_S} 2\mu \ \varepsilon(u_S) \odot \varepsilon(v_S) \ dx - \int_{\Omega_S} p_S \nabla\cdot v_S \ dx - \int_{\partial\Omega_S} \big(\sigma(u_S, p_S)\cdot\hat{n}_S\big) \cdot v_S \ dx \\ 
     0 &= - \int_{\Omega_S} (\nabla \cdot u_S) \cdot q_s
 \end{align}
 $$

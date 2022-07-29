@@ -125,10 +125,16 @@ function plot_nflow_profile(brain_param, u, Γ, savepath = false, info = 0.0)
         # ... That's why we need to reorder
         idx = sortperm(x_val)
         y_val = get_free_dof_values(uh)
+
     
         red_idx = idx[5:length(idx)-5]
-        fig = plot(x_val[red_idx]*1e3, r_cord[red_idx]*1e3, label = "Interface radius", ylabel = "Interface radius [mm]", legend=:topleft, color = :black, alpha = 0.3, left_margin = 5Plots.mm, right_margin = 18Plots.mm)
-        fig = plot!(twinx(), x_val[red_idx]*1e3, y_val[red_idx]*1e3, label = "Interface normal velocity", ylabel = "Interface normal velocity [mm/s]", legend=:topright, left_margin = 5Plots.mm, right_margin = 18Plots.mm)
+        if brain_param.inner_perturb_body != "(x,z) -> 0.0" 
+            fig = plot(x_val[red_idx]*1e3, r_cord[red_idx]*1e3, label = "Interface radius", ylabel = "Interface radius [mm]", legend=:topleft, color = :black, alpha = 0.3, left_margin = 5Plots.mm, right_margin = 18Plots.mm)
+            plot!(twinx(), x_val[red_idx]*1e3, y_val[red_idx]*1e3, label = "Interface normal velocity", ylabel = "Interface normal velocity [mm/s]", legend=:topright, left_margin = 5Plots.mm, right_margin = 18Plots.mm)
+        else 
+            fig = plot(x_val[red_idx]*1e3, y_val[red_idx]*1e3, label = "Interface normal velocity", ylabel = "Interface normal velocity [mm/s]", legend=:topleft, left_margin = 5Plots.mm, right_margin = 18Plots.mm)
+        end
+        
         xlabel!("Curve length coordinate [mm]")
         savepath != false && savefig(fig, savepath * "nflow_profile" * info * ".png")
 
