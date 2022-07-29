@@ -105,7 +105,6 @@ $$
     &- \int_{\partial\Omega_S\setminus\Gamma}\Big[\big(\sigma(u_S, p_S)\cdot\hat{n}_S\big) \cdot \hat{\tau}_S \Big]\Big[\hat{\tau}_S \cdot v_S \Big] \\
     &- \int_{\partial\Omega_S\setminus\Gamma}\Big[\big(\sigma(u_S, p_S)\cdot\hat{n}_S\big) \cdot \hat{\tau}_S \Big]\Big[\hat{\tau}_S \cdot u_S - u_{S,\text{tan}} \Big] \\
     &+ \int_{\partial\Omega_S\setminus\Gamma}\frac{\gamma}{h} \Big[ \hat{\tau}_S \cdot u_S - u_{S,\text{tan}} \Big]\Big[\hat{\tau}_S \cdot u_S \Big]
-
 \end{align}
 $$
 
