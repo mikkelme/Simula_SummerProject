@@ -249,9 +249,10 @@ g0 = (us0, ps0, pd0, gΓ)
 h0 = (σ0, nab_pd0)
 
 
-# model, pgs_dict = create_coupled_box(2, false)
+# model, pgs_dict = create_coupled_box(0.1, false)
 # stokes_darcy_solver(model, pgs_dict, f0, g0, h0, params; write = false)
 error_conv(stokes_darcy_solver, f0, g0, h0, params; show_plot=false)
+
 
 
 

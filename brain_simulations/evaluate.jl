@@ -280,6 +280,7 @@ function eval_decreasing_lc(brain_param, PDE_param, start_width, end_width, num_
         # Perform evaluations 
         mean_pos, rad_len, var = evaluate_radial_var(brain_param, ps, num_rad_lines)
         nflow, nflow_sqr = evaluate_nflow(brain_param, us, Γ)
+        plot_nflow_profile(brain_param, ush, Γ, path * folder_name,  @sprintf("%.2e", width[i])) 
         
         # Write to file
         p_data = [getindex.(mean_pos, 1), getindex.(mean_pos, 2), rad_len, var]
@@ -304,18 +305,20 @@ end
   
 
 
-function nflow_profile(us, Γ; degree = 4)
-    dΓ = Measure(Γ, degree)
-    n̂Γ = get_normal_vector(Γ) 
-    nflow_field = us.⁺ ⋅ n̂Γ.⁺
-    writevtk(Γ, path * "data_testing/flow_profile", cellfields=["nflow" => nflow_field] )
-    
-end
-nflow_profile(ush, Γ)
+# function nflow_profile(us, Γ; degree = 2)
+#     dΓ = Measure(Γ, degree)
+#     n̂Γ = get_normal_vector(Γ) 
+#     nflow_field = us.⁺ ⋅ n̂Γ.⁺
+#     # writevtk(Γ, path * "data_testing/flow_profile", cellfields=["nflow" => nflow_field] )
+#     udotu_field = us.⁺ ⋅ us.⁺
+#     writevtk(Γ, path * "data_testing/flow_profile", cellfields=["us" => us.⁺, "nflow" => nflow_field] )
+# end
+
+
+
 
 # --- Brain Model [length unit: meter] --- # 
-# lc = 1e-3 
-lc = 1e-3
+lc = 1e-3 
 arcLen = (100e-3, 0)
 r_brain = 10e-3  
 d_ratio = 1.5e-3/r_brain
@@ -342,27 +345,6 @@ model, pgs_dict = create_brain(brain_param; view=false, write=false)
 ush, psh, pdh, ΩS, ΩD, Γ = brain_PDE(model, pgs_dict, PDE_param; write = false)
 
 
-
-include("./interface_evaluation.jl")
-plot_nflow(ush, Γ)
-
-
-
-
-
-###########################################################
-### Evaluation of normal flow field and or normal vector ###
-# dΓ = Measure(Γ, 2)
-# n̂Γ = get_normal_vector(Γ) 
-# flow_field = ush.⁺ ⋅ n̂Γ.⁺
-# point = [-0.0354155, 0.0334371], should be on the interface, 
-# but I do not know how sensitive it is to precision in the decimal numbers,
-# considering that the domain is a line (SkeletonTriangulation)
-
-# norm_val = n̂Γ.⁺(VectorValue(-0.0354155, 0.0334371))
-# val = nflow_field(VectorValue(-0.0354155, 0.0334371))
-
-###########################################################
 
 
 
