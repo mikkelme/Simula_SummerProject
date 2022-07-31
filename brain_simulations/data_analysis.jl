@@ -5,10 +5,8 @@ using Printf
 using LaTeXStrings
 
 path = "/Users/mikkelme/Documents/Github/Simula_SummerProject/brain_simulations/"
-savepath = "/Users/mikkelme/Documents/Github/Simula_SummerProject/figures/"
 if !ispath(path)
     path = "/home/mikkelme/Simula_SummerProject/brain_simulations/"
-    savepath = "/home/mikkelme/Simula_SummerProject/figures/"
 end
 
 
@@ -25,21 +23,20 @@ function plot_solution_convergence(filename; save = false)
     plot(lc, Δus, xaxis=:log,  yaxis=:log, marker=:o, label="us")
     plot!(lc, Δps, xaxis=:log,  yaxis=:log, marker=:o, label="ps")
     plot!(lc, Δpd, xaxis=:log,  yaxis=:log, marker=:o, label="pd")
-    xlabel!(fig, "Resolution (lc)")
-    ylabel!(fig, "l²-norm w.r.t. reference solution")
-    save && savefig(save)
+    xlabel!("Resolution (lc)")
+    ylabel!("l²-norm w.r.t. reference solution")
+    save!=false && savefig(save)
     
 end
 
 
 
-function pressure_variance_vs_width(filename; label = "", var = "max", makefig = false, save = false)
+function plot_ps_var_vs_width(filename, fig; label = "", var = "max", save = false)
     data_cells, header_cells =  readdlm(filename, ',', Float64, '\n'; header = true, comments = true)
     
     # Get info
     infile = open(filename, "r")
     lines = readlines(infile)
-    
     
     # number of samples
     words =  split(lines[23], '=')
@@ -70,35 +67,25 @@ function pressure_variance_vs_width(filename; label = "", var = "max", makefig =
     elseif var == "mean"
         y_val = mean_var 
         ylabel = "mean variance [Pa²]"
-    elseif var == "multi"
-        ylabel = nothing
     else 
-        @printf("keyword var = %s not understood", var)
+        @printf("keyword var = \"%s\" not understood", var)
         return
     end
     
-    makefig && plot()
-    plot!(width*1e3, y_val, marker = :o, legend = :topleft, label = label)
-
-    # lm = 5Plots.mm
-    # rm = 25Plots.mm
-    # plot!(fig, width*1e3, max_var, marker = :o, label = "Max variance", ylabel = "Max variance", 
-    # legend = :topleft, grid = :off,left_margin = lm, right_margin = rm, palette = :Dark2_5)
-    # plot!(tw, width*1e3, mean_var, marker = :x, label = "Mean variance", legend = :topright, 
-    # box = :on, grid = :off, ylabel = "Mean variance",left_margin = lm, right_margin = rm, palette = :Dark2_5)
+    plot!(fig, width*1e3, y_val, marker = :o, legend = :topleft, label = label)
     
     if save!=false
-        plot!([1.5], seriestype = :vline, label = "Typical width (1.5 mm)", color = :black, linestyle = :dash)
-        xlabel!("Width [mm]")
-        !isnothing(ylabel) && ylabel!(ylabel)
-        savefig(save)
+        plot!(fig, [1.5], seriestype = :vline, label = "Typical width (1.5 mm)", color = :black, linestyle = :dash)
+        xlabel!(fig, "Width [mm]")
+        ylabel!(fig, ylabel)
+        savefig(fig, save)
     end
           
 end
 
 
 
-function pressure_variance_vs_angle(filename; save = false)
+function plot_ps_var_vs_angle(filename; save = false)
     data_cells, header_cells =  readdlm(filename, ',', Float64, '\n'; header = true, comments = true)
     
     # Get info
@@ -116,7 +103,7 @@ function pressure_variance_vs_angle(filename; save = false)
     num_rad_lines = parse(Int, words[2][2:length(words[2])])
 
    
-    fig = plot()
+    plot()
     for i in 1:num_samples
         start_index = (i-1)*num_rad_lines + 1
         end_index = start_index + num_rad_lines - 1
@@ -137,7 +124,7 @@ function pressure_variance_vs_angle(filename; save = false)
 end
 
 
-function nflow_interface(filename; label = "", makefig = false, save = false)
+function plot_nflow_interface(filename, fig; label = "", save = false)
     data_cells, header_cells =  readdlm(filename, ',', Float64, '\n'; header = true, comments = true)
     m, n = size(data_cells)
 
@@ -147,15 +134,45 @@ function nflow_interface(filename; label = "", makefig = false, save = false)
     nflow_sqr = data_cells[1:m, 3]
     nflow_abs = sqrt.(nflow_sqr)
 
-    makefig && plot()
-    plot!(width*1e3, nflow_abs*1e3, marker = :o, legend = :topleft, label = label)
+    plot!(fig, width*1e3, nflow_abs*1e3, marker = :o, legend = :topleft, label = label)
 
     if save!=false
-        plot!([1.5], seriestype = :vline, label = "Typical width (1.5 mm)", color = :black, linestyle = :dash)
-        xlabel!("Width [mm]")
-        ylabel!("Normal flow: " * L"\sqrt{\int (u_S \cdot \hat{n})^2 d\Gamma}" * " [mm/s]")
-        savefig(save)
+        plot!(fig, [1.5], seriestype = :vline, label = "Typical width (1.5 mm)", color = :black, linestyle = :dash)
+        xlabel!(fig, "Width [mm]")
+        ylabel!(fig, "Normal flow: " * L"\sqrt{\int (u_S \cdot \hat{n})^2 d\Gamma}" * " [mm/s]")
+        savefig(fig, save)
     end
+
+end
+
+function standard_analyse(readpath, folder_name)
+    plot_ps_var_vs_width(readpath *  "ps_radial_var.txt", plot(); var = "max", save = path * "data_" * folder_name * "/png_files/"  * "ps_maxvar_width.png")
+    plot_ps_var_vs_width(readpath *  "ps_radial_var.txt", plot(); var = "mean", save = path * "data_" * folder_name * "/png_files/"  * "ps_meanvar_width.png")
+    plot_ps_var_vs_angle(readpath *  "ps_radial_var.txt"; save = path * "data_" * folder_name * "/png_files/"  * "ps_var_angle.png")
+    plot_nflow_interface(readpath * "us_nflow.txt", plot(), save = path * "data_" * folder_name * "/png_files/" * "us_nflow_abs.png")
+end
+
+function combinned_analyse(folder_names, labels)
+     fig1 = plot()  
+     fig2 = plot()
+     fig3 = plot()
+    for (i, folder_name) in enumerate(folder_names)
+        readpath = path * "data_" * folder_name * "/txt_files/"
+        savepath = path *  "/png_files/" * folder_name
+    
+        save1 = i == length(folder_names) ? savepath *  "_ps_maxvar_width.png" : false
+        save2 = i == length(folder_names) ? savepath * "_ps_meanvar_width.png" : false
+        save3 = i == length(folder_names) ? savepath * "_us_nflow_abs.png" : false
+    
+        plot_ps_var_vs_width(readpath * "ps_radial_var.txt", fig1; label = labels[i], var = "mean", save = save1)
+        plot_ps_var_vs_width(readpath * "ps_radial_var.txt", fig2; label = labels[i], var = "max", save = save2)
+        plot_nflow_interface(readpath * "us_nflow.txt", fig3, label = labels[i], save = save3)
+
+    end
+ 
+ 
+
+
 
 end
 
@@ -171,11 +188,6 @@ data_folder = ["data_flat", "data_single_sine"]
 
 # palette(:tab10)
 
-pressure_variance_vs_width(path * data_folder[1] * "/txt_files/" * "ps_radial_var.txt"; label = "flat", var = "mean", makefig = true, save = false)
-pressure_variance_vs_width(path * data_folder[2] * "/txt_files/" * "ps_radial_var.txt"; label = "sine", var = "mean", save = savepath * "test.png")
-
-nflow_interface(path * data_folder[1] * "/txt_files/" * "us_nflow.txt"; label = "flat", makefig = true, save = false)
-nflow_interface(path * data_folder[2] * "/txt_files/" * "us_nflow.txt"; label = "sine", save = savepath * "test2.png")
 
 
 # pressure_variance_vs_angle(readpath * "ps_radial_var.txt"; save = false)

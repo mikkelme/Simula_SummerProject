@@ -50,7 +50,7 @@ end
 
 
 function add_sample_to_file(path, filename, data, vector_length = 0)
-    outfile = open(path*filename, "a") # open in append mode
+    outfile = open(path * filename, "a") # open in append mode
     data_len = length(data)
     if vector_length == 0 
         for i in 1:data_len-1
@@ -147,10 +147,11 @@ function compute_nflow(brain_param, us, Γ; degree = 2)
 end
   
 
-function solution_convergence_vs_lc(brain_param, start_lc, end_lc, num_samples; logrange = true, filename = "sol_conv.txt")
+function solution_convergence_vs_lc(brain_param, PDE_param, start_lc, end_lc, num_samples; logrange = true, filename = "sol_conv.txt")
+  
     title = "2D brain simulation: l²-norm difference between final lc and previous lc respectively"
     brain_param.lc = NaN
-    filename, outfile = create_file(filename, title, brain_param, PDE_param)
+    outfile = create_file(path * "txt_files/", filename, title, brain_param, PDE_param)
 
     lc = logrange ?  10 .^(range(log10(start_lc),stop=log10(end_lc),length=num_samples)) : LinRange(start_lc, end_lc, num_samples)
 
@@ -167,7 +168,7 @@ function solution_convergence_vs_lc(brain_param, start_lc, end_lc, num_samples; 
     brain_param.lc = last(lc)
     model, pgs_dict = create_brain(brain_param)
     ref_us, ref_ps, ref_pd, ref_ΩS, ref_ΩD, ref_Γ  = brain_PDE(model, pgs_dict, PDE_param)
-    add_sample_to_file(filename, [last(lc), 0.0, 0.0, 0.0], 0)
+    add_sample_to_file(path * "txt_files/", filename, [last(lc), 0.0, 0.0, 0.0], 0)
   
     # Convergence
     for i in 2:num_samples
@@ -177,7 +178,7 @@ function solution_convergence_vs_lc(brain_param, start_lc, end_lc, num_samples; 
         model, pgs_dict = create_brain(brain_param)
         us, ps, pd, ΩS, ΩD, Γ = brain_PDE(model, pgs_dict, PDE_param)
         l2_diff = calc_solution_diff(brain_param, [us, ps, pd], [ref_us, ref_ps, ref_pd])
-        add_sample_to_file(filename, [lc[idx], l2_diff...], 0)
+        add_sample_to_file(path * "txt_files/", filename, [lc[idx], l2_diff...], 0)
     end
     close(outfile)
 end
