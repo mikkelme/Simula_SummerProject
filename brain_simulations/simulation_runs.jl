@@ -136,49 +136,26 @@ function run_inner_negsines()
 
     negsines = [@sprintf("(x,z) -> %f * sin(abs(x) * %f) * fld(mod2pi(abs(x) * %f),pi) ", A , ω(f), ω(f)) for f in freq]
     
-    # # Run
-    # for (i, inner_perturb) in enumerate(negsines)
-    #     i_folder_name = folder_name * @sprintf("_f%s", freq[i])
+    # Run
+    for (i, inner_perturb) in enumerate(negsines)
+        i_folder_name = folder_name * @sprintf("_f%s", freq[i])
 
-    #     # Run
-    #     brain_param = model_params(lc, arcLen, r_brain, d_ratio, r_curv, inner_perturb, outer_perturb, BS_points, field_Lc_lim, field_Dist_lim)
-    #     PDE_param = PDE_params(μ, Κ, α, ps0, ∇pd0)
-    #     eval_decreasing_lc(brain_param, PDE_param, start_width, end_width, num_samples, num_rad_lines; folder_name = i_folder_name)
+        # Run
+        brain_param = model_params(lc, arcLen, r_brain, d_ratio, r_curv, inner_perturb, outer_perturb, BS_points, field_Lc_lim, field_Dist_lim)
+        PDE_param = PDE_params(μ, Κ, α, ps0, ∇pd0)
+        eval_decreasing_lc(brain_param, PDE_param, start_width, end_width, num_samples, num_rad_lines; folder_name = i_folder_name)
         
-    #     # Analyse     
-    #     readpath = path * "data_" * i_folder_name * "/txt_files/"
-    #     standard_analyse(readpath, i_folder_name)
+        # Analyse     
+        readpath = path * "data_" * i_folder_name * "/txt_files/"
+        standard_analyse(readpath, i_folder_name)
                
-    # end
+    end
 
+    # Combinned analyse   
     folder_names = [folder_name * @sprintf("_f%s", f) for f in freq]
     labels = [@sprintf("f = %s", f) for f in freq]
     combinned_analyse(folder_names, labels)
-    # # Combinned analyse   
-    # fig1 = plot()  
-    # fig2 = plot()
-    # fig3 = plot()
-
-
-    # for (i, inner_perturb) in enumerate(negsines)
-    #     i_folder_name = folder_name * @sprintf("_f%s", freq[i])
-    #     readpath = path * "data_" * i_folder_name * "/txt_files/"
-
-       
-    #     save1 = i == length(negsines) ? savepath * "test1.png" : false
-    #     save2 = i == length(negsines) ? savepath * "test2.png" : false
-    #     save3 = i == length(negsines) ? savepath * "test3.png" : false
-
-  
-    #     plot_ps_var_vs_width(readpath * "ps_radial_var.txt", fig1; label = @sprintf("f = %.2f", freq[i]), var = "mean", save = save1)
-    #     plot_ps_var_vs_width(readpath * "ps_radial_var.txt", fig2; label = @sprintf("f = %.2f", freq[i]), var = "max", save = save2)
-    #     plot_nflow_interface(readpath * "us_nflow.txt", fig3, label = @sprintf("f = %.2f", freq[i]), save = save3)
-
-    # end
-
-
-
-  
+   
 end
 
 
