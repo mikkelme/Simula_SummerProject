@@ -49,7 +49,6 @@ function create_file(path, filename, title, brain_param, PDE_param)
 end
 
 
-
 function add_sample_to_file(path, filename, data, vector_length = 0)
     outfile = open(path*filename, "a") # open in append mode
     data_len = length(data)
@@ -70,46 +69,7 @@ function add_sample_to_file(path, filename, data, vector_length = 0)
 end
 
 
-# function calculate_mean_ps(ps, ΩS; degree = 2)
-#     dΩS = Measure(ΩS, degree)
-#     A = sum(∫(1)*dΩS) # Areq   
-#     mean_p = sum(∫(ps)*dΩS)/A
-#     return mean_p     
-# end
-
-
-# function mean_pressure_vs_lc(brain_param, start_lc, end_lc, num_samples; logrange = true, filename = "mean_ps.txt")
-
-#         title = "2D brain simulation: Mean stokes pressure as a function of mesh size lc"
-#         brain_param.lc = NaN
-#         filename, outfile = create_file(filename, title, brain_param, PDE_param)
-
-#         lc = logrange ?  10 .^(range(log10(start_lc),stop=log10(end_lc),length=num_samples)) : LinRange(start_lc, end_lc, num_samples)
-
-#         write(outfile, "#\n# --- Sampling --- #\n")
-#         @printf(outfile,"# num_samples = %d\n", num_samples)
-#         @printf(outfile, "# lc = [")
-#         [@printf(outfile,"%.3e, ", lc[i]) for i in 1:length(lc)-1]
-#         @printf(outfile, "%.3e]\n", last(lc))
-
-#         write(outfile, "#\n# --- Data --- #\n")
-#         write(outfile, "lc, mean_ps\n")
-
-
-#         for i in 1:num_samples
-#             @printf("i = %d/%d | lc = %e\n", i, num_samples, lc[i])
-#             brain_param.lc = lc[i]
-#             model, pgs_dict = create_brain(brain_param)
-#             ush, psh, pdh, ΩS, ΩD, Γ = brain_PDE(model, pgs_dict, PDE_param)
-#             mean_ps = calculate_mean_ps(psh, ΩS)
-#             add_sample_to_file(filename, [lc[i], mean_ps], 0)
-
-#         end
-
-# end
-
-
-function cal_sol_diff(brain_param, coarse_res, fine_res; degree = 2, num_nearest_vertices = 4)
+function calc_solution_diff(brain_param, coarse_res, fine_res; degree = 2, num_nearest_vertices = 4)
     # Unpack inputs
     coarse_us, coarse_ps, coarse_pd = coarse_res
     fine_us, fine_ps, fine_pd = fine_res
@@ -216,7 +176,7 @@ function solution_convergence_vs_lc(brain_param, start_lc, end_lc, num_samples; 
         brain_param.lc = lc[idx]
         model, pgs_dict = create_brain(brain_param)
         us, ps, pd, ΩS, ΩD, Γ = brain_PDE(model, pgs_dict, PDE_param)
-        l2_diff = cal_sol_diff(brain_param, [us, ps, pd], [ref_us, ref_ps, ref_pd])
+        l2_diff = calc_solution_diff(brain_param, [us, ps, pd], [ref_us, ref_ps, ref_pd])
         add_sample_to_file(filename, [lc[idx], l2_diff...], 0)
     end
     close(outfile)

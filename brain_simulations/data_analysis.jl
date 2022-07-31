@@ -1,6 +1,8 @@
 
 using DelimitedFiles
 using Plots
+using Printf
+using LaTeXStrings
 
 path = "/Users/mikkelme/Documents/Github/Simula_SummerProject/brain_simulations/"
 savepath = "/Users/mikkelme/Documents/Github/Simula_SummerProject/figures/"
@@ -11,7 +13,7 @@ end
 
 
 
-function solution_convergence(filename; save = false)
+function plot_solution_convergence(filename; save = false)
     data_cells, header_cells =  readdlm(filename, ',', Float64, '\n'; header = true, comments = true)
     m, n = size(data_cells)
 
@@ -20,20 +22,18 @@ function solution_convergence(filename; save = false)
     Δps = data_cells[2:m, 3]
     Δpd = data_cells[2:m, 4]
 
-    fig = plot(lc, Δus, xaxis=:log,  yaxis=:log, marker=:o, label="us")
-    fig = plot!(lc, Δps, xaxis=:log,  yaxis=:log, marker=:o, label="ps")
-    fig = plot!(lc, Δpd, xaxis=:log,  yaxis=:log, marker=:o, label="pd")
+    plot(lc, Δus, xaxis=:log,  yaxis=:log, marker=:o, label="us")
+    plot!(lc, Δps, xaxis=:log,  yaxis=:log, marker=:o, label="ps")
+    plot!(lc, Δpd, xaxis=:log,  yaxis=:log, marker=:o, label="pd")
     xlabel!(fig, "Resolution (lc)")
     ylabel!(fig, "l²-norm w.r.t. reference solution")
     save && savefig(save)
-    display(fig)
-      
     
 end
 
 
 
-function pressure_variance_vs_width(filename; save = false)
+function pressure_variance_vs_width(filename; label = "", var = "max", makefig = false, save = false)
     data_cells, header_cells =  readdlm(filename, ',', Float64, '\n'; header = true, comments = true)
     
     # Get info
@@ -63,13 +63,36 @@ function pressure_variance_vs_width(filename; save = false)
         append!(max_var, max)
         append!(mean_var, sum(data_cells[start_index:end_index, 4])/num_rad_lines)
     end
-    fig = plot(width*1e3, max_var, marker = :o, label = "Max variance", ylabel = "Max variance",color = :red, 
-    legend = :topleft, grid = :off,left_margin = 5Plots.mm, right_margin = 18Plots.mm)
-    fig = plot!(twinx(), width*1e3, mean_var, marker = :x, label = "Mean variance", legend = :topright, 
-    box = :on, grid = :off, ylabel = "Mean variance",left_margin = 5Plots.mm, right_margin = 18Plots.mm)
-    plot!([1.5], seriestype = :vline, label = "Typical brain width (1.5 mm)", color = :black, linestyle = :dash)
-    xlabel!("Width [mm]")
-    save!=false && savefig(save)
+
+    if var == "max"
+        y_val = max_var
+        ylabel = "max variance [Pa²]"
+    elseif var == "mean"
+        y_val = mean_var 
+        ylabel = "mean variance [Pa²]"
+    elseif var == "multi"
+        ylabel = nothing
+    else 
+        @printf("keyword var = %s not understood", var)
+        return
+    end
+    
+    makefig && plot()
+    plot!(width*1e3, y_val, marker = :o, legend = :topleft, label = label)
+
+    # lm = 5Plots.mm
+    # rm = 25Plots.mm
+    # plot!(fig, width*1e3, max_var, marker = :o, label = "Max variance", ylabel = "Max variance", 
+    # legend = :topleft, grid = :off,left_margin = lm, right_margin = rm, palette = :Dark2_5)
+    # plot!(tw, width*1e3, mean_var, marker = :x, label = "Mean variance", legend = :topright, 
+    # box = :on, grid = :off, ylabel = "Mean variance",left_margin = lm, right_margin = rm, palette = :Dark2_5)
+    
+    if save!=false
+        plot!([1.5], seriestype = :vline, label = "Typical width (1.5 mm)", color = :black, linestyle = :dash)
+        xlabel!("Width [mm]")
+        !isnothing(ylabel) && ylabel!(ylabel)
+        savefig(save)
+    end
           
 end
 
@@ -114,7 +137,7 @@ function pressure_variance_vs_angle(filename; save = false)
 end
 
 
-function nflow_interface(filename; save = false)
+function nflow_interface(filename; label = "", makefig = false, save = false)
     data_cells, header_cells =  readdlm(filename, ',', Float64, '\n'; header = true, comments = true)
     m, n = size(data_cells)
 
@@ -124,10 +147,15 @@ function nflow_interface(filename; save = false)
     nflow_sqr = data_cells[1:m, 3]
     nflow_abs = sqrt.(nflow_sqr)
 
-    fig = plot(width*1e3, nflow_abs*1e3, marker = :o, label = "")
-    xlabel!("Width [mm]")
-    ylabel!("Abs. norm. vel. interface integral [mm/s]")
-    save!=false && savefig(save)
+    makefig && plot()
+    plot!(width*1e3, nflow_abs*1e3, marker = :o, legend = :topleft, label = label)
+
+    if save!=false
+        plot!([1.5], seriestype = :vline, label = "Typical width (1.5 mm)", color = :black, linestyle = :dash)
+        xlabel!("Width [mm]")
+        ylabel!("Normal flow: " * L"\sqrt{\int (u_S \cdot \hat{n})^2 d\Gamma}" * " [mm/s]")
+        savefig(save)
+    end
 
 end
 
@@ -136,10 +164,18 @@ end
 # data_folder =  "data_flat_curve/"
 # # data_folder =  "data_ssh1e-4"
 
-# readpath = path * data_folder * "/txt_files/"
+data_folder = ["data_flat", "data_single_sine"]
+# readpath = path * data_folder[2] * "/txt_files/"
 
 
-# # solution_convergence(path * "/txt_files/"*"solution_converge.txt"; save = true)
-# pressure_variance_vs_width(readpath * "ps_radial_var.txt"; save = false)
+
+# palette(:tab10)
+
+pressure_variance_vs_width(path * data_folder[1] * "/txt_files/" * "ps_radial_var.txt"; label = "flat", var = "mean", makefig = true, save = false)
+pressure_variance_vs_width(path * data_folder[2] * "/txt_files/" * "ps_radial_var.txt"; label = "sine", var = "mean", save = savepath * "test.png")
+
+nflow_interface(path * data_folder[1] * "/txt_files/" * "us_nflow.txt"; label = "flat", makefig = true, save = false)
+nflow_interface(path * data_folder[2] * "/txt_files/" * "us_nflow.txt"; label = "sine", save = savepath * "test2.png")
+
+
 # pressure_variance_vs_angle(readpath * "ps_radial_var.txt"; save = false)
-# nflow_interface(readpath * "us_nflow.txt")

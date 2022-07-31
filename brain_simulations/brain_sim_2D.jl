@@ -17,23 +17,6 @@ if !ispath(path)
 end
 
 
-
-# mutable struct PDE_params
-#   μ::Float64  
-#   Κ::Float64   
-#   α::Function
-#   α_body::String
-#   ps0::Function
-#   ps0_body::String
-#   ∇pd0::Function
-#   ∇pd0_body::String
-#   function PDE_params(μ, Κ, α_body, ps0_body, ∇pd0_body)
-#       new(μ, Κ, eval(Meta.parse(α_body)), α_body, eval(Meta.parse(ps0_body)), ps0_body, eval(Meta.parse(∇pd0)), ∇pd0_body)
-#   end
-# end
-
-
-
 mutable struct PDE_params
   μ::Float64  
   Κ::Float64   

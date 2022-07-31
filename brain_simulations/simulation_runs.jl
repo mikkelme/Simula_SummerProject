@@ -34,10 +34,12 @@ ps0 = "(x) -> x[1] < 0 ? 1*133.3224 : 0." # 1*mmHg [Pa]
 
 
 # function run_solution_convergence(brain_param, PDE_param)
-#     start_lc = 1e-2
-#     end_lc = 5e-5
-#     num_samples = 10
-#     solution_convergence_vs_lc(brain_param, start_lc, end_lc, num_samples; filename = "solv_conv.txt")
+    # start_lc = 1e-2
+    # end_lc = 5e-5
+    # num_samples = 10
+    # filename = "solv_conv"
+    # solution_convergence_vs_lc(brain_param, start_lc, end_lc, num_samples; filename = filename * ".txt")
+    # plot_solution_convergence(path * "/txt_files/"*"solution_converge.txt"; save = savepath * filename * ".png")
 # end
 
 
@@ -54,11 +56,12 @@ function run_flat()
     PDE_param = PDE_params(μ, Κ, α, ps0, ∇pd0)
     eval_decreasing_lc(brain_param, PDE_param, start_width, end_width, num_samples, num_rad_lines; folder_name = folder_name)
     
-    # Analyse     
+    # Standard analyse     
     readpath = path * "data_" * folder_name * "/txt_files/"
-    pressure_variance_vs_width(readpath *  "ps_radial_var.txt"; save = path * "data_" * folder_name * "/png_files/"  * "ps_var_width.png")
-    pressure_variance_vs_angle(readpath * "ps_radial_var.txt"; save = path * "data_" * folder_name * "/png_files/" * "ps_var_angle.png")
-    nflow_interface(readpath * "us_nflow.txt", save = path * "data_" * folder_name * "/png_files/" * "us_nflow_abs.png")
+    pressure_variance_vs_width(readpath *  "ps_radial_var.txt"; var = "max", makefig = true, save = path * "data_" * folder_name * "/png_files/"  * "ps_maxvar_width.png")
+    pressure_variance_vs_width(readpath *  "ps_radial_var.txt"; var = "mean", makefig = true, save = path * "data_" * folder_name * "/png_files/"  * "ps_meanvar_width.png")
+    nflow_interface(readpath * "us_nflow.txt", makefig = true, save = path * "data_" * folder_name * "/png_files/" * "us_nflow_abs.png")
+
 end
 
 function run_single_sine()
@@ -81,9 +84,9 @@ function run_single_sine()
     
     # Analyse     
     readpath = path * "data_" * folder_name * "/txt_files/"
-    pressure_variance_vs_width(readpath *  "ps_radial_var.txt"; save = path * "data_" * folder_name * "/png_files/"  * "ps_var_width.png")
-    pressure_variance_vs_angle(readpath * "ps_radial_var.txt"; save = path * "data_" * folder_name * "/png_files/"  * "ps_var_angle.png")
-    nflow_interface(readpath * "us_nflow.txt", save = path * "data_" * folder_name * "/png_files/"  * "us_nflow_abs.png")
+    pressure_variance_vs_width(readpath *  "ps_radial_var.txt"; var = "max", makefig = true, save = path * "data_" * folder_name * "/png_files/"  * "ps_maxvar_width.png")
+    pressure_variance_vs_width(readpath *  "ps_radial_var.txt"; var = "mean", makefig = true, save = path * "data_" * folder_name * "/png_files/"  * "ps_meanvar_width.png")
+    nflow_interface(readpath * "us_nflow.txt", makefig = true, save = path * "data_" * folder_name * "/png_files/" * "us_nflow_abs.png")
 end
 
 
@@ -118,8 +121,8 @@ end
 
 
 
-# run_flat()
-run_single_sine()
+run_flat()
+# run_single_sine()
 # run_innter_sine()
 
 
