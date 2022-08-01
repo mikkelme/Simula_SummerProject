@@ -48,19 +48,20 @@ The default geometry parameters for our 2D brain slice is a shown in table (...)
 
     
 
-
-
-
-<!-- </center>
+<center> 
 
 
 <figure align = "center">
-<img src="figures/default_2D_brain_example.png" alt="Trulli" style="width:90%">
-<figcaption align = "center"><b>
-Fig.X - Example of default 2D brain geometry. 
-</b></figcaption>
+    <img    src="figures/default_2D_brain_example.png"   
+            alt="Elephant at sunset"
+            style="width:50%">
+    <figcaption align = "center"><b>
+    Fig.X - Example of default 2D brain geometry. 
+    </b></figcaption>
 </figure align = "center">
-  -->
+
+
+
 
 <!-- <p align="center">
   <img src="figures/solution_convergence.png" alt="Text is not showing?"/>
