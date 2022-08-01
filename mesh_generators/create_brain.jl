@@ -56,11 +56,11 @@ if abspath(PROGRAM_FILE) == @__FILE__
     r_brain = 10e-3  
     d_ratio = 1.5e-3/r_brain
     r_curv = 50e-3 
-    Ai = 1e-3; Ao = 0.5e-3
-    λi = 0.1*1e-3; λo = 40*1e-3
+    A = 1e-3
+    λ = 10*1e-3
     ω(λ) = 2*pi/λ      
 
-    inner_perturb = @sprintf("(x,z) -> %f * sin(abs(x + z) * %f - pi/2) * fld(mod2pi(abs(x + z) * %f - pi/2),pi) ", Ai , ω(λi), ω(λi))
+    inner_perturb = @sprintf("(x,z) -> %f * sin(abs(x + z) * %f - pi/2) * fld(mod2pi(abs(x + z) * %f - pi/2),pi) ", A , ω(λ), ω(λ))
     outer_perturb = "(x,z) -> 0.0"  
 
     # outer_perturb = @sprintf("(x,z) -> %f * cos(abs(x) * %f)", 0.5e-3 , ω(3.0))

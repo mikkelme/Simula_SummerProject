@@ -14,8 +14,7 @@ end
 # --- Default values (globally defined) --- #
 
 # Brain Model [length unit: meter] 
-# lc = 2e-4 # size(op.op.matrix) = (425840, 425840)
-lc = 1e-3 # For testing
+lc = 2e-4 # size(op.op.matrix) = (425840, 425840)
 
 arcLen = (100e-3, 0)
 r_brain = 10e-3  
@@ -23,7 +22,7 @@ d_ratio = 1.5e-3/r_brain
 r_curv = 50e-3 
 inner_perturb = "(x,z) -> 0.0"  
 outer_perturb = "(x,z) -> 0.0"  
-BS_points = (1000, 0) 
+BS_points = (3000, 3000) 
 field_Lc_lim = [1 / 2, 1]
 field_Dist_lim = [1e-3, 5e-3] 
 
@@ -57,8 +56,8 @@ function run_flat()
     folder_name = "flat"
     start_width = 5e-3
     end_width = 0.5e-3
-    num_samples = 4
-    num_rad_lines = 100
+    num_samples = 20
+    num_rad_lines = 300
 
     # Run
     brain_param = model_params(lc, arcLen, r_brain, d_ratio, r_curv, inner_perturb, outer_perturb, BS_points, field_Lc_lim, field_Dist_lim)
@@ -76,13 +75,11 @@ function run_single_inner_negsine()
     folder_name = "single_inner_negsine"
     start_width = 5e-3
     end_width = 0.5e-3
-    num_samples = 5
-    num_rad_lines = 100
+    num_samples = 20
+    num_rad_lines = 300
 
     A = 1e-3
-    # λ = 10*1e-3
-    λ = 0.1*1e-3
-
+    λ = 10*1e-3
     ω(λ) = 2*pi/λ      
     inner_perturb = @sprintf("(x,z) -> %f * sin(abs(x) * %f - pi/2) * fld(mod2pi(abs(x) * %f - pi/2),pi) ", A , ω(λ), ω(λ))
 
@@ -102,12 +99,12 @@ function run_inner_negsines_lambda()
     # Settings
     start_width = 5e-3
     end_width = 0.5e-3
-    num_samples = 10
-    num_rad_lines = 100
+    num_samples = 20
+    num_rad_lines = 300
 
     folder_name = "inner_negsines"
     A = 1e-3
-    lambda = [0.1, 0.5, 1, 10, 20, 50]*1e-3
+    lambda = [1, 5, 10, 20, 50]*1e-3
     ω(λ) = 2*pi/λ      
     negsines = [@sprintf("(x,z) -> %f * sin(abs(x) * %f - pi/2) * fld(mod2pi(abs(x) * %f - pi/2),pi)",A , ω(λ), ω(λ)) for λ in lambda]
     
@@ -140,11 +137,11 @@ function run_inner_negsines_amp()
     # Settings
     start_width = 5e-3
     end_width = 0.5e-3
-    num_samples = 10
-    num_rad_lines = 100
+    num_samples = 20
+    num_rad_lines = 300
 
     folder_name = "inner_negsines"
-    Amp = [0.1e-3, 0.5e-3, 1e-3, 2e-3, 3e-3]
+    Amp = [0.1e-3, 0.5e-3, 1e-3, 2.5e-3, 5e-3]
     λ = 10*1e-3
     ω(λ) = 2*pi/λ      
     negsines = [@sprintf("(x,z) -> %f * sin(abs(x) * %f - pi/2) * fld(mod2pi(abs(x) * %f - pi/2),pi)",A , ω(λ), ω(λ)) for A in Amp]

@@ -24,7 +24,23 @@ We are going to use Julia as the programming language for this project. We use t
 
 We are going to model our brain as a composition of two domains: The *Stokes* domain and the *Darcy* domain corresponding to the equations that governs the fluid flow in these domains. Se figure (...) for reference. In the *Stokes* domain the fluid flows in a unobstructed path on the outside of the brain tissue, where the motion is described as Stokes flow (low Reynolds number). In the *Darcy* domain the fluid flows though the pores of the brain tissue where the fluid motion is described as percolation. For this we use Darcy's law.
 
-<!-- Insert model image -->
+The default geometry parameters for our 2D brain slice is a shown in table (...). The resulting geometry is visualized in figure (...).
+
+|  Parameter | Default value | Testing interval 
+|---|:---:|:---:|
+| Radius of curvature | 50 mm |
+| Radial length of slab | 10 mm |
+| Outer arc length | 100 mm |
+| Interface wiggles | Negative half sine wave|
+| Outer surface wiggles | No wiggling |
+| Wavelength of interface wiggles | 10 mm | [1,  50] mm|
+| Amplitude of interface wiggles | 1 mm | [0.1, 5] mm |
+
+
+
+<p align="center">
+  <img src="figures/default_2D_brain_example.png" alt="Text is not showing?" width="800"/>
+</p>
 
 ### Equations 
 
@@ -141,7 +157,6 @@ We are going to use
 $$
 \begin{align}
     u_{S,0} &= 0 \\
-
 \end{align}
 $$
 
