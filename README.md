@@ -60,8 +60,8 @@ We denote $u_S, p_S$ as velocity and pressure respectively in the Stokes domain 
 
 ####  <ins> Stokes domain </ins>
 
-<div>
 
+$$
 \begin{align}
     - \nabla \cdot \sigma(u_S, p_S) &= f_s  &\text{in} \ \Omega_S \\
     \nabla \cdot u_S &= 0   &\text{in} \ \Omega_S \\
@@ -69,8 +69,7 @@ We denote $u_S, p_S$ as velocity and pressure respectively in the Stokes domain 
     u_S \times \hat{n}_S &= 0   &\text{on} \ \Gamma_S \\
     p_S &= p_{S,0}   &\text{on} \ \Gamma_S \\
 \end{align}
-
-</div>
+$$
 
 where
 
