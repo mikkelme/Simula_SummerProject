@@ -24,9 +24,8 @@ We are going to use Julia as the programming language for this project. We use t
 
 We are going to model our brain as a composition of two domains: The *Stokes* domain and the *Darcy* domain corresponding to the equations that governs the fluid flow in these domains. Se figure (...) for reference. In the *Stokes* domain the fluid flows in a unobstructed path on the outside of the brain tissue, where the motion is described as Stokes flow (low Reynolds number). In the *Darcy* domain the fluid flows though the pores of the brain tissue where the fluid motion is described as percolation. For this we use Darcy's law.
 
-The default geometry parameters for our 2D brain slice is a shown in table (...). The resulting geometry is visualized in figure (...).
+We are going to define the default brain geometry parameters for our 2D brain slice as shown in table (...).
 
-<p align="center">
 
 |  Parameter | Default value | Testing interval 
 |---|:---:|:---:|
@@ -38,8 +37,7 @@ The default geometry parameters for our 2D brain slice is a shown in table (...)
 | Wavelength of interface wiggles | 10 mm | [1,  50] mm|
 | Amplitude of interface wiggles | 1 mm | [0.1, 5] mm |
 
-</p>
-
+The default 2D brain is shown in figure (...)
 
 <p align="center">
     <img src="figures/default_2D_brain_example.png"
@@ -50,14 +48,17 @@ The default geometry parameters for our 2D brain slice is a shown in table (...)
     </h4>
 </p>
 
+We also have the opportunity to extend the model into 3D. In figure (...) we have extended the 2D default brain geometry with an arc length of XX mm in the third dimension. 
 
+
+<!-- Picture of 3D Model   -->
 
 
 ### Equations 
 
-We denote $u_S, p_S$ as velocity and pressure respectively in the Stokes domain $S$, and $p_D$ as pressure in the Darcy domain $D$. We define the problem by the following equations.
+We denote $u_S, p_S$ as velocity and pressure respectively in the Stokes domain $S$, and $p_D$ as pressure in the Darcy domain $D$. $\hat{n}_i$ and $\hat{\tau}$ denote the normal and tangentiel component on the $\Gamma$ inderface with respect to region $i$. We define the problem by the following equations.
 
-#### Stokes domain
+####  <ins> Stokes domain </ins>
 
 $$
 \begin{align}
@@ -78,7 +79,7 @@ $$
 \end{align}
 $$
 
-#### Darcy domain
+#### <ins> Darcy domain </ins>
 
 $$
 \begin{align}
@@ -89,7 +90,7 @@ $$
 
 
 
-#### Interface conditions
+#### <ins> Interface conditions </ins>
 $$
 \begin{align}
     u_S\cdot\hat{n}_S + (-\frac{\kappa}{\mu}\nabla p_D \cdot \hat{n}_D) &= g\Gamma  &\text{on} \ \Gamma \\ 
@@ -118,7 +119,7 @@ In the first equation (put number) Decompose the last term in normal $\hat{n}_S$
 $$
 \begin{align}
     - \int_{\partial\Omega_S} \big(\sigma(u_S, p_S)\cdot\hat{n}_S\big) \cdot v_S \ dS   &=  \int_{\partial\Omega_S} \underbrace{-\Big[\big(\sigma(u_S, p_S)\cdot\hat{n}_S\big) \cdot \hat{n}_S \Big]\Big[\hat{n}_S \cdot v_S \Big]}_{P_D \ \text{on} \ \ \Gamma} -\underbrace{\Big[\big(\sigma(u_S, p_S)\cdot\hat{n}_S\big) \cdot \hat{\tau}_S \Big]\Big[\hat{\tau}_S \cdot v_S \Big]}_{\alpha u_S \cdot\hat{\tau}_S \ \ \text{on} \ \Gamma} \\
-    &= \int_{\partial\Omega_S\setminus\Gamma} -\Big[\underbrace{\big(\sigma(u_S, p_S)\cdot\hat{n}_S\big) \cdot \hat{n}_S }_{- p_S} \Big]\Big[\hat{n}_S \cdot v_S \Big] -\Big[\big(\sigma(u_S, p_S)\cdot\hat{n}_S\big) \cdot \hat{\tau}_S \Big]\Big[\hat{\tau}_S \cdot v_S \Big]  +  \int_{\Gamma} P_D - \alpha u_S \cdot\hat{\tau}_S \ dL
+    &= \int_{\partial\Omega_S\setminus\Gamma} -\Big[\underbrace{\big(\sigma(u_S, p_S)\cdot\hat{n}_S\big) \cdot \hat{n}_S }\_{- p_S} \Big]\Big[\hat{n}_S \cdot v_S \Big] -\Big[\big(\sigma(u_S, p_S)\cdot\hat{n}_S\big) \cdot \hat{\tau}_S \Big]\Big[\hat{\tau}_S \cdot v_S \Big]  +  \int_{\Gamma} P_D - \alpha u_S \cdot\hat{\tau}_S \ dL
 \end{align}
 $$
 

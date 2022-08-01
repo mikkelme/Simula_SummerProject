@@ -182,12 +182,12 @@ end
 
 # --- Simulaiton runs --- #
 
-run_inner_negsines_lambda()
-run_inner_negsines_amp()
+# run_inner_negsines_lambda()
+# run_inner_negsines_amp()
 
-run_single_inner_negsine()
 run_flat()
-run_solution_convergence()
+run_single_inner_negsine()
+# run_solution_convergence()
 
 
 

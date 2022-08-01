@@ -71,14 +71,16 @@ if abspath(PROGRAM_FILE) == @__FILE__
 
 
     # 2D brain example
-    param = model_params(lc, arcLen, r_brain, d_ratio, r_curv, inner_perturb, outer_perturb, BS_points, field_Lc_lim, field_Dist_lim)
-    create_brain(param; view=true, write = false)
+    # param = model_params(lc, arcLen, r_brain, d_ratio, r_curv, inner_perturb, outer_perturb, BS_points, field_Lc_lim, field_Dist_lim)
+    # create_brain(param; view=true, write = false)
 
 
     # 3D brain example (Work in progress)
-    # arcLen = (100e-3, 20e-3)
-    # param = model_params(lc, arcLen, r_brain, d_ratio, r_curv, inner_perturb, outer_perturb, BS_points, field_Lc_lim, field_Dist_lim)
-    # create_brain(param; view=true, write=false)
+    lc = 1e-3
+    inner_perturb = "(x,z) -> 0.0"  
+    arcLen = (100e-3, 20e-3)
+    param = model_params(lc, arcLen, r_brain, d_ratio, r_curv, inner_perturb, outer_perturb, BS_points, field_Lc_lim, field_Dist_lim)
+    create_brain(param; view=true, write=false)
 end
 
 
