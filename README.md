@@ -1,6 +1,6 @@
 # Simula_SummerProject (FIND better name)
 
-This repo contains the work done as a summer intern at Simula during a six week period during the summer of 2022. The project was guided by my supervisor Miroslav Kutcha (Github link).
+This repo contains the work done as a summer intern at Simula during a six week period during the summer of 2022. The project was guided by my supervisor Miroslav Kutcha. [Miroslav Kutcha](https://github.com/MiroK).
 
 ## Introduction 
 

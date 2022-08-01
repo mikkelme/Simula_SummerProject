@@ -152,13 +152,13 @@ function standard_analyse(readpath, folder_name)
     plot_nflow_interface(readpath * "us_nflow.txt", plot(), save = path * "data_" * folder_name * "/png_files/" * "us_nflow_abs.png")
 end
 
-function combinned_analyse(folder_names, labels)
+function combinned_analyse(savename, folder_names, labels)
      fig1 = plot()  
      fig2 = plot()
      fig3 = plot()
     for (i, folder_name) in enumerate(folder_names)
         readpath = path * "data_" * folder_name * "/txt_files/"
-        savepath = path *  "/png_files/" * folder_name
+        savepath = path *  "/png_files/" * savename
     
         save1 = i == length(folder_names) ? savepath *  "_ps_maxvar_width.png" : false
         save2 = i == length(folder_names) ? savepath * "_ps_meanvar_width.png" : false

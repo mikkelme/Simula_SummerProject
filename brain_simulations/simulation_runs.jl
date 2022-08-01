@@ -66,7 +66,29 @@ function run_flat()
     # Standard analyse     
     readpath = path * "data_" * folder_name * "/txt_files/"
     standard_analyse(readpath, folder_name)
+end
 
+function run_single_inner_sine()
+    # Settings
+    folder_name = "single_inner_sine"
+    start_width = 5e-3
+    end_width = 0.5e-3
+    num_samples = 5
+    num_rad_lines = 100
+
+    A = 0.3e-3
+    f = 15.0 # 15 periods in total
+    ω = 2*pi * f/(arcLen[1] * (1 - d_ratio * r_brain / r_curv)) 
+    inner_perturb = @sprintf("(x,z) -> %f * sin(abs(x) * %f)", A , ω)
+
+    # Run
+    brain_param = model_params(lc, arcLen, r_brain, d_ratio, r_curv, inner_perturb, outer_perturb, BS_points, field_Lc_lim, field_Dist_lim)
+    PDE_param = PDE_params(μ, Κ, α, ps0, ∇pd0)
+    eval_decreasing_lc(brain_param, PDE_param, start_width, end_width, num_samples, num_rad_lines; folder_name = folder_name)
+    
+    # Analyse     
+    readpath = path * "data_" * folder_name * "/txt_files/"
+    standard_analyse(readpath, folder_name)
 end
 
 function run_single_inner_negsine()
@@ -93,35 +115,8 @@ function run_single_inner_negsine()
 end
 
 
-function run_single_inner_sine()
-    # Settings
-    folder_name = "single_inner_sine"
-    start_width = 5e-3
-    end_width = 0.5e-3
-    num_samples = 5
-    num_rad_lines = 100
 
-    A = 0.3e-3
-    f = 15.0 # 15 periods in total
-    ω = 2*pi * f/(arcLen[1] * (1 - d_ratio * r_brain / r_curv)) 
-    inner_perturb = @sprintf("(x,z) -> %f * sin(abs(x) * %f)", A , ω)
-
-    # Run
-    brain_param = model_params(lc, arcLen, r_brain, d_ratio, r_curv, inner_perturb, outer_perturb, BS_points, field_Lc_lim, field_Dist_lim)
-    PDE_param = PDE_params(μ, Κ, α, ps0, ∇pd0)
-    eval_decreasing_lc(brain_param, PDE_param, start_width, end_width, num_samples, num_rad_lines; folder_name = folder_name)
-    
-    # Analyse     
-    readpath = path * "data_" * folder_name * "/txt_files/"
-    standard_analyse(readpath, folder_name)
-end
-
-
-# Complete run_inner_sines for running multiple sine function as inner_perturb
-# Then make plotter function for plotting multiple lc_decrease_simulation in one plot. 
-# Then you can make combinned plots for different frequency different amplitude, or different wave form (thus 3 plots)
-
-function run_inner_negsines()
+function run_inner_negsines_freq()
     # Settings
     start_width = 5e-3
     end_width = 0.5e-3
@@ -154,7 +149,47 @@ function run_inner_negsines()
     # Combinned analyse   
     folder_names = [folder_name * @sprintf("_f%s", f) for f in freq]
     labels = [@sprintf("f = %s", f) for f in freq]
-    combinned_analyse(folder_names, labels)
+    savename = folder_name * "_freq"
+    combinned_analyse(savename, folder_names, labels)
+   
+end
+
+
+
+function run_inner_negsines_amp()
+    # Settings
+    start_width = 5e-3
+    end_width = 0.5e-3
+    num_samples = 3
+    num_rad_lines = 10
+
+    folder_name = "inner_negsines"
+    Amp = [0.1e-3, 0.3e-3, 0.5e-3]
+    f = 15.0
+    ω(f) = 2*pi * f/(arcLen[1] * (1 - d_ratio * r_brain / r_curv)) 
+
+    negsines = [@sprintf("(x,z) -> %f * sin(abs(x) * %f) * fld(mod2pi(abs(x) * %f),pi) ", A , ω(f), ω(f)) for A in Amp]
+    
+    # Run
+    for (i, inner_perturb) in enumerate(negsines)
+        i_folder_name = folder_name * @sprintf("_A%s", Amp[i])
+
+        # Run
+        brain_param = model_params(lc, arcLen, r_brain, d_ratio, r_curv, inner_perturb, outer_perturb, BS_points, field_Lc_lim, field_Dist_lim)
+        PDE_param = PDE_params(μ, Κ, α, ps0, ∇pd0)
+        eval_decreasing_lc(brain_param, PDE_param, start_width, end_width, num_samples, num_rad_lines; folder_name = i_folder_name)
+        
+        # Analyse     
+        readpath = path * "data_" * i_folder_name * "/txt_files/"
+        standard_analyse(readpath, i_folder_name)
+               
+    end
+
+    # Combinned analyse   
+    folder_names = [folder_name * @sprintf("_A%s", A) for A in Amp]
+    labels = [@sprintf("f = %s", A) for A in Amp]
+    savename = folder_name * "_amp"
+    combinned_analyse(savename, folder_names, labels)
    
 end
 
@@ -174,6 +209,8 @@ end
 # run_flat()
 # run_single_inner_sine()
 # run_single_inner_negsine()
-run_inner_negsines()
+# run_inner_negsines_freq()
+run_inner_negsines_amp()
+
 
 
