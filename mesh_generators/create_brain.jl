@@ -39,7 +39,8 @@ function create_brain(param::model_params; view=false, write=false)
         gmsh.fltk.run()
     end
 
-    write && gmsh.write(path * "brain.msh")    
+    write!=false && gmsh.write(write)    
+
     model, pgs_dict = direct_wiring(gmsh)
     gmsh.finalize()
     # model = GmshDiscreteModel("/Users/mikkelme/Documents/Github/Simula_SummerProject/mesh_generators/brain.msh") # Test the mesh
@@ -50,22 +51,37 @@ end
 
 
 if abspath(PROGRAM_FILE) == @__FILE__
-    lc = 0.5
-    arcLen = (5, 0)
-    r_brain = 2
-    d_ratio = 0.5
-    r_curv = 50
-    inner_perturb(x, z) = 0.2 * cos(pi * abs(x) / 0.5) + 0.2 * cos(pi * abs(z) / 0.5)
-    outer_perturb(x, z) = 0.2 * cos(pi * abs(x) / 2)  + 0.2 * cos(pi * abs(z) / 1)
-    # inner_perturb(x, y) = 0
-    # outer_perturb(x, y) = 0
-    BS_points = (arcLen[1]*20, arcLen[2]*10)
-    field_Lc_lim = [1 / 2, 1]
-    field_Dist_lim = [0.1, 0.5]
+    lc = 2e-4
+    arcLen = (100e-3, 0)
+    r_brain = 10e-3  
+    d_ratio = 1.5e-3/r_brain
+    r_curv = 50e-3 
+    Ai = 1e-3; Ao = 0.5e-3
+    λi = 0.1*1e-3; λo = 40*1e-3
+    ω(λ) = 2*pi/λ      
 
+    inner_perturb = @sprintf("(x,z) -> %f * sin(abs(x + z) * %f - pi/2) * fld(mod2pi(abs(x + z) * %f - pi/2),pi) ", Ai , ω(λi), ω(λi))
+    outer_perturb = "(x,z) -> 0.0"  
+
+    # outer_perturb = @sprintf("(x,z) -> %f * cos(abs(x) * %f)", 0.5e-3 , ω(3.0))
+
+    BS_points = (1000, 1000) 
+    field_Lc_lim = [1 / 2, 1]
+    field_Dist_lim = [1e-3, 5e-3] 
+
+
+    # 2D brain example
     param = model_params(lc, arcLen, r_brain, d_ratio, r_curv, inner_perturb, outer_perturb, BS_points, field_Lc_lim, field_Dist_lim)
-    create_brain(param; view=false, write=false)
+    create_brain(param; view=true, write = false)
+
+
+    # 3D brain example (Work in progress)
+    # arcLen = (100e-3, 20e-3)
+    # param = model_params(lc, arcLen, r_brain, d_ratio, r_curv, inner_perturb, outer_perturb, BS_points, field_Lc_lim, field_Dist_lim)
+    # create_brain(param; view=true, write=false)
 end
+
+
 
 
 

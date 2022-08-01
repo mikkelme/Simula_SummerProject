@@ -276,7 +276,7 @@ function create_brain_3D(param::model_params)
 
     connect_and_volumize(brain)
     add_mesh_field(brain, param)
-    apply_periodic_meshing(brain)
+    # apply_periodic_meshing(brain)
 
     # To do: set physical groups in a more organized way here (in a loop: se 2D case)
 

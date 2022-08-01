@@ -1,5 +1,11 @@
 # Simula_SummerProject (find better name)
 
+
+TODO
+- Check that end width is included
+- Vary permeability 
+- Try 3D (200.000 unknowns)
+
 This repo contains the work done as a summer intern at Simula during a six week period in the summer of 2022. The project was guided by my supervisor [Miroslav Kutcha](https://github.com/MiroK).
 
 ## Introduction 
@@ -8,13 +14,15 @@ In this project we build a framework for simulating the flow of the cerebrospina
 
 We are going to simulate the CSF flow using the finite element method to solve the partial derivative equations. For simplicity we take on a 2D problem where we consider a 2D slice of the brain, and consider the dimension reduction in the radial direction such that the CSF-filled space is reduced to a line. By decreasing the width of the CSF-filled space we can study the decolopment of the pressure profile on the crossection and the normal flow on the interface between the CSF-filled space and the brain tissue. For a more realistic approach we introduce wiggled surfaces and study the prospects for dimension reduction for different brain geomtries.
 
+<!-- Maybe show 2D and 3D models here -->
+
 We are going to use Julia as the programming language for this project. We use the [Gridap](https://gridap.github.io/Gridap.jl/stable/) module for the finite element part and [Gmsh](https://gmsh.info) for creating the geometry and the mesh.
 
 ## Method & Theory 
 
 ### Domain
 
-We are going to model our brain as a composition of two domains: The *Stokes* domain and the *Darcy* domain corresponding the equations that governs the fluid flow in these domains. In the *Stokes* domain the fluid flows in a free path on the outside of the brain tissude, where the motion is described as Stokes flow (low Reynolds number). In the *Darcy* domain the fluid flows though the pores of the brain tissue where the fluid motion is described as percolation. 
+We are going to model our brain as a composition of two domains: The *Stokes* domain and the *Darcy* domain corresponding to the equations that governs the fluid flow in these domains. Se figure (...) for reference. In the *Stokes* domain the fluid flows in a unobstructed path on the outside of the brain tissue, where the motion is described as Stokes flow (low Reynolds number). In the *Darcy* domain the fluid flows though the pores of the brain tissue where the fluid motion is described as percolation. For this we use Darcy's law.
 
 <!-- Insert model image -->
 
@@ -66,7 +74,7 @@ $$
 
 ### Weak formulation
 
-Check consistency with $dx$ or $dV, dS, dL$.
+We define the test spaces $v_S, q_S, q_D$ to be in the Sobolev space (H1). Check consistency with $dx$ or $dV, dS, dL$.
 
 #### Stokes
 From equation (...) we get
@@ -74,7 +82,7 @@ From equation (...) we get
 $$
 \begin{align}
     \int_{\Omega_S} f_s \cdot v_S \ dx &=  \int_{\Omega_S} 2\mu \ \varepsilon(u_S) \odot \varepsilon(v_S) \ dx - \int_{\Omega_S} p_S \nabla\cdot v_S \ dx - \int_{\partial\Omega_S} \big(\sigma(u_S, p_S)\cdot\hat{n}_S\big) \cdot v_S \ dx \\ 
-    0 &= - \int_{\Omega_S} (\nabla \cdot u_S) \cdot q_s
+    0 &= - \int_{\Omega_S} (\nabla \cdot u_S) \cdot q_S
 \end{align}
 $$
 

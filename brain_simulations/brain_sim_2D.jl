@@ -154,6 +154,7 @@ function brain_PDE(model, pgs_dict, data; write = false)
     println("#--- Assembling ---#")
     op = AffineFEOperator(a, b, W, δW)
     println("#--- Solving ---#")
+    @show size(op.op.matrix)
     ush, psh, pdh = solve(op)
 
     
