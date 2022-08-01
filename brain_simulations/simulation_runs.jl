@@ -98,7 +98,7 @@ end
 
 
 
-function run_inner_negsines_freq()
+function run_inner_negsines_lambda()
     # Settings
     start_width = 5e-3
     end_width = 0.5e-3
@@ -187,9 +187,9 @@ end
 # --- Simulaiton runs --- #
 # run_solution_convergence()
 # run_flat()
-# run_single_inner_negsine()
+run_single_inner_negsine()
 
-# run_inner_negsines_freq()
+# run_inner_negsines_lambda()
 # run_inner_negsines_amp()
 
 
