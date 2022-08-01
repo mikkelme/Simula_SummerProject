@@ -20,10 +20,10 @@ function plot_solution_convergence(filename; save = false)
     Δps = data_cells[2:m, 3]
     Δpd = data_cells[2:m, 4]
 
-    plot(lc, Δus, xaxis=:log, legend = :topleft, yaxis=:log, marker=:o, label="us")
-    plot!(lc, Δps, xaxis=:log, legend = :topleft, yaxis=:log, marker=:o, label="ps")
-    plot!(lc, Δpd, xaxis=:log, legend = :topleft, yaxis=:log, marker=:o, label="pd")
-    xlabel!("Resolution (lc)")
+    plot(lc*1e3, Δus, xaxis=:log, legend = :topleft, yaxis=:log, marker=:o, label="us")
+    plot!(lc*1e3, Δps, xaxis=:log, legend = :topleft, yaxis=:log, marker=:o, label="ps")
+    plot!(lc*1e3, Δpd, xaxis=:log, legend = :topleft, yaxis=:log, marker=:o, label="pd")
+    xlabel!("Resolution (lc [mm])")
     ylabel!("l²-norm w.r.t. reference solution")
     save!=false && savefig(save)
     

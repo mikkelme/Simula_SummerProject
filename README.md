@@ -32,6 +32,7 @@ We are going to define the default brain geometry parameters for our 2D brain sl
 | Radius of curvature | 50 mm |
 | Radial length of slab | 10 mm |
 | Outer arc length | 100 mm |
+| Width of CSF-filled space | 1.5 mm |
 | Interface wiggles | Negative half sine wave|
 | Outer surface wiggles | No wiggling |
 | Wavelength of interface wiggles | 10 mm | [1,  50] mm|
@@ -162,26 +163,95 @@ $$
 \end{align}
 $$
 
-where we handle the last term as neuman condition.
+where we handle the last term as a neuman condition.
 
 
-## Modelling the brain
+### Parameter choices for the PDE modelling
 
-We are going to use 
+We are going to drive the CSF flow by a pressure difference $\Delta p_S  = 133.3224 \ \text{Pa}$ $(1 \ \text{mmHg})$, across the stokes domain while enforcing a no slip condition on the outer surface of the stokes domain as dirichlet condition setting $u_{S,0} = \vec{0} \ \text{m/s}$. This also means that we will put the source terms $f_S = f_D = 0$ in both domains. For the pressure in the Darcy domain we are then going to enforce the boundary conditions entirely as neumann conditions by setting a zero flux, i.e. $\nabla p_D = \vec{0} \ \text{Pa/m}$. For the interface we choose a balanced normal flow, i.e. $g\Gamma = 0 \ \text{m/s}$ and a slip rate given as $\alpha = \mu/\sqrt{\kappa} \ \text{Pa}\cdot\text{s/m}$. Finnally we set the CSF viscosity $\mu = 0.8 \cdot 10^{-3} \ \text{Pa}\cdot\text{s}$ and the percolation permeability $\kappa = 1\cdot10^{-16}$ \ \text{m}^2. These parameter choices is summed up in the following  
+
+
 $$
 \begin{align}
-    u_{S,0} &= 0 \\
+    u_{S,0} &= \vec{0} \ \text{m/s} \\
+    p_{S,0} &= 133.3224 \ \text{Pa} \ (1 \ \text{mmHg} ) \\
+    \nabla p_D &= \vec{0} \ \text{Pa/m} \\
+    g\Gamma &= 0 \ \text{m/s} \\
+    \alpha &= \mu/\sqrt{\kappa} \ \text{Pa}\cdot\text{s/m} \\
+    \mu &= 0.8 \cdot 10^{-3} \ \text{Pa}\cdot\text{s} \\
+    \kappa &= 1\cdot10^{-16} \ \text{m}^2
 \end{align}
+
 $$
 
-$\nabla \cdot x$ is the same as $Div(x)$.
+
+
+### Evaluating the metrics for dimension reduction 
+
+For the evaluating of the pressure we create a series of radial lines in the stokes domain and calculate the pressure variance
+$$
+
+\text{var}(p_S) = \int_{\Omega_S} \big(p_S - \langle p_S \rangle\big)^2 dp_S \ / \ |\text{radial line}|
+
+$$
+
+If the pressure is constant the variance will be zero. We compute then both the mean of all variances along the radial lines and a maximum value with the coresponding width of that particular radial line. In addition we compute the absolute value of the mean absolute normal flow along the interface as 
+$$
+\sqrt{\int_{\Gamma} (u_S \cdot \hat{n}_S)^2 d\Gamma} \ / \ |\Gamma|
+$$
+
+
+<!-- (Insert image of radial lines and center lines as a vtu file) -->
 
 
 ## Results and Discussion
 
+We begin by the 2D case.
+
+### Choosing the resolution
+
+For the choice of the mesh resolution we perform a approximated error convergence test by simulating a series of systems with an increasingly resolution. In Gmsh the mesh size resolution is parameterized by the *lc* variable, which is set to define the largest mesh line. In addition we define a so-called mesh field which linearly decrease the lc-value to half its orginal value or a distance of 1 to 5 mm from the interface. By choosing a exaggerated resolution of $lc = 0.05 \ \text{mm}$ as our approximated *true* reference solution* we can calculate the $l^2$ norm between this reference solution and other solutions with lower resolution. This is shown in figure (...)
+
+
+<p align="center">
+    <img src="figures/solution_convergence.png"
+         alt=""
+         style="width:80%">
+    <h4 align="center"> 
+    Fig.X - Approximated error convergence test using a resolution of $lc = 0.05 \ \text{mm}$ as a true reference solution. We calculate the $l^2$ norm between the reference solution and solutions using a lower resolution (higher $lc$) along a center line for both the domains.
+    </h4>
+</p>
+
+
+From figure (...) we get an idea of the acuracy of the solution as a function of the resolution. By choosing $lc = 0.1 \ \text{mm}$ we should get an accuracy on the order $\pm 0.1 \%$ of the true solution.
+
+
+### Flat interface
+
+We begin by the simple case of the default brain geometry, but with a flat interface. That is, we model the interface a curve arc without any wiggles. We simulate the system with a varying CSF-width (witdh of the CSF-filled space crossection) in the interval [0.5, 5] mm. By looking at the pressure variance shown in figure (...) and (...) we see that the pressure is varying very little. 
+
+
+<p float="left">
+    <img src="figures/flat_ps_maxvar_width.png"
+         alt=""
+         style="width:49%">
+    <img src="figures/flat_ps_meanvar_width.png"
+         alt=""
+         style="width:49%">
+     <h4 align="center"> 
+    Fig.X - Caption
+    </h4>
+</p>
+
+
+
+
 
 <!-- <p align="center">
-  <img src="figures/solution_convergence.png" alt="Text is not showing?"/>
+    <img src="figures/filename.png"
+         alt=""
+         style="width:80%">
+    <h4 align="center"> 
+    Fig.X - Caption
+    </h4>
 </p> -->
-
-
