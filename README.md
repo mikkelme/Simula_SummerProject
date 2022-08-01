@@ -43,11 +43,9 @@ The default geometry parameters for our 2D brain slice is a shown in table (...)
          alt=""
          style="width:80%">
     <h4 align="center"> 
-    Fig.X - Example of default 2D brain geometry.
+    Fig.X - Example of default 2D brain geometry. The orange region represents the Stokes domain and the green region the Darcy domain.
     </h4>
 </p>
-
-
 
 
 
