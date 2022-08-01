@@ -38,6 +38,10 @@ The default geometry parameters for our 2D brain slice is a shown in table (...)
 | Wavelength of interface wiggles | 10 mm | [1,  50] mm|
 | Amplitude of interface wiggles | 1 mm | [0.1, 5] mm |
 
+<p align="center">
+2.  <img width="200" src="http://material-bread.org/logo-shadow.svg" alt="Material Bread logo">
+3.</p>
+
 
 <center>
 
