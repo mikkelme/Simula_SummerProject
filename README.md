@@ -41,6 +41,7 @@ The default geometry parameters for our 2D brain slice is a shown in table (...)
 <p align="center">
     <img width="200" src="figures/default_2D_brain_example.png"alt="Material Bread logo">
 </p>
+<h1 align="center">Material Bread</h1>
 
 
 <center>
