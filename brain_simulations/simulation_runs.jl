@@ -120,12 +120,12 @@ function run_inner_negsines_freq()
     # Settings
     start_width = 5e-3
     end_width = 0.5e-3
-    num_samples = 3
-    num_rad_lines = 10
+    num_samples = 10
+    num_rad_lines = 100
 
     folder_name = "inner_negsines"
     A = 0.3e-3
-    freq = [5.0, 15.0, 25.0]
+    freq = [1.0, 5.0, 15.0, 25.0, 50.0]
     ω(f) = 2*pi * f/(arcLen[1] * (1 - d_ratio * r_brain / r_curv)) 
     # inner_perturb = @sprintf("(x,z) -> %f * sin(abs(x) * %f)", A , ω)
 
@@ -160,11 +160,11 @@ function run_inner_negsines_amp()
     # Settings
     start_width = 5e-3
     end_width = 0.5e-3
-    num_samples = 3
-    num_rad_lines = 10
+    num_samples = 10
+    num_rad_lines = 100
 
     folder_name = "inner_negsines"
-    Amp = [0.1e-3, 0.3e-3, 0.5e-3]
+    Amp = [0.1e-3, 0.5e-3, 1e-3, 2e-3, 3e-3]
     f = 15.0
     ω(f) = 2*pi * f/(arcLen[1] * (1 - d_ratio * r_brain / r_curv)) 
 
@@ -187,7 +187,7 @@ function run_inner_negsines_amp()
 
     # Combinned analyse   
     folder_names = [folder_name * @sprintf("_A%s", A) for A in Amp]
-    labels = [@sprintf("f = %s", A) for A in Amp]
+    labels = [@sprintf("A = %.2f mm", A*1e3) for A in Amp]
     savename = folder_name * "_amp"
     combinned_analyse(savename, folder_names, labels)
    
@@ -209,7 +209,7 @@ end
 # run_flat()
 # run_single_inner_sine()
 # run_single_inner_negsine()
-# run_inner_negsines_freq()
+run_inner_negsines_freq()
 run_inner_negsines_amp()
 
 

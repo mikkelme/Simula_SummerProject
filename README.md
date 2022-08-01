@@ -1,12 +1,14 @@
-# Simula_SummerProject (FIND better name)
+# Simula_SummerProject (find better name)
 
-This repo contains the work done as a summer intern at Simula during a six week period during the summer of 2022. The project was guided by my supervisor Miroslav Kutcha. [Miroslav Kutcha](https://github.com/MiroK).
+This repo contains the work done as a summer intern at Simula during a six week period in the summer of 2022. The project was guided by my supervisor [Miroslav Kutcha](https://github.com/MiroK).
 
 ## Introduction 
 
-We are going to build a framwork for simulating the flow of the cerebrospinal which flows on the outside of the brain. We want to investigate whether one can use dimension reduction to increase the efficiency of such simulations. That is, modelling the outer shell in 3D as a surface without thickness in 2D. Or in the simpler case we can consider going from the 2D model, where the fluid flows across a 2D surface and investigating whether this can be redyced to a 1D line. In this project we are goind to limit ourself to the dimension reduction starting from the 2D case. However, the framework for making the 3D brain geometry is already included here such that an extension to the 3D study is not to demanding.
+In this project we build a framework for simulating the flow of the cerebrospinal fluid (CSF) in the human brain. The CSF flows, among other regions, on the outside of the brain tissue in the outer most layer of the head. The CSF enter the brain tissue through small pores in the brain tissue and a part in the transpoortation of waste matter produced in the brain. Thus, simulating the CSF flow can be of great benefit for medical research. However, such simulations becomes computational expensive when considering large regions of the brain and hence we want to invistigate the possibility to introduce a simpler model by the use of dimension reduction. That is, instead of considering the CSF-filled space as a 3D sphere shell with thickness in the radial direction we reduce it to a 2D sphere encapsulating the brain tissue. In order for this simplification to be sucessfull we most be able to neglect the dynamics in the reduced dimension without any great impact on the predicted flow. More precisely we want the pressure to be approximately constant on the crosssection to the fluid flow in the radial plane. In addition we want negligble velocity normal to the main CSF flow. Due to the fact that the CSF-filled space is much longer than it is thick one can hypothesize that the flow will meet the above criteria rather well. 
 
-We are going to use Julia as the programming language for this project. We work with Gridap for the finite element part and gmsh for creating the geometry and the mesh.
+We are going to simulate the CSF flow using the finite element method to solve the partial derivative equations. For simplicity we take on a 2D problem where we consider a 2D slice of the brain, and consider the dimension reduction in the radial direction such that the CSF-filled space is reduced to a line. By decreasing the width of the CSF-filled space we can study the decolopment of the pressure profile on the crossection and the normal flow on the interface between the CSF-filled space and the brain tissue. For a more realistic approach we introduce wiggled surfaces and study the prospects for dimension reduction for different brain geomtries.
+
+We are going to use Julia as the programming language for this project. We use the [Gridap](https://gridap.github.io/Gridap.jl/stable/) module for the finite element part and [Gmsh](https://gmsh.info) for creating the geometry and the mesh.
 
 ## Method & Theory 
 
