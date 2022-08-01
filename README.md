@@ -38,6 +38,7 @@ The default geometry parameters for our 2D brain slice is a shown in table (...)
 | Wavelength of interface wiggles | 10 mm | [1,  50] mm|
 | Amplitude of interface wiggles | 1 mm | [0.1, 5] mm |
 
+<center>
 
 <figure>
     <img src="figures/default_2D_brain_example.png"
@@ -45,6 +46,8 @@ The default geometry parameters for our 2D brain slice is a shown in table (...)
          style="width:50%">
     <figcaption>An elephant at sunset</figcaption>
 </figure>
+
+</center>
     
 
 
@@ -59,11 +62,11 @@ The default geometry parameters for our 2D brain slice is a shown in table (...)
 Fig.X - Example of default 2D brain geometry. 
 </b></figcaption>
 </figure align = "center">
- -->
+  -->
 
 <!-- <p align="center">
   <img src="figures/solution_convergence.png" alt="Text is not showing?"/>
-</p> -->
+</p>
 
 
 
