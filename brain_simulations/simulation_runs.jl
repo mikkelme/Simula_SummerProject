@@ -15,7 +15,6 @@ end
 
 # Brain Model [length unit: meter] 
 lc = 2e-4 # size(op.op.matrix) = (425840, 425840)
-
 arcLen = (100e-3, 0)
 r_brain = 10e-3  
 d_ratio = 1.5e-3/r_brain
@@ -182,12 +181,13 @@ end
 
 
 # --- Simulaiton runs --- #
-# run_solution_convergence()
-# run_flat()
-run_single_inner_negsine()
 
-# run_inner_negsines_lambda()
-# run_inner_negsines_amp()
+run_inner_negsines_lambda()
+run_inner_negsines_amp()
+
+run_single_inner_negsine()
+run_flat()
+run_solution_convergence()
 
 
 
