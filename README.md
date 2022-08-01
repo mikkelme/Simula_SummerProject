@@ -42,7 +42,7 @@ The default geometry parameters for our 2D brain slice is a shown in table (...)
 <figure>
     <img src="figures/default_2D_brain_example.png"
          alt="Elephant at sunset"
-         style="width:90%">
+         style="width:50%">
     <figcaption>An elephant at sunset</figcaption>
 </figure>
     
