@@ -39,45 +39,16 @@ The default geometry parameters for our 2D brain slice is a shown in table (...)
 | Amplitude of interface wiggles | 1 mm | [0.1, 5] mm |
 
 <p align="center">
-    <img width="200" src="figures/default_2D_brain_example.png"alt="Material Bread logo">
-</p>
-<h1 align="center">Material Bread</h1>
-
-
-<center>
-
-<p align="center">
     <img src="figures/default_2D_brain_example.png"
-         alt="Elephant at sunset"
-         style="width:50%">
+         alt=""
+         style="width:80%">
     <h4 align="center"> 
     Fig.X - Example of default 2D brain geometry.
     </h4>
 </p>
 
-</center>
-    
-
-<center>
 
 
-<p align = "center">
-    <img    src="figures/default_2D_brain_example.png"   
-            alt="Elephant at sunset"
-            style="width:50%">
-    <figcaption align = "center"><b>
-    Fig.X - Example of default 2D brain geometry. 
-    </b></figcaption>
-</p align = "center">
-
-</center>
-
-
-
-
-<!-- <p align="center">
-  <img src="figures/solution_convergence.png" alt="Text is not showing?"/>
-</p>
 
 
 
