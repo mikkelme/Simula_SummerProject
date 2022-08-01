@@ -38,9 +38,15 @@ The default geometry parameters for our 2D brain slice is a shown in table (...)
 
 
 
-<p align="center">
+<!-- <p align="center">
   <img src="figures/default_2D_brain_example.png" alt="Text is not showing?" width="800"/>
+</p> -->
+
+
+<p align="center">
+  <img src="figures/default_2D_brain_example.png" alt="Text is not showing?"/>
 </p>
+
 
 ### Equations 
 
