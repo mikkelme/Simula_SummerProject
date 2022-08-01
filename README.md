@@ -66,8 +66,8 @@ $$
     - \nabla \cdot \sigma(u_S, p_S) &= f_s  &\text{in} \ \Omega_S \\
     \nabla \cdot u_S &= 0   &\text{in} \ \Omega_S \\
     u_S &= u_{S,0}   &\text{on} \ \Lambda_S \\
-    u_S \times \hat{n}_S &= 0   &\text{on} \ \Gamma_S \\
-    p_S &= p_{S,0}   &\text{on} \ \Gamma_S \\
+    u_S \times \hat{n}\_S &= 0   &\text{on} \ \Gamma_S \\
+    p_S &= p\_{S,0}   &\text{on} \ \Gamma_S \\
 \end{align}
 $$
 
@@ -121,7 +121,7 @@ $$
 \begin{align}
     - \int_{\partial\Omega_S} \big(\sigma(u_S, p_S)\cdot\hat{n}_S\big) \cdot v_S \ dS   =  \int\_{\partial\Omega_S} \underbrace{-\Big[\big(\sigma(u_S, p_S)\cdot\hat{n}_S\big) \cdot \hat{n}_S \Big]\Big[\hat{n}_S \cdot v_S \Big]}\_{P_D \ \text{on} \ \ \Gamma} &-\underbrace{\Big[\big(\sigma(u_S, p_S)\cdot\hat{n}_S\big) \cdot \hat{\tau}_S \Big]\Big[\hat{\tau}_S \cdot v_S \Big]}\_{\alpha u_S \cdot\hat{\tau}_S \ \ \text{on} \ \Gamma} \\
     = \int\_{\partial\Omega_S\setminus\Gamma} -\Big[\underbrace{\big(\sigma(u_S, p_S)\cdot\hat{n}_S\big) \cdot \hat{n}_S }\_{- p_S} \Big]\Big[\hat{n}_S \cdot v_S \Big] &-\Big[\big(\sigma(u_S, p_S)\cdot\hat{n}_S\big) \cdot \hat{\tau}_S \Big]\Big[\hat{\tau}_S \cdot v_S \Big] \\
-    &+ \int\_{\Gamma} P_D - \alpha u_S \cdot\hat{\tau}_S \ dL
+    &+ \int\_{\Gamma} P_D - \alpha u\_S \cdot\hat{\tau}\_S \ dL
 \end{align}
 $$
 
