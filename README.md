@@ -51,6 +51,7 @@ The default geometry parameters for our 2D brain slice is a shown in table (...)
 </center>
     
 
+<center>
 
 
 <figure align = "center">
@@ -61,6 +62,8 @@ The default geometry parameters for our 2D brain slice is a shown in table (...)
     Fig.X - Example of default 2D brain geometry. 
     </b></figcaption>
 </figure align = "center">
+
+</center>
 
 
 
