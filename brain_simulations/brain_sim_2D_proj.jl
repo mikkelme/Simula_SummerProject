@@ -109,8 +109,6 @@ function brain_PDE_2D_proj(model, pgs_dict, data; write = false)
     n̂Γ = get_normal_vector(Γ) 
     n̂ΓS = get_normal_vector(ΓS)
     n̂D = get_normal_vector(ΓD)
-    t̂Γ = TensorValue(0, -1, 1, 0) ⋅ n̂Γ.⁺ 
-    t̂ΓS = TensorValue(0, -1, 1, 0) ⋅ n̂ΓS 
     
     # Nitsche 
     γ = 10^order # Nitsche penalty parameter
@@ -120,14 +118,11 @@ function brain_PDE_2D_proj(model, pgs_dict, data; write = false)
     # --- Weak formulation --- #
     ϵ(u) = 1 / 2 * (∇(u) + transpose(∇(u)))
     σ(u,p) = 2 * data.μ * ε(u) - p * TensorValue(1, 0, 0, 1) # Stress matrix
-    Pν(u, n̂) = u - (u ⋅ n̂) * n̂
-    # projection operator 
+    Pν(u, n̂) = u - (u ⋅ n̂) * n̂ # projection operator 
 
 
     # Nitsche on ΓS
     aNΓS((us, ps), (vs, qs)) = ∫(γ/h * Pν(us, n̂ΓS) ⋅ Pν(vs, n̂ΓS))dΓS  - ∫( Pν(n̂ΓS ⋅ σ(us,ps), n̂ΓS) ⋅ Pν(vs, n̂ΓS) )dΓS - ∫( Pν(n̂ΓS ⋅ σ(vs,qs), n̂ΓS) ⋅ Pν(us, n̂ΓS) )dΓS
-    
-      
     
     bNΓS((vs, qs)) = ∫(data.ps0 * (-vs ⋅ n̂ΓS))dΓS 
     
@@ -138,7 +133,6 @@ function brain_PDE_2D_proj(model, pgs_dict, data; write = false)
     aΩD((pd, qd)) = ∫( data.Κ/data.μ*(∇(pd)⋅∇(qd)) )dΩD
 
     # Interface coupling (left hand side)
-    # aΓ((us, pd), (vs, qd)) = ∫( data.α*(us.⁺⋅t̂Γ)*(vs.⁺⋅t̂Γ) - (us.⁺⋅n̂Γ.⁺)*qd.⁻ + pd.⁻*(n̂Γ.⁺⋅vs.⁺) )dΓ
     aΓ((us, pd), (vs, qd)) = ∫( data.α*Pν(us.⁺, n̂Γ.⁺)⋅Pν(vs.⁺, n̂Γ.⁺) - (us.⁺⋅n̂Γ.⁺)*qd.⁻ + pd.⁻*(n̂Γ.⁺⋅vs.⁺) )dΓ
 
 
