@@ -181,6 +181,49 @@ function run_inner_negsines_amp(;run=true)
 end
 
 
+
+
+function run_permeability(;run=true)
+    # Settings
+    folder_name = "Kappa"
+    start_width = 5e-3
+    end_width = 0.5e-3
+    num_samples = 20
+    num_rad_lines = 300
+
+    A = 1e-3
+    λ = 10*1e-3
+    ω(λ) = 2*pi/λ      
+    inner_perturb = @sprintf("(x,z) -> %f * sin(abs(x) * %f - pi/2) * fld(mod2pi(abs(x) * %f - pi/2),pi) ", A , ω(λ), ω(λ))
+    Kappa = [1e-16, 1e-15, 1e-14, 1e-13, 1e-12]
+    
+    # Run
+    if run
+        for (i, inner_perturb) in enumerate(negsines)
+            i_folder_name = folder_name * @sprintf("_Κ%s", Kappa[i])
+            Κ = Kappa[i]
+            # Run
+            brain_param = model_params(lc, arcLen, r_brain, d_ratio, r_curv, inner_perturb, outer_perturb, BS_points, field_Lc_lim, field_Dist_lim)
+            PDE_param = PDE_params(μ, Κ, α, ps0, ∇pd0)
+            eval_decreasing_lc(brain_param, PDE_param, start_width, end_width, num_samples, num_rad_lines; folder_name = i_folder_name)
+            
+            # Analyse     
+            readpath = path * "data_" * i_folder_name * "/txt_files/"
+            standard_analyse(readpath, i_folder_name)   
+        end
+    end
+
+    # Combinned analyse   
+    folder_names = [folder_name * @sprintf("_Κ%s", Κ) for Κ in Kappa]
+    labels = [@sprintf("A = %e mm", K) for Κ in Kappa]
+    savename = folder_name * "_Kappa"
+    combinned_analyse(savename, folder_names, labels)
+   
+end
+
+
+
+
 # --- View model --- #
 # A = 0.3e-3
 # f = 15.0
