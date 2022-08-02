@@ -41,14 +41,20 @@ function plot_ps_var_vs_width(filename, fig; label = "", var = "max", save = fal
     # number of samples
     words =  split(lines[23], '=')
     @assert words[1] == "# num_samples " "Reading wrong line for num_samples"
-    num_samples = parse(Int, words[2][2:length(words[2])])
+    num_samples = parse(Int, strip(words[2], ' '))
 
     # number of radial line
     words =  split(lines[24], '=')
     @assert words[1] == "# num_rad_lines " "Reading wrong line for num_rad_lines"
-    num_rad_lines = parse(Int, words[2][2:length(words[2])])
- 
-    width = []
+    num_rad_lines = parse(Int, strip(words[2], ' '))
+
+    # number of radial line
+    words =  split(lines[25], '=')
+    @assert words[1] == "# width " "Reading wrong line for width"
+    words[2] = strip(words[2], [' ','[',']'])
+    width = [parse(Float64, strip(word, ' ')) for word in split(words[2], ',')]
+    
+    # width = []
     max_var = []
     mean_var = []
 
@@ -56,7 +62,7 @@ function plot_ps_var_vs_width(filename, fig; label = "", var = "max", save = fal
         start_index = (i-1)*num_rad_lines + 1
         end_index = start_index + num_rad_lines - 1
         max, idx = findmax(data_cells[start_index:end_index, 4])
-        append!(width, data_cells[start_index + idx - 1, 3])
+        # append!(width, data_cells[start_index + idx - 1, 3])
         append!(max_var, max)
         append!(mean_var, sum(data_cells[start_index:end_index, 4])/num_rad_lines)
     end
@@ -95,12 +101,12 @@ function plot_ps_var_vs_angle(filename; save = false)
     # number of samples
     words =  split(lines[23], '=')
     @assert words[1] == "# num_samples " "Reading wrong line for num_samples"
-    num_samples = parse(Int, words[2][2:length(words[2])])
+    num_samples = parse(Int, strip(words[2], ' '))
 
     # number of radial line
     words =  split(lines[24], '=')
     @assert words[1] == "# num_rad_lines " "Reading wrong line for num_rad_lines"
-    num_rad_lines = parse(Int, words[2][2:length(words[2])])
+    num_rad_lines = parse(Int, strip(words[2], ' '))
 
    
     plot()

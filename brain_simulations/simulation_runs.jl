@@ -35,7 +35,7 @@ ps0 = "(x) -> x[1] < 0 ? 1*133.3224 : 0." # 1*mmHg [Pa]
 
 
 
-function run_solution_convergence()
+function run_solution_convergence(;run=true)
     # Settings 
     start_lc = 1e-2
     end_lc = 5e-5
@@ -43,14 +43,16 @@ function run_solution_convergence()
     filename = "test_conv"
 
     # Run
-    brain_param = model_params(lc, arcLen, r_brain, d_ratio, r_curv, inner_perturb, outer_perturb, BS_points, field_Lc_lim, field_Dist_lim)
-    PDE_param = PDE_params(μ, Κ, α, ps0, ∇pd0)
-    solution_convergence_vs_lc(brain_param, PDE_param, start_lc, end_lc, num_samples; filename = filename * ".txt")
+    if run
+        brain_param = model_params(lc, arcLen, r_brain, d_ratio, r_curv, inner_perturb, outer_perturb, BS_points, field_Lc_lim, field_Dist_lim)
+        PDE_param = PDE_params(μ, Κ, α, ps0, ∇pd0)
+        solution_convergence_vs_lc(brain_param, PDE_param, start_lc, end_lc, num_samples; filename = filename * ".txt")
+    end 
     plot_solution_convergence(path * "/txt_files/" * filename * ".txt"; save = path * "/png_files/" * filename * ".png")
 end
 
 
-function run_flat()
+function run_flat(;run=true)
     # Settings
     folder_name = "flat"
     start_width = 5e-3
@@ -59,17 +61,18 @@ function run_flat()
     num_rad_lines = 300
 
     # Run
-    brain_param = model_params(lc, arcLen, r_brain, d_ratio, r_curv, inner_perturb, outer_perturb, BS_points, field_Lc_lim, field_Dist_lim)
-    PDE_param = PDE_params(μ, Κ, α, ps0, ∇pd0)
-    eval_decreasing_lc(brain_param, PDE_param, start_width, end_width, num_samples, num_rad_lines; folder_name = folder_name)
-    
+    if run
+        brain_param = model_params(lc, arcLen, r_brain, d_ratio, r_curv, inner_perturb, outer_perturb, BS_points, field_Lc_lim, field_Dist_lim)
+        PDE_param = PDE_params(μ, Κ, α, ps0, ∇pd0)
+        eval_decreasing_lc(brain_param, PDE_param, start_width, end_width, num_samples, num_rad_lines; folder_name = folder_name)
+    end
     # Standard analyse     
     readpath = path * "data_" * folder_name * "/txt_files/"
     standard_analyse(readpath, folder_name)
 end
 
 
-function run_single_inner_negsine()
+function run_single_inner_negsine(;run=true)
     # Settings
     folder_name = "single_inner_negsine"
     start_width = 5e-3
@@ -83,10 +86,11 @@ function run_single_inner_negsine()
     inner_perturb = @sprintf("(x,z) -> %f * sin(abs(x) * %f - pi/2) * fld(mod2pi(abs(x) * %f - pi/2),pi) ", A , ω(λ), ω(λ))
 
     # Run
-    brain_param = model_params(lc, arcLen, r_brain, d_ratio, r_curv, inner_perturb, outer_perturb, BS_points, field_Lc_lim, field_Dist_lim)
-    PDE_param = PDE_params(μ, Κ, α, ps0, ∇pd0)
-    eval_decreasing_lc(brain_param, PDE_param, start_width, end_width, num_samples, num_rad_lines; folder_name = folder_name)
-    
+    if run
+        brain_param = model_params(lc, arcLen, r_brain, d_ratio, r_curv, inner_perturb, outer_perturb, BS_points, field_Lc_lim, field_Dist_lim)
+        PDE_param = PDE_params(μ, Κ, α, ps0, ∇pd0)
+        eval_decreasing_lc(brain_param, PDE_param, start_width, end_width, num_samples, num_rad_lines; folder_name = folder_name)
+    end
     # Analyse     
     readpath = path * "data_" * folder_name * "/txt_files/"
     standard_analyse(readpath, folder_name)
@@ -94,7 +98,7 @@ end
 
 
 
-function run_inner_negsines_lambda()
+function run_inner_negsines_lambda(;run=true)
     # Settings
     start_width = 5e-3
     end_width = 0.5e-3
@@ -108,23 +112,24 @@ function run_inner_negsines_lambda()
     negsines = [@sprintf("(x,z) -> %f * sin(abs(x) * %f - pi/2) * fld(mod2pi(abs(x) * %f - pi/2),pi)",A , ω(λ), ω(λ)) for λ in lambda]
     
     # Run
-    for (i, inner_perturb) in enumerate(negsines)
-        i_folder_name = folder_name * @sprintf("_λ%s", lambda[i])
+    if run
+        for (i, inner_perturb) in enumerate(negsines)
+            i_folder_name = folder_name * @sprintf("_λ%s", lambda[i])
 
-        # Run
-        brain_param = model_params(lc, arcLen, r_brain, d_ratio, r_curv, inner_perturb, outer_perturb, BS_points, field_Lc_lim, field_Dist_lim)
-        PDE_param = PDE_params(μ, Κ, α, ps0, ∇pd0)
-        eval_decreasing_lc(brain_param, PDE_param, start_width, end_width, num_samples, num_rad_lines; folder_name = i_folder_name)
-        
-        # Analyse     
-        readpath = path * "data_" * i_folder_name * "/txt_files/"
-        standard_analyse(readpath, i_folder_name)
-               
+            # Run
+            brain_param = model_params(lc, arcLen, r_brain, d_ratio, r_curv, inner_perturb, outer_perturb, BS_points, field_Lc_lim, field_Dist_lim)
+            PDE_param = PDE_params(μ, Κ, α, ps0, ∇pd0)
+            eval_decreasing_lc(brain_param, PDE_param, start_width, end_width, num_samples, num_rad_lines; folder_name = i_folder_name)
+            
+            # Analyse     
+            readpath = path * "data_" * i_folder_name * "/txt_files/"
+            standard_analyse(readpath, i_folder_name)
+                
+        end
     end
-
     # Combinned analyse   
     folder_names = [folder_name * @sprintf("_λ%s", λ) for λ in lambda]
-    labels = [@sprintf("f = %s mm", λ*1e3) for λ in lambda]
+    labels = [@sprintf("λ = %s mm", λ*1e3) for λ in lambda]
     savename = folder_name * "_lambda"
     combinned_analyse(savename, folder_names, labels)
    
@@ -132,7 +137,7 @@ end
 
 
 
-function run_inner_negsines_amp()
+function run_inner_negsines_amp(;run=true)
     # Settings
     start_width = 5e-3
     end_width = 0.5e-3
@@ -147,18 +152,19 @@ function run_inner_negsines_amp()
 
     
     # Run
-    for (i, inner_perturb) in enumerate(negsines)
-        i_folder_name = folder_name * @sprintf("_A%s", Amp[i])
+    if run
+        for (i, inner_perturb) in enumerate(negsines)
+            i_folder_name = folder_name * @sprintf("_A%s", Amp[i])
 
-        # Run
-        brain_param = model_params(lc, arcLen, r_brain, d_ratio, r_curv, inner_perturb, outer_perturb, BS_points, field_Lc_lim, field_Dist_lim)
-        PDE_param = PDE_params(μ, Κ, α, ps0, ∇pd0)
-        eval_decreasing_lc(brain_param, PDE_param, start_width, end_width, num_samples, num_rad_lines; folder_name = i_folder_name)
-        
-        # Analyse     
-        readpath = path * "data_" * i_folder_name * "/txt_files/"
-        standard_analyse(readpath, i_folder_name)
-               
+            # Run
+            brain_param = model_params(lc, arcLen, r_brain, d_ratio, r_curv, inner_perturb, outer_perturb, BS_points, field_Lc_lim, field_Dist_lim)
+            PDE_param = PDE_params(μ, Κ, α, ps0, ∇pd0)
+            eval_decreasing_lc(brain_param, PDE_param, start_width, end_width, num_samples, num_rad_lines; folder_name = i_folder_name)
+            
+            # Analyse     
+            readpath = path * "data_" * i_folder_name * "/txt_files/"
+            standard_analyse(readpath, i_folder_name)   
+        end
     end
 
     # Combinned analyse   
@@ -182,12 +188,12 @@ end
 
 # --- Simulaiton runs --- #
 
-# run_inner_negsines_lambda()
-# run_inner_negsines_amp()
+run_inner_negsines_lambda(run = false)
+# run_inner_negsines_amp(run=false)
 
-run_flat()
-run_single_inner_negsine()
-# run_solution_convergence()
+# run_flat(run=false)
+# run_single_inner_negsine(run=false)
+# run_solution_convergence(run=false)
 
 
 
