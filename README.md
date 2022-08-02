@@ -222,7 +222,7 @@ For the choice of the mesh resolution we perform a approximated error convergenc
 </p>
 
 
-From figure (...) we get an idea of the acuracy of the solution as a function of the resolution. By choosing $lc = 0.1 \ \text{mm}$ we should get an accuracy on the order $\pm 0.1 \%$ of the true solution.
+From figure (...) we get an idea of the acuracy of the solution as a function of the resolution. By choosing $lc = 0.1 \ \text{mm}$ we should get an accuracy on the order $\pm 0.1 \\%$ of the true solution.
 
 
 ### Flat interface
@@ -244,7 +244,7 @@ We begin by the simple case of the default brain geometry, but with a flat inter
 Considering the pressure difference across the domain on $133.3224 \ \text{Pa}$ the relative deviation in the pressure in the radial direction at the width in the worst case scenario is on the order
 
 $$
-\sqrt{10^-9} / 133.3224 \approx 7,5 \cdot 10^{-10} \\%,
+\sqrt{10^-9} / 133.3224 \approx 7,5 \cdot 10^{-10} \ \\%,
 $$
 
 which is fair to consider neglible. 
