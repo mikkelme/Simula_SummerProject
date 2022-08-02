@@ -229,6 +229,7 @@ From figure (...) we get an idea of the acuracy of the solution as a function of
 
 We begin by the simple case of the default brain geometry, but with a flat interface. That is, we model the interface a curve arc without any wiggles. We simulate the system with a varying CSF-width (witdh of the CSF-filled space crossection) in the interval [0.5, 5] mm. By looking at the pressure variance shown in figure (...) and (...) we see that the pressure is varying very little, on the order. 
 
+
 <p float>
     <img src="figures/flat_ps_maxvar_width.png"
          alt=""
@@ -241,17 +242,36 @@ We begin by the simple case of the default brain geometry, but with a flat inter
     </h4>
 </p>
 
-Considering the pressure difference across the domain on $133.3224 \ \text{Pa}$ the relative deviation in the pressure in the radial direction at the width in the worst case scenario is on the order
+
+Considering that the pressure difference across the domain is $ \Delta P_S = 133.3224 \ \text{Pa}$ the relative pressure deviation from the mean on a radial line in the worst case scenario (maximum variance) with a width close to the typycial width is on the order
 
 $$
-\sqrt{10^-9} / 133.3224 \approx 7,5 \cdot 10^{-10} \ \\%,
+\frac{\sqrt{max(var)}}{\Delta p_S} = \frac{\sqrt{10^{-9}}}{133.3224} \approx 7,5 \cdot 10^{-10} \ \\%,
 $$
 
-which is fair to consider neglible. 
+which is fair to consider neglible. We can confirm that the pressure is approximately constant by looking at the pressure profile across a radial line. 
 
-We can confirm that the pressure is approximately constant by 
+
+<p float>
+    <img src="figures/FLAT_ps_profile_contour.png"
+         alt=""
+         style="width:49%">
+    <img src="figures/FLAT_ps_profile.png"
+         alt=""
+         style="width:49%">
+     <h4 align="center"> 
+    Fig.X - Caption
+    </h4>
+</p>
+
 
 ### Default interface (Interface with wiggles)
+
+
+
+
+
+
 
 
 <!-- <p align="center">
