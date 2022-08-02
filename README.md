@@ -216,9 +216,9 @@ For the choice of the mesh resolution we perform a approximated error convergenc
     <img src="figures/solution_convergence.png"
          alt=""
          style="width:60%">
-    <h4 align="center"> 
+    <h5 align="center"> 
     Fig.X - Approximated error convergence test using a resolution of $lc = 0.05 \ \text{mm}$ as a true reference solution. We calculate the $l^2$ norm between the reference solution and solutions using a lower resolution (higher $lc$) along a center line for both the domains.
-    </h4>
+    </h5>
 </p>
 
 
@@ -237,9 +237,9 @@ We begin by the simple case of the default brain geometry, but with a flat inter
     <img src="figures/FLAT_ps_meanvar_width.png"
          alt=""
          style="width:49%">
-     <h4 align="center"> 
+     <h5 align="center"> 
     Fig.X - Caption
-    </h4>
+    </h5>
 </p>
 
 
@@ -259,9 +259,9 @@ which is fair to consider neglible. We can confirm that the pressure is approxim
     <img src="figures/FLAT_ps_profile1.45e-03.png"
          alt=""
          style="width:49%">
-     <h4 align="center"> 
+     <h5 align="center"> 
     Fig.X - width = 1.45 mm
-    </h4>
+    </h5>
 </p>
 
 
@@ -271,9 +271,9 @@ In addition we evaluate the absolute normal flow on the interface.
     <img src="figures/FLAT_us_nflow_abs.png"
          alt=""
          style="width:60%">
-    <h4 align="center"> 
+    <h5 align="center"> 
     Fig.X - Caption
-    </h4>
+    </h5>
 </p>
 
 This also drops with width and is very small comared to the maximum velocity of $700 \ \text{mm/s}$ which gives an relative deviation at the typical length on the order 
@@ -294,9 +294,9 @@ We now introduce the wiggles to the interface and compute similar metrics as don
     <img src="figures/SNS_ps_meanvar_width.png"
          alt=""
          style="width:49%">
-     <h4 align="center"> 
+     <h5 align="center"> 
     Fig.X - Caption
-    </h4>
+    </h5>
 </p>
 
 
@@ -306,9 +306,9 @@ We observe again that the pressure variance decrease with decreasing width, but 
     <img src="figures/SNS_ps_var_angle.png"
          alt=""
          style="width:60%">
-    <h4 align="center"> 
+    <h5 align="center"> 
     Fig.X - Caption
-    </h4>
+    </h5>
 </p>
 
 By looking at the simulation for a width of $1.45 \ \text{mm}$ we see that the CSF flows from the stokes domain 
@@ -317,9 +317,9 @@ By looking at the simulation for a width of $1.45 \ \text{mm}$ we see that the C
     <img src="figures/SNS_nflow_profile1.45e-03.png"
          alt=""
          style="width:60%">
-    <h4 align="center"> 
+    <h5 align="center"> 
     Fig.X - Caption
-    </h4>
+    </h5>
 </p>
 
 
@@ -329,9 +329,9 @@ We take a look at the flow direction (not scaled yb magnitude).
     <img src="figures/SNS_glyph_noscale1.45e-03.png"
          alt=""
          style="width:60%">
-    <h4 align="center"> 
+    <h5 align="center"> 
     Fig.X - Caption
-    </h4>
+    </h5>
 </p>
 
 We can see that the CSF fluid flows into the brain tissue in the from the bottom of the dimple towards the square edge. We have no informaiton about the velocity field in the brain tissue, but judging from the previous figure we can deduce that it flows out again at the start of the square edge but also at the beginning of next dimple. However, here we also se a spike in the inflow to the brain tissue, which supports the idea that the CSF cuts the hard cornes. But if we compare the magnitudes of the in and out flow at the cornes (qualitatively) we see that some of it must have flated through the tissue accros the square part of the wiggle. However when considering the absolute normal flow 
@@ -341,9 +341,9 @@ We can see that the CSF fluid flows into the brain tissue in the from the bottom
     <img src="figures/SNS_us_nflow_abs.png"
          alt=""
          style="width:60%">
-    <h4 align="center"> 
+    <h5 align="center"> 
     Fig.X - Caption
-    </h4>
+    </h5>
 </p>
 
 which lies around $5\cdot10^{-4} \ \text{mm/s}$ compared to a maximum flow velocity around $700 \ \text{mm/s}$ around the typical width. This gives a relative deviation 
@@ -366,9 +366,9 @@ Due to the promising result for the default brian geometry we invistigate the co
     <img src="figures/MNS_lambda_ps_maxvar_width.png"
          alt=""
          style="width:49%">
-     <h4 align="center"> 
+     <h5 align="center"> 
     Fig.X - Caption
-    </h4>
+    </h5>
 </p>
 
 
@@ -379,9 +379,9 @@ Due to the promising result for the default brian geometry we invistigate the co
     <img src="figures/MNS_lambda_us_nflow_abs.png"
          alt=""
          style="width:49%">
-     <h4 align="center"> 
+     <h5 align="center"> 
     Fig.X - Caption
-    </h4>
+    </h5>
 </p>
 
 
@@ -407,7 +407,7 @@ stress free config and projection vector for tangential parts.
     <img src="figures/filename.png"
          alt=""
          style="width:60%">
-    <h4 align="center"> 
+    <h5 align="center"> 
     Fig.X - Caption
-    </h4>
+    </h5>
 </p> -->
