@@ -138,7 +138,7 @@ function brain_PDE_3D(model, pgs_dict, data; write = false)
 
     # Gathering terms
     a((us, ps, pd), (vs, qs, qd)) =  aΩs((us, ps), (vs, qs)) + aΩD((pd, qd)) + aΓ((us, pd), (vs, qd)) + aNΓLRS((us, ps), (vs, qs))
-    b((vs, qs, qd)) = bNΓLRS((vs, qs)) #+ b_neumann((vs, qd)) 
+    b((vs, qs, qd)) = bNΓLRS((vs, qs)) + b_neumann((vs, qd)) 
         
     
     # --- Solve --- #
@@ -181,7 +181,6 @@ field_Dist_lim = [1e-3, 5e-3]
 Κ = 1e-16   # Permeability in brain parenchyma [m^2] 
 α = "(x) -> 1*μ/sqrt(Κ)" # Slip factor on Γ [Pa * s / m]
 ps0 = "(x) -> x[1] < 0 ? 1*133.3224 : 0." # 1*mmHg [Pa]
-# ∇pd0 = "(x) -> VectorValue(0.0, 0.0)" # Zero flux
 ∇pd0 = "(x) -> VectorValue(0.0, 0.0, 0.0)" # Zero flux
 
 
@@ -190,7 +189,6 @@ ps0 = "(x) -> x[1] < 0 ? 1*133.3224 : 0." # 1*mmHg [Pa]
 brain_param = model_params(lc, arcLen, r_brain, d_ratio, r_curv, inner_perturb, outer_perturb, BS_points, field_Lc_lim, field_Dist_lim)
 PDE_param = PDE_params(μ, Κ, α, ps0, ∇pd0)
 model, pgs_dict = create_brain(brain_param; view=false, write=false)
-# ush, psh, pdh = 
-brain_PDE_3D(model, pgs_dict, PDE_param; write = (path * "vtu_files/", "3D"))
+ush, psh, pdh = brain_PDE_3D(model, pgs_dict, PDE_param; write = (path * "vtu_files/", "3D"))
 
 

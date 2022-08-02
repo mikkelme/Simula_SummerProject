@@ -43,7 +43,7 @@ The default 2D brain is shown in figure (...)
 <p align="center">
     <img src="figures/default_2D_brain_example.png"
          alt=""
-         style="width:80%">
+         style="width:60%">
     <h4 align="center"> 
     Fig.X - Example of default 2D brain geometry. The orange region represents the Stokes domain and the green region the Darcy domain.
     </h4>
@@ -215,7 +215,7 @@ For the choice of the mesh resolution we perform a approximated error convergenc
 <p align="center">
     <img src="figures/solution_convergence.png"
          alt=""
-         style="width:80%">
+         style="width:60%">
     <h4 align="center"> 
     Fig.X - Approximated error convergence test using a resolution of $lc = 0.05 \ \text{mm}$ as a true reference solution. We calculate the $l^2$ norm between the reference solution and solutions using a lower resolution (higher $lc$) along a center line for both the domains.
     </h4>
@@ -270,7 +270,7 @@ In addition we evaluate the absolute normal flow on the interface.
 <p align="center">
     <img src="figures/FLAT_us_nflow_abs.png"
          alt=""
-         style="width:80%">
+         style="width:60%">
     <h4 align="center"> 
     Fig.X - Caption
     </h4>
@@ -305,7 +305,7 @@ We observe again that the pressure variance decrease with decreasing width, but 
 <p align="center">
     <img src="figures/SNS_ps_var_angle.png"
          alt=""
-         style="width:80%">
+         style="width:60%">
     <h4 align="center"> 
     Fig.X - Caption
     </h4>
@@ -316,7 +316,7 @@ By looking at the simulation for a width of $1.45 \ \text{mm}$ we see that the C
 <p align="center">
     <img src="figures/SNS_nflow_profile1.45e-03.png"
          alt=""
-         style="width:80%">
+         style="width:60%">
     <h4 align="center"> 
     Fig.X - Caption
     </h4>
@@ -328,7 +328,7 @@ We take a look at the flow direction (not scaled yb magnitude).
 <p align="center">
     <img src="figures/SNS_glyph_noscale1.45e-03.png"
          alt=""
-         style="width:80%">
+         style="width:60%">
     <h4 align="center"> 
     Fig.X - Caption
     </h4>
@@ -340,7 +340,7 @@ We can see that the CSF fluid flows into the brain tissue in the from the bottom
 <p align="center">
     <img src="figures/SNS_us_nflow_abs.png"
          alt=""
-         style="width:80%">
+         style="width:60%">
     <h4 align="center"> 
     Fig.X - Caption
     </h4>
@@ -406,7 +406,7 @@ stress free config and projection vector for tangential parts.
 <!-- <p align="center">
     <img src="figures/filename.png"
          alt=""
-         style="width:80%">
+         style="width:60%">
     <h4 align="center"> 
     Fig.X - Caption
     </h4>
