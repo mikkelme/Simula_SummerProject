@@ -74,7 +74,7 @@ function brain_PDE_3D(model, pgs_dict, data; write = false)
     ΓD = BoundaryTriangulation(model, tags=ΓD_tags)
     
     # Reference elementes 
-    order = 3  #<----------------------------------------------- WHAT HERE
+    order = 3 
     ref_us = ReferenceFE(lagrangian, VectorValue{3,Float64}, order)
     ref_ps = ReferenceFE(lagrangian, Float64, order - 1)
     ref_pd = ReferenceFE(lagrangian, Float64, order)
