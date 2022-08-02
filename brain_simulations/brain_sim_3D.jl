@@ -74,7 +74,7 @@ function brain_PDE_3D(model, pgs_dict, data; write = false)
     ΓD = BoundaryTriangulation(model, tags=ΓD_tags)
     
     # Reference elementes 
-    order = 2  #<----------------------------------------------- WHAT HERE
+    order = 3  #<----------------------------------------------- WHAT HERE
     ref_us = ReferenceFE(lagrangian, VectorValue{3,Float64}, order)
     ref_ps = ReferenceFE(lagrangian, Float64, order - 1)
     ref_pd = ReferenceFE(lagrangian, Float64, order)
@@ -159,17 +159,15 @@ function brain_PDE_3D(model, pgs_dict, data; write = false)
 end
 
 # --- Brain Model --- # 
-lc = 5e-3
+lc = 2e-3
 arcLen = (50e-3, 10e-3)
 r_brain = 10e-3  
-# d_ratio = 1.5e-3/r_brain
-d_ratio = 0.5
+d_ratio = 1.5e-3/r_brain
 r_curv = 50e-3 
 A = 1e-3
 λ = 10*1e-3
 ω(λ) = 2*pi/λ      
-# inner_perturb = @sprintf("(x,z) -> %f * sin(abs(x) * %f - pi/2) * fld(mod2pi(abs(x) * %f - pi/2),pi) ", A , ω(λ), ω(λ))
-inner_perturb = "(x,z) -> 0.0"  
+inner_perturb = @sprintf("(x,z) -> %f * sin(abs(x) * %f - pi/2) * fld(mod2pi(abs(x) * %f - pi/2),pi) ", A , ω(λ), ω(λ))
 outer_perturb = "(x,z) -> 0.0"  
 
 BS_points = (200, 200) 
