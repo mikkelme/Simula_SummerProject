@@ -282,7 +282,6 @@ function create_brain_3D(param::model_params)
     # apply_periodic_meshing(brain)
 
     # Add physical groups 
-    # obj = [(brain.surf, 2), (brain.arc, 1), (brain.vline, 1), (brain.vertex, 0)] # (tag, dim)
     obj = [(brain.vol, 3), (brain.tan_surf, 2), (brain.rad_surf, 2), (brain.arc, 1), (brain.vertex, 0)] # (tag, dim)
 
     for k in 1:length(obj)
