@@ -40,7 +40,12 @@ function run_solution_convergence(;run=true)
     start_lc = 1e-2
     end_lc = 5e-5
     num_samples = 10
-    filename = "test_conv"
+    filename = "error_convergence"
+
+    A = 1e-3
+    λ = 10*1e-3
+    ω(λ) = 2*pi/λ      
+    inner_perturb = @sprintf("(x,z) -> %f * sin(abs(x) * %f - pi/2) * fld(mod2pi(abs(x) * %f - pi/2),pi) ", A , ω(λ), ω(λ))
 
     # Run
     if run
