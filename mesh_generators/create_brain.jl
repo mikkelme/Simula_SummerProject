@@ -59,11 +59,10 @@ if abspath(PROGRAM_FILE) == @__FILE__
     A = 1e-3
     λ = 10*1e-3
     ω(λ) = 2*pi/λ      
-
-    inner_perturb = @sprintf("(x,z) -> %f * sin(abs(x + z) * %f - pi/2) * fld(mod2pi(abs(x + z) * %f - pi/2),pi) ", A , ω(λ), ω(λ))
+    inner_perturb = @sprintf("(x,z) -> %f * sin(abs(x) * %f - pi/2) * fld(mod2pi(abs(x) * %f - pi/2),pi) ", A , ω(λ), ω(λ))
+    # inner_perturb = @sprintf("(x,z) -> %f * (sin(abs(x) * %f - pi/2) * fld(mod2pi(abs(x) * %f - pi/2),pi) + sin(abs(z) * %f - pi/2) * fld(mod2pi(abs(z) * %f - pi/2),pi)) ", A , ω(λ), ω(λ),  ω(λ), ω(λ))
+    
     outer_perturb = "(x,z) -> 0.0"  
-
-    # outer_perturb = @sprintf("(x,z) -> %f * cos(abs(x) * %f)", 0.5e-3 , ω(3.0))
 
     BS_points = (1000, 1000) 
     field_Lc_lim = [1 / 2, 1]
@@ -71,14 +70,15 @@ if abspath(PROGRAM_FILE) == @__FILE__
 
 
     # 2D brain example
-    # param = model_params(lc, arcLen, r_brain, d_ratio, r_curv, inner_perturb, outer_perturb, BS_points, field_Lc_lim, field_Dist_lim)
-    # create_brain(param; view=true, write = false)
+    param = model_params(lc, arcLen, r_brain, d_ratio, r_curv, inner_perturb, outer_perturb, BS_points, field_Lc_lim, field_Dist_lim)
+    create_brain(param; view=true, write = false)
 
 
     # 3D brain example (Work in progress)
     lc = 1e-3
-    inner_perturb = "(x,z) -> 0.0"  
-    arcLen = (100e-3, 20e-3)
+    BS_points = (200, 200) 
+    # d_ratio = 0.5
+    arcLen = (50e-3, 10e-3) # Some z-arclen does not work
     param = model_params(lc, arcLen, r_brain, d_ratio, r_curv, inner_perturb, outer_perturb, BS_points, field_Lc_lim, field_Dist_lim)
     create_brain(param; view=true, write=false)
 end

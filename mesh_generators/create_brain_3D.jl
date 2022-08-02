@@ -6,6 +6,7 @@ mutable struct geo3D
     arc::Array{Int32,2}               # Tangential arcs
     tan_surf::Array{Int32,1}          # Tangential surfaces
     rad_surf::Array{Int32,2}          # Radial surfaces
+    vol::Array{Int32,1}               # Volumes
     angle::Tuple{Float64,Float64}     # Angle span (z → x-axis, z → y-axis)
 
     function geo3D() # Constructor
@@ -14,6 +15,7 @@ mutable struct geo3D
             Matrix{Int32}(undef, 3, 4),
             Vector{Int32}(undef, 3),
             Matrix{Int32}(undef, 2, 4),
+            Vector{Int32}(undef, 2),
             (0, 0))
     end
 end
@@ -29,7 +31,6 @@ function sphere_patch_corners(r, angle, pert_func=f(x, y) = 0)
 
     x, y_x, _ = spherical_to_cartesian(r, 0, yx_angle / 2)
     _, y_z, z = spherical_to_cartesian(r, pi / 2, yz_angle / 2)
-
 
 
     alpha_x = (r - y_x) / x
@@ -68,7 +69,7 @@ function create_surface(brain::geo3D, r)
     surf = gmsh.model.occ.addSurfaceFilling(CurveLoop)
 
     gmsh.model.occ.synchronize()
-    gmsh.model.addPhysicalGroup(2, [surf])
+    # gmsh.model.addPhysicalGroup(2, [surf])
     return vertex, arc, surf
 
 end
@@ -149,8 +150,9 @@ function create_perturbed_surface(brain::geo3D, r, pert_func, BS_points)
 
     CurveLoop = gmsh.model.occ.addCurveLoop([arc...])
     surf = gmsh.model.occ.addBSplineFilling(CurveLoop, -1, "Stretch") # Alternatively use "Coons"
-    gmsh.model.occ.synchronize()
-    gmsh.model.addPhysicalGroup(2, [surf])
+
+    # gmsh.model.occ.synchronize()
+    # gmsh.model.addPhysicalGroup(2, [surf])
 
     return vertex, arc, surf
 
@@ -172,12 +174,12 @@ function connect_and_volumize(brain::geo3D)
     
 
         surfLoop = gmsh.model.occ.addSurfaceLoop([brain.tan_surf[i], brain.rad_surf[i,:]..., brain.tan_surf[i+1]])  
-        vol = gmsh.model.occ.addVolume([surfLoop])
+        brain.vol[i] = gmsh.model.occ.addVolume([surfLoop])
         gmsh.model.occ.synchronize()
 
-        # Add physical gorups
-        [gmsh.model.addPhysicalGroup(2, [s]) for s in brain.rad_surf[i]] # surface
-        gmsh.model.addPhysicalGroup(3, [vol])  # volume
+        # # Add physical gorups
+        # [gmsh.model.addPhysicalGroup(2, [s]) for s in brain.rad_surf[i]] # surface
+        # gmsh.model.addPhysicalGroup(3, [vol])  # volume
     
     end
 end
@@ -269,16 +271,34 @@ function create_brain_3D(param::model_params)
     brain.angle = (yx_angle, yz_angle)
 
     # Add radial surfaces
-    brain.vertex[1, :], brain.arc[1, :], brain.tan_surf[1] = create_surface(brain, rI)
+    brain.vertex[1, :], brain.arc[1, :], brain.tan_surf[1] = create_surface(brain, rI)    
     brain.vertex[2, :], brain.arc[2, :], brain.tan_surf[2] = create_perturbed_surface(brain, rD, param.inner_perturb, param.BS_points)
     brain.vertex[3, :], brain.arc[3, :], brain.tan_surf[3] = create_perturbed_surface(brain, param.r_curv, param.outer_perturb, param.BS_points)
+    
 
 
     connect_and_volumize(brain)
     add_mesh_field(brain, param)
     # apply_periodic_meshing(brain)
 
-    # To do: set physical groups in a more organized way here (in a loop: se 2D case)
+    # Add physical groups 
+    # obj = [(brain.surf, 2), (brain.arc, 1), (brain.vline, 1), (brain.vertex, 0)] # (tag, dim)
+    obj = [(brain.vol, 3), (brain.tan_surf, 2), (brain.rad_surf, 2)] # (tag, dim)
+
+    for k in 1:length(obj)
+        dim = obj[k][2]
+        for tag in obj[k][1]
+            gmsh.model.addPhysicalGroup(dim, [tag])
+        end
+    end
+    
+
+    # vertex::Array{Int32,2}            # Vertices of all corners
+    # arc::Array{Int32,2}               # Tangential arcs
+    # tan_surf::Array{Int32,1}          # Tangential surfaces
+    # rad_surf::Array{Int32,2}          # Radial surfaces
+    # angle::Tuple{Float64,Float64}     # Angle span (z → x-axis, z → y-axis)
+
 
 
     # Generate mesh
