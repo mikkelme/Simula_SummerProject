@@ -253,10 +253,10 @@ which is fair to consider neglible. We can confirm that the pressure is approxim
 
 
 <p float>
-    <img src="figures/FLAT_ps_profile_contour.png"
+    <img src="figures/flat_ps_profile_contour.png"
          alt=""
          style="width:49%">
-    <img src="figures/FLAT_ps_profile.png"
+    <img src="figures/flat_ps_profile.png"
          alt=""
          style="width:49%">
      <h4 align="center"> 
