@@ -231,10 +231,10 @@ We begin by the simple case of the default brain geometry, but with a flat inter
 
 
 <p float>
-    <img src="figures/flat_ps_maxvar_width.png"
+    <img src="figures/FLAT_ps_maxvar_width.png"
          alt=""
          style="width:49%">
-    <img src="figures/flat_ps_meanvar_width.png"
+    <img src="figures/FLAT_ps_meanvar_width.png"
          alt=""
          style="width:49%">
      <h4 align="center"> 
