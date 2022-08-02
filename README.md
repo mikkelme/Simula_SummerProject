@@ -43,7 +43,7 @@ The default 2D brain is shown in figure (...)
 <p align="center">
     <img src="figures/default_2D_brain_example.png"
          alt=""
-         style="width:60%">
+         style="width:70%">
     <h4 align="center"> 
     Fig.X - Example of default 2D brain geometry. The orange region represents the Stokes domain and the green region the Darcy domain.
     </h4>
