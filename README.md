@@ -193,7 +193,7 @@ $$
 \text{var}(p_S) = \int_{\Omega_S} \big(p_S - \langle p_S \rangle\big)^2 dp_S \ / \ |\text{radial line}|
 $$
 
-If the pressure is constant the variance will be zero. We compute then both the mean of all variances along the radial lines and a maximum value with the coresponding width of that particular radial line. In addition we compute the absolute value of the mean absolute normal flow along the interface as 
+If the pressure is constant the variance will be zero. We compute then both the mean and the maximum value of all variances along the radial lines. In addition we compute the absolute value of the mean absolute normal flow along the interface as 
 
 $$
 \sqrt{\int_{\Gamma} (u_S \cdot \hat{n}_S)^2 d\Gamma} \ / \ |\Gamma|
@@ -228,7 +228,6 @@ From figure (...) we get an idea of the acuracy of the solution as a function of
 ### Flat interface
 
 We begin by the simple case of the default brain geometry, but with a flat interface. That is, we model the interface a curve arc without any wiggles. We simulate the system with a varying CSF-width (witdh of the CSF-filled space crossection) in the interval [0.5, 5] mm. By looking at the pressure variance shown in figure (...) and (...) we see that the pressure is varying very little, on the order. 
-
 
 <p float="left">
     <img src="figures/FLAT_ps_maxvar_width.png"
