@@ -51,7 +51,6 @@ Physical tags:
 """
 function brain_PDE_3D(model, pgs_dict, data; write = false)
     # --- Boundary tags --- #
-
     ΩS_tags =  pgs_tags(pgs_dict, [2])
     ΩD_tags =  pgs_tags(pgs_dict, [1])
 
@@ -60,10 +59,6 @@ function brain_PDE_3D(model, pgs_dict, data; write = false)
     ΛS_tags = pgs_tags(pgs_dict, [5, 16, 19, 22, 25, 28, 31, 34, 37]) # top surface
     ΓD_tags = pgs_tags(pgs_dict, [3, 6, 8, 10, 12])
     
-
-    # Boundary conditions
-    ΓD_neutags =  pgs_tags(pgs_dict, [3, 6, 8, 10, 11, 13, 14]) 
-    ΛS_diritags = pgs_tags(pgs_dict, [5, 12, 15]) 
 
     
     # --- Triangulation and spaces --- #
@@ -85,7 +80,7 @@ function brain_PDE_3D(model, pgs_dict, data; write = false)
     ref_pd = ReferenceFE(lagrangian, Float64, order)
     
     # Test spaces
-    δVS = TestFESpace(ΩS, ref_us, conformity=:H1, dirichlet_tags=ΛS_diritags)
+    δVS = TestFESpace(ΩS, ref_us, conformity=:H1, dirichlet_tags=ΛS_tags)
     δQS = TestFESpace(ΩS, ref_ps, conformity=:H1) 
     δQD = TestFESpace(ΩD, ref_pd, conformity=:H1)
     
@@ -138,11 +133,12 @@ function brain_PDE_3D(model, pgs_dict, data; write = false)
 
 
     # Neumann conditions on Darcy (right hand side)
-    b_neumann((vs, qd)) = ∫( data.Κ/data.μ*(get_normal_vector(ΓD_neu)⋅data.∇pd0)*qd )dΓD
+    b_neumann((vs, qd)) = ∫( data.Κ/data.μ*(get_normal_vector(ΓD)⋅data.∇pd0)*qd )dΓD
+    
 
     # Gathering terms
     a((us, ps, pd), (vs, qs, qd)) =  aΩs((us, ps), (vs, qs)) + aΩD((pd, qd)) + aΓ((us, pd), (vs, qd)) + aNΓLRS((us, ps), (vs, qs))
-    b((vs, qs, qd)) = bNΓLRS((vs, qs)) + b_neumann((vs, qd)) 
+    b((vs, qs, qd)) = bNΓLRS((vs, qs)) #+ b_neumann((vs, qd)) 
         
     
     # --- Solve --- #
@@ -163,7 +159,7 @@ function brain_PDE_3D(model, pgs_dict, data; write = false)
 end
 
 # --- Brain Model --- # 
-lc = 1e-3
+lc = 5e-3
 arcLen = (50e-3, 10e-3)
 r_brain = 10e-3  
 # d_ratio = 1.5e-3/r_brain
@@ -172,8 +168,10 @@ r_curv = 50e-3
 A = 1e-3
 λ = 10*1e-3
 ω(λ) = 2*pi/λ      
-inner_perturb = @sprintf("(x,z) -> %f * sin(abs(x) * %f - pi/2) * fld(mod2pi(abs(x) * %f - pi/2),pi) ", A , ω(λ), ω(λ))
+# inner_perturb = @sprintf("(x,z) -> %f * sin(abs(x) * %f - pi/2) * fld(mod2pi(abs(x) * %f - pi/2),pi) ", A , ω(λ), ω(λ))
+inner_perturb = "(x,z) -> 0.0"  
 outer_perturb = "(x,z) -> 0.0"  
+
 BS_points = (200, 200) 
 field_Lc_lim = [1 / 2, 1]
 field_Dist_lim = [1e-3, 5e-3] 
@@ -183,7 +181,9 @@ field_Dist_lim = [1e-3, 5e-3]
 Κ = 1e-16   # Permeability in brain parenchyma [m^2] 
 α = "(x) -> 1*μ/sqrt(Κ)" # Slip factor on Γ [Pa * s / m]
 ps0 = "(x) -> x[1] < 0 ? 1*133.3224 : 0." # 1*mmHg [Pa]
-∇pd0 = "(x) -> VectorValue(0.0, 0.0)" # Zero flux
+# ∇pd0 = "(x) -> VectorValue(0.0, 0.0)" # Zero flux
+∇pd0 = "(x) -> VectorValue(0.0, 0.0, 0.0)" # Zero flux
+
 
 
 # --- Run simulation --- #
