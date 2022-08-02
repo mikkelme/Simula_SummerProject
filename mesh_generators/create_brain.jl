@@ -50,8 +50,8 @@ function create_brain(param::model_params; view=false, write=false)
 end
 
 
-# if abspath(PROGRAM_FILE) == @__FILE__
-if true
+if abspath(PROGRAM_FILE) == @__FILE__
+# if true
     lc = 2e-4
     arcLen = (100e-3, 0)
     r_brain = 10e-3  
