@@ -188,13 +188,13 @@ $$
 ### Evaluating the metrics for dimension reduction 
 
 For the evaluating of the pressure we create a series of radial lines in the stokes domain and calculate the pressure variance
+
 $$
-
 \text{var}(p_S) = \int_{\Omega_S} \big(p_S - \langle p_S \rangle\big)^2 dp_S \ / \ |\text{radial line}|
-
 $$
 
 If the pressure is constant the variance will be zero. We compute then both the mean of all variances along the radial lines and a maximum value with the coresponding width of that particular radial line. In addition we compute the absolute value of the mean absolute normal flow along the interface as 
+
 $$
 \sqrt{\int_{\Gamma} (u_S \cdot \hat{n}_S)^2 d\Gamma} \ / \ |\Gamma|
 $$
