@@ -230,10 +230,10 @@ From figure (...) we get an idea of the acuracy of the solution as a function of
 We begin by the simple case of the default brain geometry, but with a flat interface. That is, we model the interface a curve arc without any wiggles. We simulate the system with a varying CSF-width (witdh of the CSF-filled space crossection) in the interval [0.5, 5] mm. By looking at the pressure variance shown in figure (...) and (...) we see that the pressure is varying very little, on the order. 
 
 <p float="left">
-    <img src="figures/FLAT_ps_maxvar_width.png"
+    <img src="figures/flat_ps_maxvar_width.png"
          alt=""
          style="width:45%">
-    <img src="figures/FLAT_ps_meanvar_width.png"
+    <img src="figures/flat_ps_meanvar_width.png"
          alt=""
          style="width:45%">
      <h4 align="center"> 
