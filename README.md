@@ -181,7 +181,6 @@ $$
     \mu &= 0.8 \cdot 10^{-3} \ \text{Pa}\cdot\text{s} \\
     \kappa &= 1\cdot10^{-16} \ \text{m}^2
 \end{align}
-
 $$
 
 
