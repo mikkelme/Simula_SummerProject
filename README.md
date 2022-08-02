@@ -44,9 +44,9 @@ The default 2D brain is shown in figure (...)
     <img src="figures/default_2D_brain_example.png"
          alt=""
          style="width:70%">
-    <h4 align="center"> 
+    <h5 align="center"> 
     Fig.X - Example of default 2D brain geometry. The orange region represents the Stokes domain and the green region the Darcy domain.
-    </h4>
+    </h5>
 </p>
 
 We also have the opportunity to extend the model into 3D. In figure (...) we have extended the 2D default brain geometry with an arc length of XX mm in the third dimension. 
