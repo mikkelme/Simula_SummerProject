@@ -1,4 +1,4 @@
-# Simula_SummerProject - Studying the prospects of dimension reduction for cerebrospinal fluid flow in brain simulations
+# Simula Summer Project - Studying the prospects of dimension reduction for cerebrospinal fluid flow in brain simulations
 
 
 TODO
@@ -192,9 +192,9 @@ This result in the final system of equations
 
 $$
 \begin{align}
-    a_N = -\int\_{\Gamma_S}\Big[\big(\sigma(u_S, p_S)\cdot\hat{n}_S\big) \cdot \hat{\tau}_S \Big]\Big[\hat{\tau}_S \cdot v_S \Big] \ dx
-    - \int\_{\Gamma_S}\Big[\big(\sigma(u_S, p_S)\cdot\hat{n}_S\big) \cdot \hat{\tau}_S \Big]\Big[\hat{\tau}_S \cdot u_S \Big] \ dx
-    + \int\_{\Gamma_S}\frac{\gamma}{h} \Big[ \hat{\tau}\_S \cdot u_S  \Big]\Big[\hat{\tau}_S \cdot u_S \Big] \ dx
+    a_N = \int\_{\Gamma_S}- \Big[\big(\sigma(u_S, p_S)\cdot\hat{n}_S\big) \cdot \hat{\tau}_S \Big]\Big[\hat{\tau}_S \cdot v_S \Big] \ dx
+    - \Big[\big(\sigma(u_S, p_S)\cdot\hat{n}_S\big) \cdot \hat{\tau}_S \Big]\Big[\hat{\tau}_S \cdot u_S \Big] \ dx
+    + \frac{\gamma}{h} \Big[ \hat{\tau}\_S \cdot u_S  \Big]\Big[\hat{\tau}_S \cdot u_S \Big] \ dx
 \end{align}
 $$
 
