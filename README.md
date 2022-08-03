@@ -33,7 +33,7 @@ Progamming wise we are going to use Julia as the main language for this project.
 
 ### Domain
 
-We are going to model our brain as a composition of two domains: The *Stokes* domain and the *Darcy* domain with names corresponding to the equations that governs the fluid flow in these domains (See figure (2) for reference). In the *Stokes* domain the CSF flows in an unobstructed path on the outside of the brain tissue, where the motion is described as Stokes flow (low Reynolds number). This is the domain that we have described as the CSF-filled region so far. In the *Darcy* domain the fluid flows though the pores of the brain tissue where the fluid motion is described as percolation. For this we use Darcy's law. The dividing line of these domains is what we will refer to as the *interface*.
+We are going to model our brain as a composition of two domains: The *Stokes* domain and the *Darcy* domain with names corresponding to the equations that governs the fluid flow in these domains (See figure $(2)$ for reference). In the *Stokes* domain the CSF flows in an unobstructed path on the outside of the brain tissue, where the motion is described as Stokes flow (low Reynolds number). This is the domain that we have described as the CSF-filled region so far. In the *Darcy* domain the fluid flows though the pores of the brain tissue where the fluid motion is described as percolation. For this we use Darcy's law. The dividing line of these domains is what we will refer to as the *interface*.
 
 
 <p align="center">
@@ -72,11 +72,11 @@ We denote $u_S, p_S$ as velocity and pressure respectively in the Stokes domain 
 
 $$
 \begin{align}
-    - \nabla \cdot \sigma(u_S, p_S) &= f_s  &\text{in} \ \Omega_S \\
+    - \nabla \cdot \sigma(u_S, p_S) &= f_s  &\text{in} \ \Omega_S \tag{1} \\
     \nabla \cdot u_S &= 0   &\text{in} \ \Omega_S \\
     u_S &= u_{S,0}   &\text{on} \ \Lambda_S \\
     u_S \times \hat{n}\_S &= 0   &\text{on} \ \Gamma_S \\
-    p_S &= p\_{S,0}   &\text{on} \ \Gamma_S \\
+    p_S &= p\_{S,0}   &\text{on} \ \Gamma_S
 \end{align}
 $$
 
@@ -105,7 +105,7 @@ $$
 \begin{align}
     u_S\cdot\hat{n}_S + (-\frac{\kappa}{\mu}\nabla p_D \cdot \hat{n}_D) &= g\Gamma  &\text{on} \ \Gamma \\ 
     -[\sigma(u_S, p_S)\cdot\hat{n}_S]\cdot\hat{n}_S &= P_D  &\text{on} \ \Gamma \\
-    -[\sigma(u_S, p_S)\cdot\hat{n}_S]\cdot\hat{\tau}_S &= \alpha u_S \cdot\hat{\tau}_S  &\text{on} \ \Gamma \\
+    -[\sigma(u_S, p_S)\cdot\hat{n}_S]\cdot\hat{\tau}_S &= \alpha u_S \cdot\hat{\tau}_S  &\text{on} \ \Gamma
 \end{align}
 $$
 
@@ -115,22 +115,22 @@ $$
 We define the test spaces $v_S, q_S, q_D$ to be in the Sobolev space (H1). Check consistency with $dx$ or $dV, dS, dL$.
 
 #### Stokes
-From equation (...) we get
+From eq. $(1)$ we get
 
 $$
 \begin{align}
     \int_{\Omega_S} f_s \cdot v_S \ dx &=  \int_{\Omega_S} 2\mu \ \varepsilon(u_S) \odot \varepsilon(v_S) \ dx - \int_{\Omega_S} p_S \nabla\cdot v_S \ dx - \int_{\partial\Omega_S} \big(\sigma(u_S, p_S)\cdot\hat{n}_S\big) \cdot v_S \ dx \\ 
-    0 &= - \int\_{\Omega_S} (\nabla \cdot u_S) \cdot q_S \ dx
+    0 &= - \int\_{\Omega_S} (\nabla \cdot u_S) \cdot q_S \ dx.
 \end{align}
 $$
 
-In the first equation (put number) Decompose the last term in normal $\hat{n}_S$ and tangential $\hat{\tau}_S$ direction
+In eq. $(13)$ we decompose the last term in normal $\hat{n}_S$ and tangential $\hat{\tau}_S$ direction as
 
 $$
 \begin{align}
     - \int_{\partial\Omega_S} \big(\sigma(u_S, p_S)\cdot\hat{n}_S\big) \cdot v_S \ dx   &=  \int\_{\partial\Omega_S} \underbrace{-\Big[\big(\sigma(u_S, p_S)\cdot\hat{n}_S\big) \cdot \hat{n}_S \Big]}\_{P_D \ \text{on} \ \ \Gamma}\Big[\hat{n}_S \cdot v_S \Big] \underbrace{-\Big[\big(\sigma(u_S, p_S)\cdot\hat{n}_S\big) \cdot \hat{\tau}_S \Big]}\_{\alpha u_S \cdot\hat{\tau}_S \ \ \text{on} \ \Gamma}\Big[\hat{\tau}_S \cdot v_S \Big] \ dx\\
     &= \int\_{\partial\Omega_S\setminus\Gamma} -\Big[\underbrace{\big(\sigma(u_S, p_S)\cdot\hat{n}_S\big) \cdot \hat{n}_S }\_{- p_S} \Big]\Big[\hat{n}_S \cdot v_S \Big] -\Big[\big(\sigma(u_S, p_S)\cdot\hat{n}_S\big) \cdot \hat{\tau}_S \Big]\Big[\hat{\tau}_S \cdot v_S \Big] \ dx\\
-    & \qquad \qquad \qquad \qquad \qquad \qquad \qquad + \int\_{\Gamma} P_D \Big[\hat{n}_S \cdot v_S \Big] + \alpha \Big[u_S \cdot\hat{\tau}_S \Big]\Big[\hat{\tau}_S \cdot v_S \Big] \ dx
+    & \qquad \qquad \qquad \qquad \qquad \qquad \qquad + \int\_{\Gamma} P_D \Big[\hat{n}_S \cdot v_S \Big] + \alpha \Big[u_S \cdot\hat{\tau}_S \Big]\Big[\hat{\tau}_S \cdot v_S \Big] \ dx,
 \end{align}
 $$
 
@@ -140,11 +140,11 @@ where we used the transistion
 $$
 \begin{align}
     \big(\sigma(u_S, p_S)\cdot\hat{n}_S\big) \cdot \hat{n}_S &= \big(2\mu \ \varepsilon(u_S) - p_S \mathbb{I} \big)\cdot\hat{n}_S \\
-    &= 2\mu \ \underbrace{\hat{n}_S \cdot \varepsilon(u_S) \cdot \hat{n}_S}\_{0} - p_S \ \underbrace{\hat{n}_S \cdot \hat{n}_S}\_{1} = - p_S
+    &= 2\mu \ \underbrace{\hat{n}_S \cdot \varepsilon(u_S) \cdot \hat{n}_S}\_{0} - p_S \ \underbrace{\hat{n}_S \cdot \hat{n}_S}\_{1} = - p_S.
 \end{align}
 $$
 
-with the zero in line (...) comes from theorem something in that paper (REFER).
+We zero out the first term in line (...) using the theorem in the paper (REFER).
 
 We can then handle the remaining tangential component of the  $\partial\Omega_S\setminus\Gamma$ boundary using the Nitsche method (theorem?).  
 
