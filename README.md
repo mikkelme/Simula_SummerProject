@@ -4,6 +4,7 @@
 TODO
 - Try 3D (200.000 unknowns)
 - Include real brain vtu for reference
+- Clarify direction of low (left to right)
 
 This repo contains the work done as a summer intern at Simula during a six week period in the summer of 2022. The project was guided by my supervisor [Miroslav Kutcha](https://github.com/MiroK).
 
@@ -251,25 +252,23 @@ We begin by assessing the 2D case.
 
 ### Choosing the resolution
 
-For the choice of the mesh resolution we perform a approximated error convergence test by simulating a series of systems with an increasingly resolution. In Gmsh the mesh size resolution is parameterized by the *lc* variable, which is set to define the largest mesh line. In addition we define a so-called mesh field which linearly decrease the lc-value to half its orginal value or a distance of 1 to 5 mm from the interface. By choosing a exaggerated resolution of $lc = 0.05 \ \text{mm}$ as our approximated *true* reference solution* we can calculate the $l^2$ norm between this reference solution and other solutions with lower resolution. This is shown in figure (...)
-
+For the choice of the mesh resolution we perform an approximated error convergence test by simulating a series of systems with an increasing resolution. In Gmsh the mesh size resolution is parameterized by the *lc* variable, which in our case is set to define the largest mesh line tetrahedral mesh. In addition we define a so-called mesh field which linearly decrease the lc-value to half its orginal value over a distance of 1 to 5 mm from the interface, such that the mesh is twice as small around the interface. By choosing an exaggerated resolution of $lc = 0.05 \ \text{mm}$ as our approximated *true* reference solution* we can calculate the $l^2$-norm between this reference solution and other solutions with lower resolution. This is shown in figure (...)
 
 <p align="center">
     <img src="figures/SNS_solution_convergence.png"
          alt=""
          style="width:60%">
     <h5 align="center"> 
-    Fig.X - Approximated error convergence test using a resolution of $lc = 0.05 \ \text{mm}$ as a true reference solution. We calculate the $l^2$ norm between the reference solution and solutions using a lower resolution (higher $lc$) along a center line for both the domains. default geometry.
+    Fig.X - Approximated error convergence test using a resolution of $lc = 0.05 \ \text{mm}$ as a true reference solution. We calculate the $l^2$-norm between the reference solution and solutions using a lower resolution (higher $lc$) along a center line for both the domains. This is performed using the default 2D brain geometry.
     </h5>
 </p>
 
-
-From figure (...) we get an idea of the acuracy of the solution as a function of the resolution. By choosing $lc = 0.1 \ \text{mm}$ we should get an accuracy on the order $\pm 0.1 \\%$ of the true solution.
+From figure (...) we get an appropximated view of which accuracy to expect from a given resolution. By choosing $lc = 0.1 \ \text{mm}$ we should get an accuracy on the order $\pm 0.1 \\%$ of the true solution. To meet limitations on availble computer power we settle on $lc = 0.1 \ \text{mm}$ in the following 2D simulations. 
 
 
 ### Flat interface
 
-We begin by the simple case of the default brain geometry, but with a flat interface. That is, we model the interface a curve arc without any wiggles. We simulate the system with a varying CSF-width (witdh of the CSF-filled space crossection) in the interval [0.5, 5] mm. By looking at the pressure variance shown in figure (...) and (...) we see that the pressure is varying very little, on the order. 
+We begin by the simple case of the default brain geometry, but with a flat interface. That is, we model the interface as a curve arc without any wiggles. We simulate the system with a varying CSF-width (witdh of the stokes domain crossection) in the interval [0.5, 5] mm. the result are shown in figure (...) and (...). 
 
 
 <p float>
@@ -284,14 +283,13 @@ We begin by the simple case of the default brain geometry, but with a flat inter
     </h5>
 </p>
 
-
-Considering that the pressure difference across the domain is $ \Delta P_S = 133.3224 \ \text{Pa}$ the relative pressure deviation from the mean on a radial line in the worst case scenario (maximum variance) with a width close to the typycial width is on the order
-
+We observe that the pressure variance decreases along with the width. Considering that the pressure difference across the domain is $ \Delta P_S = 133.3224 \ \text{Pa}$ the relative pressure deviation from the mean on a radial line in the worst case scenario (using the maximum variance) with a width close to the typical width of 1.5 is roughly on the order
+ 
 $$
-\frac{\sqrt{max(var)}}{\Delta p_S} = \frac{\sqrt{10^{-9}}}{133.3224} \approx 7,5 \cdot 10^{-10} \ \\%,
+\frac{\text{max std}}{\Delta p_S} = \frac{\sqrt{\text{max var}}}{\Delta p_S} = \frac{\sqrt{10^{-9}}}{133.3224} \approx \cdot 10^{-5} \ \\%,
 $$
 
-which is fair to consider neglible. We can confirm that the pressure is approximately constant by looking at the pressure profile across a radial line. 
+which is considered neglible. We can confirm that the pressure is approximately constant by looking at the pressure profile across a radial line.
 
 
 <p float>
@@ -306,7 +304,6 @@ which is fair to consider neglible. We can confirm that the pressure is approxim
     </h5>
 </p>
 
-
 In addition we evaluate the absolute normal flow on the interface.
 
 <p align="center">
@@ -318,16 +315,18 @@ In addition we evaluate the absolute normal flow on the interface.
     </h5>
 </p>
 
-This also drops with width and is very small comared to the maximum velocity of $700 \ \text{mm/s}$ which gives an relative deviation at the typical length on the order 
+We see that the absolute normal flow drops seemingly linearly with width. When comparing the magnitude of the normal flow,  at a width of 1.45 mm, to the maximum velocity of $700 \ \text{mm/s}$ we get a relative deviation on the order 
 
 $$
 \frac{\text{Norm. flow}}{\text{max} \ u_S} = \frac{10^{-5}}{700} \approx 1,4 \cdot 10^{-6} \ \\%,
 $$
 
+Thus the flat interface shows promosing properties for dimension reduction. 
+
 
 ### Default interface (Interface with wiggles)
 
-We now introduce the wiggles to the interface and compute similar metrics as done for the flat curve. 
+We now introduce the wiggles back to the interface and compute similar metrics as done for the flat curve. The pressure variance is shown in figures (---) and (---)
 
 <p float>
     <img src="figures/SNS_ps_maxvar_width.png"
@@ -342,7 +341,17 @@ We now introduce the wiggles to the interface and compute similar metrics as don
 </p>
 
 
-We observe again that the pressure variance decrease with decreasing width, but the order of magnitude is significantly larger than for the flat interface. We also notice that the maximum variance is roughly twice as large as the mean variance. This is not that much of a difference and by looking at the the variance for each radial line as a function of angle we can make a visual check that it follows the geometry of the interface.
+We observe again that the pressure variance decreases with decreasing width, but the order of magnitude is significantly larger than for the flat interface. At the width close to the typical width of 1.5 mm the relative pressure deviation from the mean on a radial line in the worst case scenario (using the maximum variance) with a width close to the typical width of 1.5 mm is roughlt on the order
+
+$$
+\frac{\text{max std}}{\Delta p_S} = \frac{\sqrt{\text{max var}}}{\Delta p_S} = \frac{\sqrt{10^{-1}}}{133.3224} \approx  0.1 \ \\%,
+$$
+
+This is still to be considered an acceptable margin of error. 
+
+Until now we have seen that there is a small difference in the mean variance and then maximum variance. In the case of the default geometry we see that the maximum variance is roughly twice as large as the mean variance. By looking at the the variance for each radial line as a function of angle we can make a visual check to see if someting interesting is going on.
+
+
 
 <p align="center">
     <img src="figures/SNS_ps_var_angle.png"
@@ -353,30 +362,7 @@ We observe again that the pressure variance decrease with decreasing width, but 
     </h5>
 </p>
 
-By looking at the simulation for a width of $1.45 \ \text{mm}$ we see that the CSF flows from the stokes domain 
-
-<p align="center">
-    <img src="figures/SNS_nflow_profile1.45e-03.png"
-         alt=""
-         style="width:60%">
-    <h5 align="center"> 
-    Fig.X - Caption
-    </h5>
-</p>
-
-
-We take a look at the flow direction (not scaled yb magnitude).
-
-<p align="center">
-    <img src="figures/SNS_glyph_noscale1.45e-03.png"
-         alt=""
-         style="width:60%">
-    <h5 align="center"> 
-    Fig.X - Caption
-    </h5>
-</p>
-
-We can see that the CSF fluid flows into the brain tissue in the from the bottom of the dimple towards the square edge. We have no informaiton about the velocity field in the brain tissue, but judging from the previous figure we can deduce that it flows out again at the start of the square edge but also at the beginning of next dimple. However, here we also se a spike in the inflow to the brain tissue, which supports the idea that the CSF cuts the hard cornes. But if we compare the magnitudes of the in and out flow at the cornes (qualitatively) we see that some of it must have flated through the tissue accros the square part of the wiggle. However when considering the absolute normal flow 
+By looking at figure (...) we see qualitatively that the variance spikes following the frequiency of the interface sinewaves. In figure (...) we see the absolute normal flow.
 
 
 <p align="center">
@@ -388,17 +374,41 @@ We can see that the CSF fluid flows into the brain tissue in the from the bottom
     </h5>
 </p>
 
-which lies around $5\cdot10^{-4} \ \text{mm/s}$ compared to a maximum flow velocity around $700 \ \text{mm/s}$ around the typical width. This gives a relative deviation 
+Form figure (...) we again see an decreasing trend for the normal flow when width decreases. Around the typical width we get a normal flow aorund $5\cdot10^{-4} \ \text{mm/s}$ compared which compared to a maximum flow velocity around $700 \ \text{mm/s}$ a relative deviation 
 
 $$
 \frac{\text{Norm. flow}}{\text{max} \ u_S} = \frac{5\cdot10^{-4} }{500} \approx 8,3 \cdot 10^{-5} \ \\%,
 $$
 
-Thus we are still getting promising results for the possibility to make dimension reduction model.
+Thus we are still getting promising results for the possibility to make dimension reduction model. By looking at the simulation for a width of $1.45 \ \text{mm}$ we see that the CSF normal flows mainly happens around the edges of each negative sinewave dimple (figure (...)). We also take a look at the direction of flow in such a dimple (see figure (...)) 
+
+
+<p align="center">
+    <img src="figures/SNS_nflow_profile1.45e-03.png"
+         alt=""
+         style="width:60%">
+    <h5 align="center"> 
+    Fig.X - Caption
+    </h5>
+</p>
+
+
+
+<p align="center">
+    <img src="figures/SNS_glyph_noscale1.45e-03.png"
+         alt=""
+         style="width:60%">
+    <h5 align="center"> 
+    Fig.X -  (not scaled magnitude).
+    </h5>
+</p>
+
+We can see that the CSF flows into the the brain tissue during its path from the middle of the sinewave dimple and all the way up to the hard square edge. Unfortunately we have no information about the velocity field in the brain tissue, but by combinning the information from figure (---) and (---) one might argue that we have two kinds of flows: First we observe that CSF is cutting the cornes of square edges, meaning that the in-flow to the brain tissue increases just before meeting a square edge but then immediately reverses after the edge. However, bu comparing the sizes of the in and out-flow we can conclude that some of CSF that flows inte the brain tissue from the bottom of the dimple and forward makes it all the way through to the beginning of the next dimple. This makes sense as not all the CSF have time to avoid the obstacle and is forced to penetrate it rather than go around. 
+
 
 ### Varying interface wavelength and amplitude
 
-Due to the promising result for the default brian geometry we invistigate the consequences of different interface descriptions. That is, we vary the wavelength in the interval [1,  50] mm with default amplitude of 1 mm and vary the ampltidue in the interval  [0.1, 5] mm keeping the default wavelength of 10 mm. The results are shown in figures (...).
+Due to the promising result for the default brian geometry we invistigate the consequences of more extreme interface models. That is, we vary the wavelength in the interval [1,  50] mm with default amplitude of 1 mm and vary the ampltidue in the interval [0.1, 5] mm keeping the default wavelength of 10 mm. The results are shown in figure (...) and (.).
 
 
 <p float>
@@ -408,13 +418,7 @@ Due to the promising result for the default brian geometry we invistigate the co
     <img src="figures/MNS_amp_ps_maxvar_width.png"
          alt=""
          style="width:49%">
-     <h5 align="center"> 
-    Fig.X - Caption
-    </h5>
 </p>
-
-
-
 <p float>
     <img src="figures/MNS_lambda_us_nflow_abs.png"
          alt=""
@@ -423,35 +427,35 @@ Due to the promising result for the default brian geometry we invistigate the co
          alt=""
          style="width:49%">
      <h5 align="center"> 
-    Fig.X - Caption
+    Fig.X - Multi caption
     </h5>
 </p>
 
 
-We see mainly that a more extreme surface, high frequency high amplitude, gives raise to a less constant stokes pressure profile and more normal flow though the interface. However, the only exception is the $\lambda = 1 \ \text{mm}$ simulation in figure (...). It seems that the small wavelength makes it *difficult* for the CSF to reach the cracks, and the surface becomes pseudo flat. 
+We see mainly that a more extreme surface, low wavelength (high frequency) and high amplitude, gives raise to a less constant stokes pressure profile and more normal flow though the interface. However, the only exception is the $\lambda = 1 \ \text{mm}$ simulation in figure (...). It seems that the small wavelength makes it *difficult* for the CSF to reach the bottom of the dimples, and the surface becomes pseudo flat. By looking at the velocity magnitude in figure (...) we see that there is not much flow in dimples in the 1 mm wavelength simulation compared to that of the default 10 mm wavelength.
 
 
-
-<p align="center">
+<p float>
+    <img src="figures/MNS_10mm_us_heatmap.png"
+         alt=""
+         style="width:49%">
     <img src="figures/MNS_1mm_us_heatmap.png"
          alt=""
-         style="width:60%">
-    <h5 align="center"> 
-    Fig.X - Caption
+         style="width:49%">
+     <h5 align="center"> 
+    Fig.X - 10 mm left (default) and 1 mm right
     </h5>
 </p>
-
-
-the frequency is so high that it actually benefits dimension reduction again. The CSF cannot really flow into the cracks I guess. 
-
 
 
 ### Varying permeability 
 
+Finally we try to invistigate the consequences of lower permeability. 
 Test interval: $[10^{-16},10^{-12}] \ \text{m}^2$.
 
+Due to the increased easy of flow in the brain tissue this should make things worse. 
 
-____
+
 
 ### 3D brain simulations
 
