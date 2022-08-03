@@ -170,8 +170,8 @@ function combinned_analyse(savename, folder_names, labels)
         save2 = i == length(folder_names) ? savepath * "_ps_meanvar_width.png" : false
         save3 = i == length(folder_names) ? savepath * "_us_nflow_abs.png" : false
     
-        plot_ps_var_vs_width(readpath * "ps_radial_var.txt", fig1; label = labels[i], var = "mean", save = save1)
-        plot_ps_var_vs_width(readpath * "ps_radial_var.txt", fig2; label = labels[i], var = "max", save = save2)
+        plot_ps_var_vs_width(readpath * "ps_radial_var.txt", fig1; label = labels[i], var = "max", save = save1)
+        plot_ps_var_vs_width(readpath * "ps_radial_var.txt", fig2; label = labels[i], var = "mean", save = save2)
         plot_nflow_interface(readpath * "us_nflow.txt", fig3, label = labels[i], save = save3)
 
     end

@@ -213,11 +213,11 @@ For the choice of the mesh resolution we perform a approximated error convergenc
 
 
 <p align="center">
-    <img src="figures/solution_convergence.png"
+    <img src="figures/SNS_solution_convergence.png"
          alt=""
          style="width:60%">
     <h5 align="center"> 
-    Fig.X - Approximated error convergence test using a resolution of $lc = 0.05 \ \text{mm}$ as a true reference solution. We calculate the $l^2$ norm between the reference solution and solutions using a lower resolution (higher $lc$) along a center line for both the domains.
+    Fig.X - Approximated error convergence test using a resolution of $lc = 0.05 \ \text{mm}$ as a true reference solution. We calculate the $l^2$ norm between the reference solution and solutions using a lower resolution (higher $lc$) along a center line for both the domains. default geometry.
     </h5>
 </p>
 
@@ -363,7 +363,7 @@ Due to the promising result for the default brian geometry we invistigate the co
     <img src="figures/MNS_lambda_ps_maxvar_width.png"
          alt=""
          style="width:49%">
-    <img src="figures/MNS_lambda_ps_maxvar_width.png"
+    <img src="figures/MNS_amp_ps_maxvar_width.png"
          alt=""
          style="width:49%">
      <h5 align="center"> 
@@ -372,11 +372,12 @@ Due to the promising result for the default brian geometry we invistigate the co
 </p>
 
 
+
 <p float>
     <img src="figures/MNS_lambda_us_nflow_abs.png"
          alt=""
          style="width:49%">
-    <img src="figures/MNS_lambda_us_nflow_abs.png"
+    <img src="figures/MNS_amp_us_nflow_abs.png"
          alt=""
          style="width:49%">
      <h5 align="center"> 

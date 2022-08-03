@@ -199,9 +199,9 @@ function run_permeability(;run=true)
     
     # Run
     if run
-        for (i, inner_perturb) in enumerate(negsines)
+        for (i, Κ) in enumerate(Kappa)
             i_folder_name = folder_name * @sprintf("_Κ%s", Kappa[i])
-            Κ = Kappa[i]
+
             # Run
             brain_param = model_params(lc, arcLen, r_brain, d_ratio, r_curv, inner_perturb, outer_perturb, BS_points, field_Lc_lim, field_Dist_lim)
             PDE_param = PDE_params(μ, Κ, α, ps0, ∇pd0)
@@ -215,8 +215,8 @@ function run_permeability(;run=true)
 
     # Combinned analyse   
     folder_names = [folder_name * @sprintf("_Κ%s", Κ) for Κ in Kappa]
-    labels = [@sprintf("A = %e mm", K) for Κ in Kappa]
-    savename = folder_name * "_Kappa"
+    labels = [@sprintf("A = %e mm", Κ) for Κ in Kappa]
+    savename = folder_name
     combinned_analyse(savename, folder_names, labels)
    
 end
@@ -236,12 +236,12 @@ end
 
 # --- Simulaiton runs --- #
 
-run_inner_negsines_lambda(run = false)
+# run_inner_negsines_lambda(run = false)
 # run_inner_negsines_amp(run=false)
 
 # run_flat(run=false)
 # run_single_inner_negsine(run=false)
 # run_solution_convergence(run=false)
 
-
+run_permeability(run=true)
 
