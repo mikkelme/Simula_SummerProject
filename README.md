@@ -436,7 +436,7 @@ Due to the promising result for the default brian geometry we invistigate the co
 
 We see mainly that a more extreme surface, low wavelength (high frequency) and high amplitude, gives raise to a less constant stokes pressure profile and more normal flow though the interface. However, the only exception is the $\lambda = 1 \ \text{mm}$ simulation in figure (...). It seems that the small wavelength makes it *difficult* for the CSF to reach the bottom of the dimples, and the surface becomes pseudo flat. By looking at the velocity magnitude in figure (...) we see that there is not much flow in dimples in the 1 mm wavelength simulation compared to that of the default 10 mm wavelength.
 
-Considering the worst case scenario of the above simulations we hit a maximum deviation (pressure) of 0.3 \\%
+Considering the worst case scenario of the above simulations we hit a maximum deviation (pressure) around 0.3 \%
 
 
 <p float>
