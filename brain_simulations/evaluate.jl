@@ -26,13 +26,15 @@ function create_file(path, filename, title, brain_param, PDE_param)
     # Geometry parameters
     write(outfile, "#\n# --- Brain parameters (fixed) --- #\n")
     @printf(outfile,"# lc = %e \n", brain_param.lc)
-    @printf(outfile,"# arcLen = %f m\n", brain_param.arcLen[1]) 
+    @printf(outfile,"# arcLen = %s m\n", brain_param.arcLen) 
+
     @printf(outfile,"# r_brain = %f m\n", brain_param.r_brain)
     @printf(outfile,"# d_ratio = %f\n", brain_param.d_ratio)
     @printf(outfile,"# r_curv = %f m\n", brain_param.r_curv)
     @printf(outfile,"# inner_perturb = %s\n", brain_param.inner_perturb_body)
     @printf(outfile,"# outer_perturb = %s\n", brain_param.outer_perturb_body)
-    @printf(outfile,"# BS_points = %d\n", brain_param.BS_points[1])
+    @printf(outfile,"# BS_points = %s\n", brain_param.BS_points)
+
     @printf(outfile,"# field_Lc_lim = (%f, %f) \n", brain_param.field_Lc_lim[1], brain_param.field_Lc_lim[2])
     @printf(outfile,"# field_Dist_lim = (%f, %f) m \n", brain_param.field_Dist_lim[1], brain_param.field_Dist_lim[2])
     
@@ -143,7 +145,8 @@ function compute_nflow(brain_param, us, Γ; degree = 2)
     n̂Γ = get_normal_vector(Γ) 
     nflow = sum(∫(us.⁺ ⋅ n̂Γ.⁺)dΓ) / sum(∫(1)dΓ)
     nflow_sqr = sum(∫((us.⁺ ⋅ n̂Γ.⁺)*(us.⁺ ⋅ n̂Γ.⁺))dΓ) / sum(∫(1)dΓ)
-    return nflow, nflow_sqr
+    flow_sqr = sum(∫(us.⁺ ⋅ us.⁺)dΓ) / sum(∫(1)dΓ)
+    return nflow, nflow_sqr, flow_sqr
 end
   
 
@@ -239,12 +242,12 @@ function eval_decreasing_lc(brain_param, PDE_param, start_width, end_width, num_
         
         # Perform evaluations 
         mean_pos, rad_len, var = evaluate_radial_var(brain_param, ps, num_rad_lines)
-        nflow, nflow_sqr = compute_nflow(brain_param, us, Γ)
+        nflow, nflow_sqr, flow_sqr = compute_nflow(brain_param, us, Γ)
         plot_nflow_profile(brain_param, us, Γ, path * folder_name * "png_files/",  @sprintf("%.2e", width[i])) 
         
         # Write to file
         p_data = [getindex.(mean_pos, 1), getindex.(mean_pos, 2), rad_len, var]
-        nflow_data = [width[i], nflow, nflow_sqr]
+        nflow_data = [width[i], nflow, nflow_sqr, flow_sqr]
         add_sample_to_file(path * folder_name * "txt_files/", p_filename, p_data, num_rad_lines)
         add_sample_to_file(path * folder_name * "txt_files/", nflow_filename, nflow_data, 0)
 

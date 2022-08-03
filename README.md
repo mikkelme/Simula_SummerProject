@@ -169,14 +169,9 @@ $$
 
 where we handle the last term as a neuman condition.
 
-
-
-
-
-
 ### Parameter choices for the PDE modelling
 
-We are going to drive the CSF flow by a pressure difference $\Delta p_S  = 133.3224 \ \text{Pa}$ $(1 \ \text{mmHg})$, across the stokes domain while enforcing a no slip condition on the outer surface of the stokes domain as dirichlet condition setting $u_{S,0} = \vec{0} \ \text{m/s}$. This also means that we will put the source terms $f_S = f_D = 0$ in both domains. For the pressure in the Darcy domain we are then going to enforce the boundary conditions entirely as neumann conditions by setting a zero flux, i.e. $\nabla p_D = \vec{0} \ \text{Pa/m}$. For the interface we choose a balanced normal flow, i.e. $g\Gamma = 0 \ \text{m/s}$ and a slip rate given as $\alpha = \mu/\sqrt{\kappa} \ \text{Pa}\cdot\text{s/m}$. Finnally we set the CSF viscosity $\mu = 0.8 \cdot 10^{-3} \ \text{Pa}\cdot\text{s}$ and the percolation permeability $\kappa = 1\cdot10^{-16}$ \ \text{m}^2. These parameter choices is summed up in the following  
+We are going to drive the CSF flow by a pressure difference $\Delta p_S  = 133.3224 \ \text{Pa}$ $(1 \ \text{mmHg})$, across the stokes domain. For the outer surface of the stokes domain $\Lambda_S$ we enforce a no slip condition as dirichlet condition setting $u_{S,0} = \vec{0} \ \text{m/s}$. This also means that we will put the source terms $f_S = f_D = 0$ in both domains. For the pressure in the Darcy domain we are going to enforce the boundary conditions on all non interface surfaces $\Gamma_D$ as neumann conditions by setting a zero flux, i.e. $\nabla p_D = \vec{0} \ \text{Pa/m}$. For the interface $\Gamma$ we choose a balanced normal flow, i.e. $g\Gamma = 0 \ \text{m/s}$ and a slip rate given as $\alpha = \mu/\sqrt{\kappa} \ \text{Pa}\cdot\text{s/m}$. Finally we set the CSF viscosity $\mu = 0.8 \cdot 10^{-3} \ \text{Pa}\cdot\text{s}$ and the percolation permeability $\kappa = 1\cdot10^{-16}$ \ \text{m}^2. These parameter choices is summed up in the following  
 
 
 $$
@@ -192,48 +187,17 @@ $$
 $$
 
 
-
-
-### Combinned
+This result in the final system of equation as organised in the following table. 
 
 
 
 |  |  $u_S$ | $p_S$ | $p_D$ | d |
 |---|:---:|:---:|:---:|:---:|
-| $(v_s)$ |  $\int_{\Omega_S} 2\mu \ \varepsilon(u_S) \odot \varepsilon(v_S) \ dx$ <br /> $+ \int\_{\Gamma} \alpha \big[u_S \cdot\hat{\tau}_S \big]\big[\hat{\tau}_S \cdot v_S \big] \ dx$ |  $- \int_{\Omega_S} p_S \nabla\cdot v_S \ dx$ |  $\int\_{\Gamma} P_D \big[\hat{n}_S \cdot v_S \big] \ dx$ |  $= \int_{\Omega_S} f_S \cdot v_S$ |
+| $(v_s)$ |  $\int_{\Omega_S} 2\mu \ \varepsilon(u_S) \odot \varepsilon(v_S) \ dx$ <br /> $+ \int\_{\Gamma} \alpha \big[u_S \cdot\hat{\tau}_S \big]\big[\hat{\tau}_S \cdot v_S \big] \ dx$ |  $- \int_{\Omega_S} p_S \nabla\cdot v_S \ dx$ |  $\int\_{\Gamma} P_D \big[\hat{n}_S \cdot v_S \big] \ dx$ |  $=0$ |
 | $(q_s)$ |  $- \int\_{\Omega_S} (\nabla \cdot u_S) \cdot q_S \ dx$ |  |  | $= 0$ |
-| $(q_D)$| $-\int\_{\Gamma} ( u_S \cdot \hat{n}_S) \cdot q_D \ dx$ | - |  $\int\_{\Omega_D} \frac{\kappa}{\mu} \nabla p_D \cdot \nabla q_D \ dx$ |  $=  \int_{\Omega_D} f_D \cdot q_d \ dx$ |
+| $(q_D)$| $-\int\_{\Gamma} ( u_S \cdot \hat{n}_S) \cdot q_D \ dx$ | - |  $\int\_{\Omega_D} \frac{\kappa}{\mu} \nabla p_D \cdot \nabla q_D \ dx$ |  $=  0$ |
 
-
-<!-- $$
-\begin{align}
-    a_{S, v_S} &= \int_{\Omega_S} 2\mu \ \varepsilon(u_S) \odot \varepsilon(v_S)  -  p_S \nabla\cdot v_S \ dx + \int\_{\Gamma} P_D \big[\hat{n}_S \cdot v_S \big] + \alpha \big[u_S \cdot\hat{\tau}_S \big]\big[\hat{\tau}_S \cdot v_S \big] \ dx \\
-    b_{S, v_S} &= \int_{\Omega_S} f_S \cdot v_S \\
-    a_{S, q_S} &= - \int\_{\Omega_S} (\nabla \cdot u_S) \cdot q_S \ dx. \\
-    b_{S, q_S} &= 0 \\
-    a_{D, q_D} &= \int\_{\Omega_D} \frac{\kappa}{\mu} \nabla p_D \cdot \nabla q_D \ dx  -\int\_{\Gamma} ( u_S \cdot \hat{n}_S) \cdot q_D \ dx 
-\end{align}
-$$ -->
-
-
-<!-- $$  
-\begin{align}
-    \begin{bmatrix}
-        \int_{\Omega_S} 2\mu \ \varepsilon(u_S) \odot \varepsilon(v_S) \ dx + \int\_{\Gamma} \alpha \big[u_S \cdot\hat{\tau}_S \big]\big[\hat{\tau}_S \cdot v_S \big] \ dx  &  
-        - \int_{\Omega_S} p_S \nabla\cdot v_S \ dx &
-        \int\_{\Gamma} P_D \big[\hat{n}_S \cdot v_S \big] &
-        = \int_{\Omega_S} f_S \cdot v_S   \\
-        - \int\_{\Omega_S} (\nabla \cdot u_S) \cdot q_S \ dx & 
-        & 
-        & 
-        = 0 \\
-       -\int\_{\Gamma} ( u_S \cdot \hat{n}_S) \cdot q_D &
-        & 
-        \int\_{\Omega_D} \frac{\kappa}{\mu} \nabla p_D \cdot \nabla q_D \ dx &
-        =  \int_{\Omega_D} f_D \cdot q_d \ dx
-    \end{bmatrix}
-\end{align}
-$$ -->
+What about nitsche?
 
 
 ### Evaluating the metrics for dimension reduction 

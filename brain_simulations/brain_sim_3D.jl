@@ -169,38 +169,38 @@ function brain_PDE_3D(model, pgs_dict, data; write = false)
 
 end
 
-# --- Brain Model --- # 
-lc = 2e-3
-arcLen = (50e-3, 30e-3)
-r_brain = 10e-3  
-d_ratio = 1.5e-3/r_brain
-r_curv = 50e-3 
-A = 1e-3
-λ = 10*1e-3
-ω(λ) = 2*pi/λ      
-# inner_perturb = @sprintf("(x,z) -> %f * sin(abs(x) * %f - pi/2) * fld(mod2pi(abs(x) * %f - pi/2),pi) ", A , ω(λ), ω(λ))
-inner_perturb = @sprintf("(x,z) -> %f * (sin(abs(x) * %f - pi/2) * fld(mod2pi(abs(x) * %f - pi/2),pi) + sin(abs(z) * %f - pi/2) * fld(mod2pi(abs(z) * %f - pi/2),pi)) ", A , ω(λ), ω(λ),  ω(λ), ω(λ))
-# inner_perturb = "(x,z) -> 0.0"  
-outer_perturb = "(x,z) -> 0.0"  
+# # --- Brain Model --- # 
+# lc = 2e-3
+# arcLen = (50e-3, 30e-3)
+# r_brain = 10e-3  
+# d_ratio = 1.5e-3/r_brain
+# r_curv = 50e-3 
+# A = 1e-3
+# λ = 10*1e-3
+# ω(λ) = 2*pi/λ      
+# # inner_perturb = @sprintf("(x,z) -> %f * sin(abs(x) * %f - pi/2) * fld(mod2pi(abs(x) * %f - pi/2),pi) ", A , ω(λ), ω(λ))
+# inner_perturb = @sprintf("(x,z) -> %f * (sin(abs(x) * %f - pi/2) * fld(mod2pi(abs(x) * %f - pi/2),pi) + sin(abs(z) * %f - pi/2) * fld(mod2pi(abs(z) * %f - pi/2),pi)) ", A , ω(λ), ω(λ),  ω(λ), ω(λ))
+# # inner_perturb = "(x,z) -> 0.0"  
+# outer_perturb = "(x,z) -> 0.0"  
 
 
-BS_points = (200, 200) 
-field_Lc_lim = [1 / 2, 1]
-field_Dist_lim = [1e-3, 5e-3] 
+# BS_points = (200, 200) 
+# field_Lc_lim = [1 / 2, 1]
+# field_Dist_lim = [1e-3, 5e-3] 
 
-# --- PDE ---- #
-μ = 0.8e-3  # Cerobrospinal fluid viscosity [Pa * s]
-Κ = 1e-16   # Permeability in brain parenchyma [m^2] 
-α = "(x) -> 1*μ/sqrt(Κ)" # Slip factor on Γ [Pa * s / m]
-ps0 = "(x) -> x[1] < 0 ? 1*133.3224 : 0." # 1*mmHg [Pa]
-# ps0 = "(x) -> x[1] < 0 ? 133.3224*exp(-1/5e-3 * abs(x[3])) : 0." # 1*mmHg [Pa]
-∇pd0 = "(x) -> VectorValue(0.0, 0.0, 0.0)" # Zero flux
+# # --- PDE ---- #
+# μ = 0.8e-3  # Cerobrospinal fluid viscosity [Pa * s]
+# Κ = 1e-16   # Permeability in brain parenchyma [m^2] 
+# α = "(x) -> 1*μ/sqrt(Κ)" # Slip factor on Γ [Pa * s / m]
+# ps0 = "(x) -> x[1] < 0 ? 1*133.3224 : 0." # 1*mmHg [Pa]
+# # ps0 = "(x) -> x[1] < 0 ? 133.3224*exp(-1/5e-3 * abs(x[3])) : 0." # 1*mmHg [Pa]
+# ∇pd0 = "(x) -> VectorValue(0.0, 0.0, 0.0)" # Zero flux
 
 
-# --- Run simulation --- #
-brain_param = model_params(lc, arcLen, r_brain, d_ratio, r_curv, inner_perturb, outer_perturb, BS_points, field_Lc_lim, field_Dist_lim)
-PDE_param = PDE_params(μ, Κ, α, ps0, ∇pd0)
-model, pgs_dict = create_brain(brain_param; view=true, write=false)
-ush, psh, pdh = brain_PDE_3D(model, pgs_dict, PDE_param; write = (path * "vtu_files/", "3D_nonperiodic"))
+# # --- Run simulation --- #
+# brain_param = model_params(lc, arcLen, r_brain, d_ratio, r_curv, inner_perturb, outer_perturb, BS_points, field_Lc_lim, field_Dist_lim)
+# PDE_param = PDE_params(μ, Κ, α, ps0, ∇pd0)
+# model, pgs_dict = create_brain(brain_param; view=true, write=false)
+# ush, psh, pdh = brain_PDE_3D(model, pgs_dict, PDE_param; write = (path * "vtu_files/", "3D_nonperiodic"))
 
 

@@ -1,5 +1,6 @@
 # Script for the various simulations I make
 include("./evaluate.jl")
+include("./evaluate_3D.jl")
 include("./data_analysis.jl")
 
 path = "/Users/mikkelme/Documents/Github/Simula_SummerProject/brain_simulations/"
@@ -222,7 +223,36 @@ function run_permeability(;run=true)
 end
 
 
+function run_3D_single_inner_negsine(;run=true)
+    # Settings
+    folder_name = "3D"
+    start_width = 5e-3
+    end_width = 0.5e-3
+    num_samples = 2
+ 
+    lc = 2e-3
+    arcLen = (50e-3, 30e-3)
+    A = 1e-3
+    λ = 10*1e-3
+    ω(λ) = 2*pi/λ  
+    inner_perturb = @sprintf("(x,z) -> %f * (sin(abs(x) * %f - pi/2) * fld(mod2pi(abs(x) * %f - pi/2),pi) + sin(abs(z) * %f - pi/2) * fld(mod2pi(abs(z) * %f - pi/2),pi)) ", A , ω(λ), ω(λ),  ω(λ), ω(λ))
+    BS_points = (200, 200) 
+    ∇pd0 = "(x) -> VectorValue(0.0, 0.0, 0.0)" # Zero flux
 
+    # Run
+    if run
+        brain_param = model_params(lc, arcLen, r_brain, d_ratio, r_curv, inner_perturb, outer_perturb, BS_points, field_Lc_lim, field_Dist_lim)
+        PDE_param = PDE_params(μ, Κ, α, ps0, ∇pd0)
+        eval_decreasing_lc_3D(brain_param, PDE_param, start_width, end_width, num_samples; folder_name = folder_name)
+    end
+
+    # Analyse 
+    readpath = path * "data_" * folder_name * "/txt_files/"
+    plot_nflow_interface(readpath * "us_nflow.txt", plot(), save = path * "data_" * folder_name * "/png_files/" * "us_nflow_abs.png")
+
+
+
+end
 
 # --- View model --- #
 # A = 0.3e-3
@@ -243,5 +273,7 @@ end
 # run_single_inner_negsine(run=false)
 # run_solution_convergence(run=false)
 
-run_permeability(run=true)
+# run_permeability(run=true)
+
+run_3D_single_inner_negsine(run=true)
 
