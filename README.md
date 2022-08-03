@@ -1,4 +1,4 @@
-# Simula Summer Project - Studying the prospects of dimension reduction for cerebrospinal fluid flow in brain simulations
+# Simula Summer Project - Prospects of dimension reduction for cerebrospinal fluid flow in brain simulations
 
 
 TODO
@@ -113,7 +113,7 @@ $$
 
 ### Weak formulation
 
-We define the test spaces $v_S, q_S, q_D$ to be in the Sobolev space (H1). Check consistency with $dx$ or $dV, dS, dL$.
+We define the test spaces $v_S, q_S, q_D$ to be in the Sobolev space (H1). 
 
 #### Stokes
 From eq. $(1)$ we get
@@ -151,7 +151,7 @@ $$
 \begin{align}
     - \int_{\partial\Omega_S\setminus\Gamma} \Big[\big(\sigma(u_S, p_S)\cdot\hat{n}_S\big) \cdot \hat{\tau}_S \Big]\Big[\hat{\tau}_S \cdot v_S \Big] \ dx= 
     &- \int\_{\partial\Omega_S\setminus\Gamma}\Big[\big(\sigma(u_S, p_S)\cdot\hat{n}_S\big) \cdot \hat{\tau}_S \Big]\Big[\hat{\tau}_S \cdot v_S \Big] \ dx\\
-    &- \int\_{\partial\Omega_S\setminus\Gamma}\Big[\big(\sigma(u_S, p_S)\cdot\hat{n}_S\big) \cdot \hat{\tau}_S \Big]\Big[\hat{\tau}_S \cdot u_S - u_{S,\text{tan}} \Big] \ dx\\
+    &- \int\_{\partial\Omega_S\setminus\Gamma}\Big[\big(\sigma(u_S, p_S)\cdot\hat{n}_S\big) \cdot \hat{\tau}_S \Big]\Big[\hat{\tau}\_S \cdot u_S - u\_{S,\text{tan}} \Big] \ dx\\
     &+ \int\_{\partial\Omega_S\setminus\Gamma}\frac{\gamma}{h} \Big[ \hat{\tau}\_S \cdot u_S - u\_{S,\text{tan}} \Big]\Big[\hat{\tau}_S \cdot u_S \Big] \ dx
 \end{align}
 $$
