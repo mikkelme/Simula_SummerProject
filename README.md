@@ -5,14 +5,16 @@ TODO
 - Try 3D (200.000 unknowns)
 - Include real brain vtu for reference
 - Clarify direction of low (left to right)
+- Explain structure of repo 
+- Comment code
 
 This repo contains the work done as a summer intern at Simula during a six week period in the summer of 2022. The project was guided by my supervisor [Miroslav Kutcha](https://github.com/MiroK).
 
 ## Introduction 
 
-In this project we build a framework for simulating the flow of the cerebrospinal fluid (CSF) in the human brain. The CSF flows, among other regions, on the outside of the brain tissue in the outer most layer of the head. The CSF enter the brain tissue through small pores in the brain tissue and takes part in the transpoortation of waste matter produced in the brain. Thus, the motivation for simulating the CSF flow is to contribute to medical brain research. However, such simulations becomes computational expensive when considering large regions of the brain and hence we want to invistigate the possibility to introduce a simpler model by the use of dimension reduction. That is, instead of considering the CSF-filled space as a 3D sphere shell with thickness in the radial direction we reduce it to a 2D sphere encapsulating the brain tissue. In order for such a simplification to be sucessfull we most be able to neglect the dynamics in the reduced dimension without any great impact on the predicted flow. More precisely we want the pressure to be approximately constant on the crosssection of the CSF flowvthrough the radial plane. In addition we want negligble velocity normal to the main CSF flow. Due to the fact that the CSF-filled space is much longer than it is thick, the idea is that the flow might meet the above criterias rather well. 
+In this project we build a framework for simulating the flow of the cerebrospinal fluid (CSF) in the human brain. The CSF flows, among other regions, on the outside of the brain tissue in the outer most layer of the head. The CSF enter the brain tissue through small pores in the brain tissue and takes part in the transpoortation of waste matter produced in the brain. Thus the motivation for simulating the CSF flow is to contribute to medical brain research. However, such simulations becomes computational expensive when considering large regions of the brain and hence we want to invistigate the possibility to introduce a simpler model by the use of dimension reduction. That is, instead of considering the CSF-filled space as a 3D sphere shell with thickness in the radial direction we reduce it to a 2D sphere encapsulating the brain tissue. In order for such a simplification to be sucessfull we most be able to neglect the dynamics in the reduced dimension without any great impacts on the predicted flow. More precisely we want the pressure to be approximately constant on the crosssection of the CSF flow through the radial plane. In addition we want negligble velocity normal to the main CSF flow. Due to the fact that the CSF-filled space is much longer than it is thick, one can hypothesise that the flow might meet the above criterias rather well. 
 
-We are going to simulate the CSF flow using the finite element method to solve the partial derivative equations (PDE). For simplicity we initially take on a 2D problem where we consider a 2D slice of the brain. Thus the corresponding dimension reduction problem is now to reduce the 2D slice surface iof the CSF-filled space to a 1D line. By decreasing the width of the CSF-filled space we can study the devolopment of the pressure profile on the crossection and the normal flow on the interface between the CSF-filled space and the brain tissue as the surface approaches a line. In figure (...) we see a model based on real brain scannings.
+We are going to simulate the CSF flow using the finite elements method to solve the partial derivative equations. For simplicity we initially take on a 2D problem where we consider a 2D slice of the brain. Thus the corresponding dimension reduction problem is to reduce the 2D slice surface of the CSF-filled space to a 1D line. By decreasing the width of the CSF-filled space, we can study the devolopment of the pressure profile on the crossection of the CSF flow and the normal flow on the interface between the CSF-filled space and the brain tissue, as the surface approaches a line. In figure $(1)$ we see a model based on real brain scannings as reference for the system we are going to model.
 
 <p float>
     <img src="figures/real_brain_full.png"
@@ -22,11 +24,11 @@ We are going to simulate the CSF flow using the finite element method to solve t
          alt=""
          style="width:49%">
      <h5 align="center"> 
-    Fig.1 - Real brain scans as a reference for the simulation geometry. The blue color indicates the CSF-filled spaces, the white-brown-ish colour the brain tissue and the red parts some of the major blood vessels. The left image shows a full 3D view of the brain tissue surface, while the right image shows a sliced version.
+    Fig.1 - Real brain scanning as a reference for the simulation geometry. The blue color indicates the CSF-filled space, the white-brown-ish color the brain tissue and the red parts some of the major blood vessels. The left image shows a full 3D view of the brain tissue surface, while the right image shows a sliced version.
     </h5>
 </p>
 
-As seen in the brain scan the surface of the brain is not smooth, and thus we will introduce a wiggled surface and study the prospects for dimension reduction by different geometric modelling of the surface.
+As seen in the brain scan the surface of the brain is not smooth. Thus we will introduce a wiggled surface and study the prospects for dimension reduction for different geometric modelling of the surface.
 
 Progamming wise we are going to use Julia as the main language for this project. We use the [Gridap](https://gridap.github.io/Gridap.jl/stable/) module for the finite element part and [Gmsh](https://gmsh.info) for creating the geometry and the mesh.
 
@@ -40,7 +42,7 @@ We are going to model our brain as a composition of two domains: The *Stokes* do
 <p align="center">
     <img src="figures/default_2D_brain_example_notation.png"
          alt=""
-         style="width:70%">
+         style="width:80%">
     <h5 align="center"> 
     Fig.2 - Example of default 2D brain geometry. The orange region represents the Stokes domain and the green region the Darcy domain. The black line dividing the stokes and the darcy domain represent the interface.
     </h5>
@@ -85,7 +87,7 @@ where
 
 $$
 \begin{align}
-   \sigma(u_S, p_S) &= 2\mu \varepsilon(u_S) - p_S \mathbb{I} \\
+   \sigma(u_S, p_S) &= 2\mu \ \varepsilon(u_S) - p_S \mathbb{I} \\
    \varepsilon(u_S) &= \frac{1}{2}(\nabla u_S + \nabla^Tu_S)
 \end{align}
 $$
