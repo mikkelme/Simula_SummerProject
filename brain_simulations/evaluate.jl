@@ -226,7 +226,7 @@ function eval_decreasing_lc(brain_param, PDE_param, start_width, end_width, num_
     [@printf(outfile,"%.3e, ", width[i]) for i in 1:length(width)-1]
     @printf(outfile, "%.3e]\n", last(width))
     write(outfile, "#\n# --- Data --- #\n")
-    write(outfile, "width, u×n̂, (u×n̂)²\n")
+    write(outfile, "width, u⋅n̂, (u⋅n̂)², u⋅u\n")
     close(outfile)
     
 

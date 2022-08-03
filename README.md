@@ -203,16 +203,10 @@ $$
 
 $$
 \begin{align}
-    a_{v_S} + a_{q_S} + a_{q_D} + a_N = 0
+    a_{v_S} + a_{q_S} + a_{q_D} + a_N = 0.
 \end{align}
 $$
 
-
-<!-- $\int\_{\Gamma_S}\Big[\big(\sigma(u_S, p_S)\cdot\hat{n}_S\big) \cdot \hat{\tau}_S \Big]\Big[\hat{\tau}_S \cdot v_S \Big] \ dx$
-
-$- \int\_{\Gamma_S}\Big[\big(\sigma(u_S, p_S)\cdot\hat{n}_S\big) \cdot \hat{\tau}_S \Big]\Big[\hat{\tau}_S \cdot u_S \Big] \ dx$
-
-$+ \int\_{\Gamma_S}\frac{\gamma}{h} \Big[ \hat{\tau}\_S \cdot u_S  \Big]\Big[\hat{\tau}_S \cdot u_S \Big] \ dx$ -->
 
 <!-- 
 |  |  $u_S$ | $p_S$ | $p_D$ |  |
@@ -224,28 +218,36 @@ $+ \int\_{\Gamma_S}\frac{\gamma}{h} \Big[ \hat{\tau}\_S \cdot u_S  \Big]\Big[\ha
 
 
 
-
 ### Evaluating the metrics for dimension reduction 
 
-For the evaluating of the pressure we create a series of radial lines in the stokes domain and calculate the pressure variance
+For the evaluating of the stokes pressure we create a series of radial lines (RL) in the stokes domain and calculate the pressure variance along each of them as
 
 $$
-\text{var}(p_S) = \int_{\Omega_S} \big(p_S - \langle p_S \rangle\big)^2 dp_S \ / \ |\text{radial line}|
+\text{var}(p_S) = \int_{RL} \Big(p_S(x) - \big\langle p_S(x) \big\rangle\Big)^2 dx \ / \int_{RL} 1 \ dx.
 $$
 
-If the pressure is constant the variance will be zero. We compute then both the mean and the maximum value of all variances along the radial lines. In addition we compute the absolute value of the mean absolute normal flow along the interface as 
+If the pressure is constant the variance will be zero. We compute then both the mean and the maximum value of all variances along the radial lines. In addition we compute the value of the mean absolute normal flow along the interface as 
 
 $$
-\sqrt{\int_{\Gamma} (u_S \cdot \hat{n}_S)^2 d\Gamma} \ / \ |\Gamma|
+\sqrt{\int_{\Gamma} \Big((u_S(x)) \cdot \hat{n}_S(x)\Big)^2 d\Gamma} \ / \ \int_{\Gamma} 1 \ dx.
 $$
 
 
-<!-- (Insert image of radial lines and center lines as a vtu file) -->
+
+<p align="center">
+    <img src="figures/evaluation_lines_default.png"
+         alt=""
+         style="width:60%">
+    <h5 align="center"> 
+    Fig.X - 100 radial lines in this example. Default run case also 
+    </h5>
+</p>
+
 
 
 ## Results and Discussion
 
-We begin by the 2D case.
+We begin by assessing the 2D case.
 
 ### Choosing the resolution
 
