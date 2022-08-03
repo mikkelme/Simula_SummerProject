@@ -207,6 +207,7 @@ function add_mesh_field(brain::geo3D, param::model_params)
 
 
 
+
     # Define trheshold field
     F_threshold = gmsh.model.mesh.field.add("Threshold")
     gmsh.model.mesh.field.setNumber(F_threshold, "IField", F_distance)
@@ -244,13 +245,13 @@ function apply_periodic_meshing(brain::geo3D)
             0, 0, 0, 1 ]
 
  
-    gmsh.model.mesh.setPeriodic(2, [brain.rad_surf[1, 1]], [brain.rad_surf[1, 3]], Rx)
-    gmsh.model.mesh.setPeriodic(2, [brain.rad_surf[1, 2]], [brain.rad_surf[1, 4]], Rz)
+    #only stokes periodicty 
+    gmsh.model.mesh.setPeriodic(2, [brain.rad_surf[2, 1]], [brain.rad_surf[2, 3]], Rx)
 
 
     for i in 1:2
-        gmsh.model.mesh.setPeriodic(2, [brain.rad_surf[i, 1]], [brain.rad_surf[i, 3]], Rx) # From -z → +z surf
-        gmsh.model.mesh.setPeriodic(2, [brain.rad_surf[i, 2]], [brain.rad_surf[i, 4]], Rz) # From +x → -x surf        
+        gmsh.model.mesh.setPeriodic(2, [brain.rad_surf[i, 1]], [brain.rad_surf[i, 3]], Rx) # From -z → +z surf (back to front)
+        # gmsh.model.mesh.setPeriodic(2, [brain.rad_surf[i, 2]], [brain.rad_surf[i, 4]], Rz) # From +x → -x surf (right ro left)
     end
 end
 
@@ -279,7 +280,7 @@ function create_brain_3D(param::model_params)
 
     connect_and_volumize(brain)
     add_mesh_field(brain, param)
-    # apply_periodic_meshing(brain)
+    # apply_periodic_meshing(brain) # map back to front 
 
     # Add physical groups 
     obj = [(brain.vol, 3), (brain.tan_surf, 2), (brain.rad_surf, 2), (brain.arc, 1), (brain.vertex, 0)] # (tag, dim)

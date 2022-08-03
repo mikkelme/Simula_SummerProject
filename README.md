@@ -2,7 +2,6 @@
 
 
 TODO
-- Vary permeability 
 - Try 3D (200.000 unknowns)
 - Include real brain vtu for reference
 
@@ -10,9 +9,23 @@ This repo contains the work done as a summer intern at Simula during a six week 
 
 ## Introduction 
 
-In this project we build a framework for simulating the flow of the cerebrospinal fluid (CSF) in the human brain. The CSF flows, among other regions, on the outside of the brain tissue in the outer most layer of the head. The CSF enter the brain tissue through small pores in the brain tissue and a part in the transpoortation of waste matter produced in the brain. Thus, simulating the CSF flow can be of great benefit for medical research. However, such simulations becomes computational expensive when considering large regions of the brain and hence we want to invistigate the possibility to introduce a simpler model by the use of dimension reduction. That is, instead of considering the CSF-filled space as a 3D sphere shell with thickness in the radial direction we reduce it to a 2D sphere encapsulating the brain tissue. In order for this simplification to be sucessfull we most be able to neglect the dynamics in the reduced dimension without any great impact on the predicted flow. More precisely we want the pressure to be approximately constant on the crosssection to the fluid flow in the radial plane. In addition we want negligble velocity normal to the main CSF flow. Due to the fact that the CSF-filled space is much longer than it is thick one can hypothesize that the flow will meet the above criteria rather well. 
+In this project we build a framework for simulating the flow of the cerebrospinal fluid (CSF) in the human brain. The CSF flows, among other regions, on the outside of the brain tissue in the outer most layer of the head. The CSF enter the brain tissue through small pores in the brain tissue and takes part in the transpoortation of waste matter produced in the brain. Thus, the motivation for simulating the CSF flow is to contribute to medical brain research. However, such simulations becomes computational expensive when considering large regions of the brain and hence we want to invistigate the possibility to introduce a simpler model by the use of dimension reduction. That is, instead of considering the CSF-filled space as a 3D sphere shell with thickness in the radial direction we reduce it to a 2D sphere encapsulating the brain tissue. In order for such a simplification to be sucessfull we most be able to neglect the dynamics in the reduced dimension without any great impact on the predicted flow. More precisely we want the pressure to be approximately constant on the crosssection of the CSF flowvthrough the radial plane. In addition we want negligble velocity normal to the main CSF flow. Due to the fact that the CSF-filled space is much longer than it is thick, the idea is that the flow might meet the above criterias rather well. 
 
-We are going to simulate the CSF flow using the finite element method to solve the partial derivative equations. For simplicity we take on a 2D problem where we consider a 2D slice of the brain, and consider the dimension reduction in the radial direction such that the CSF-filled space is reduced to a line. By decreasing the width of the CSF-filled space we can study the decolopment of the pressure profile on the crossection and the normal flow on the interface between the CSF-filled space and the brain tissue. For a more realistic approach we introduce wiggled surfaces and study the prospects for dimension reduction for different brain geomtries.
+We are going to simulate the CSF flow using the finite element method to solve the partial derivative equations (PDE). For simplicity we initially take on a 2D problem where we consider a 2D slice of the brain. Thus the corresponding dimension reduction problem is now to reduce the 2D slice surface iof the CSF-filled space to a 1D line. By decreasing the width of the CSF-filled space we can study the devolopment of the pressure profile on the crossection and the normal flow on the interface between the CSF-filled space and the brain tissue as the surface approaches a line. In figure (...) we see a model based on real brain scannings.
+
+<p float>
+    <img src="figures/real_brain_full.png"
+         alt=""
+         style="width:49%">
+    <img src="figures/real_brain_clip.png"
+         alt=""
+         style="width:49%">
+     <h5 align="center"> 
+    Fig.X - Caption
+    </h5>
+</p>
+
+As seen in the brain scan the surface of the brain is not smooth, and thus we will introduce a wiggled surface and study the prospects for dimension reduction by different geometric modelling of the surface for different brain geomtries.
 
 <!-- Maybe show 2D and 3D models here -->
 
@@ -386,6 +399,24 @@ Due to the promising result for the default brian geometry we invistigate the co
 </p>
 
 
+We see mainly that a more extreme surface, high frequency high amplitude, gives raise to a less constant stokes pressure profile and more normal flow though the interface. However, the only exception is the $\lambda = 1 \ \text{mm}$ simulation in figure (...). It seems that the small wavelength makes it *difficult* for the CSF to reach the cracks, and the surface becomes pseudo flat. 
+
+
+
+<p align="center">
+    <img src="figures/MNS_1mm_us_heatmap.png"
+         alt=""
+         style="width:60%">
+    <h5 align="center"> 
+    Fig.X - Caption
+    </h5>
+</p>
+
+
+the frequency is so high that it actually benefits dimension reduction again. The CSF cannot really flow into the cracks I guess. 
+
+
+
 ### Varying permeability 
 
 Test interval: $[10^{-16},10^{-12}] \ \text{m}^2$.
@@ -397,7 +428,7 @@ ____
 
 stress free config and projection vector for tangential parts. 
 
-
+or periodic boundry conditions from back to front. 
 
 
 
