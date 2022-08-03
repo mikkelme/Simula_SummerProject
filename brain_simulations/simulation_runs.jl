@@ -230,7 +230,7 @@ function run_3D_single_inner_negsine(;run=true)
     end_width = 0.5e-3
     num_samples = 2
  
-    lc = 2e-3
+    lc = 1e-2
     arcLen = (50e-3, 30e-3)
     A = 1e-3
     λ = 10*1e-3

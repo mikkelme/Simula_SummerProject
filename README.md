@@ -187,17 +187,61 @@ $$
 $$
 
 
-This result in the final system of equation as organised in the following table. 
+This result in the final system of equations
 
 
+$$
+\begin{align}
+    a_N = -\int\_{\Gamma_S}\Big[\big(\sigma(u_S, p_S)\cdot\hat{n}_S\big) \cdot \hat{\tau}_S \Big]\Big[\hat{\tau}_S \cdot v_S \Big] \ dx
+    - \int\_{\Gamma_S}\Big[\big(\sigma(u_S, p_S)\cdot\hat{n}_S\big) \cdot \hat{\tau}_S \Big]\Big[\hat{\tau}_S \cdot u_S \Big] \ dx
+    + \int\_{\Gamma_S}\frac{\gamma}{h} \Big[ \hat{\tau}\_S \cdot u_S  \Big]\Big[\hat{\tau}_S \cdot u_S \Big] \ dx
+\end{align}
+$$
 
-|  |  $u_S$ | $p_S$ | $p_D$ | d |
+
+$$
+\begin{align}
+    a_{v_S} = \int_{\Omega_S} 2\mu \ \varepsilon(u_S) \odot \varepsilon(v_S) \ dx + \int\_{\Gamma} \alpha \big[u_S \cdot\hat{\tau}_S \big]\big[\hat{\tau}_S \cdot v_S \big] \ dx - \int_{\Omega_S} p_S \nabla\cdot v_S \ dx + \int\_{\Gamma} P_D \big[\hat{n}_S \cdot v_S \big] \ dx
+\end{align}
+$$
+
+
+$$
+\begin{align}
+    a_{q_S} = - \int\_{\Omega_S} (\nabla \cdot u_S) \cdot q_S \ dx
+\end{align}
+$$
+
+
+$$
+\begin{align}
+    a_{q_D} = -\int\_{\Gamma} ( u_S \cdot \hat{n}_S) \cdot q_D \ dx + \int\_{\Omega_D} \frac{\kappa}{\mu} \nabla p_D \cdot \nabla q_D \ dx
+\end{align}
+$$
+
+
+$$
+\begin{align}
+    a_{v_S} + a_{q_S} + a_{q_D} + a_N = 0
+\end{align}
+$$
+
+
+<!-- $\int\_{\Gamma_S}\Big[\big(\sigma(u_S, p_S)\cdot\hat{n}_S\big) \cdot \hat{\tau}_S \Big]\Big[\hat{\tau}_S \cdot v_S \Big] \ dx$
+
+$- \int\_{\Gamma_S}\Big[\big(\sigma(u_S, p_S)\cdot\hat{n}_S\big) \cdot \hat{\tau}_S \Big]\Big[\hat{\tau}_S \cdot u_S \Big] \ dx$
+
+$+ \int\_{\Gamma_S}\frac{\gamma}{h} \Big[ \hat{\tau}\_S \cdot u_S  \Big]\Big[\hat{\tau}_S \cdot u_S \Big] \ dx$ -->
+
+<!-- 
+|  |  $u_S$ | $p_S$ | $p_D$ |  |
 |---|:---:|:---:|:---:|:---:|
 | $(v_s)$ |  $\int_{\Omega_S} 2\mu \ \varepsilon(u_S) \odot \varepsilon(v_S) \ dx$ <br /> $+ \int\_{\Gamma} \alpha \big[u_S \cdot\hat{\tau}_S \big]\big[\hat{\tau}_S \cdot v_S \big] \ dx$ |  $- \int_{\Omega_S} p_S \nabla\cdot v_S \ dx$ |  $\int\_{\Gamma} P_D \big[\hat{n}_S \cdot v_S \big] \ dx$ |  $=0$ |
 | $(q_s)$ |  $- \int\_{\Omega_S} (\nabla \cdot u_S) \cdot q_S \ dx$ |  |  | $= 0$ |
 | $(q_D)$| $-\int\_{\Gamma} ( u_S \cdot \hat{n}_S) \cdot q_D \ dx$ | - |  $\int\_{\Omega_D} \frac{\kappa}{\mu} \nabla p_D \cdot \nabla q_D \ dx$ |  $=  0$ |
+ -->
 
-What about nitsche?
+
 
 
 ### Evaluating the metrics for dimension reduction 
