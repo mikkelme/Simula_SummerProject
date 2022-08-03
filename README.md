@@ -1,4 +1,4 @@
-# Simula_SummerProject (find better name)
+# Simula_SummerProject - Studying the prospects of dimension reduction for cerebrospinal fluid flow in brain simulations
 
 
 TODO
@@ -21,7 +21,7 @@ We are going to simulate the CSF flow using the finite element method to solve t
          alt=""
          style="width:49%">
      <h5 align="center"> 
-    Fig.X - Caption
+    Fig.1 - Real brain scans as a reference for the simulation geometry. The blue color indicates the CSF-filled spaces, the white-brown-ish colour the brain tissue and the red parts some of the major blood vessels. The left image shows a full 3D view of the brain tissue surface, while the right image shows a sliced version.
     </h5>
 </p>
 
@@ -33,9 +33,19 @@ Progamming wise we are going to use Julia as the main language for this project.
 
 ### Domain
 
-We are going to model our brain as a composition of two domains: The *Stokes* domain and the *Darcy* domain corresponding to the equations that governs the fluid flow in these domains. Se figure (...) for reference. In the *Stokes* domain the fluid flows in a unobstructed path on the outside of the brain tissue, where the motion is described as Stokes flow (low Reynolds number). In the *Darcy* domain the fluid flows though the pores of the brain tissue where the fluid motion is described as percolation. For this we use Darcy's law.
+We are going to model our brain as a composition of two domains: The *Stokes* domain and the *Darcy* domain with names corresponding to the equations that governs the fluid flow in these domains (See figure (2) for reference). In the *Stokes* domain the CSF flows in an unobstructed path on the outside of the brain tissue, where the motion is described as Stokes flow (low Reynolds number). This is the domain that we have described as the CSF-filled region so far. In the *Darcy* domain the fluid flows though the pores of the brain tissue where the fluid motion is described as percolation. For this we use Darcy's law. The dividing line of these domains is what we will refer to as the *interface*.
 
-We are going to define the default brain geometry parameters for our 2D brain slice as shown in table (...).
+
+<p align="center">
+    <img src="figures/default_2D_brain_example_notation.png"
+         alt=""
+         style="width:70%">
+    <h5 align="center"> 
+    Fig.2 - Example of default 2D brain geometry. The orange region represents the Stokes domain and the green region the Darcy domain. The black line dividing the stokes and the darcy domain represent the interface.
+    </h5>
+</p>
+
+We are going to define a set of default brain geometry parameters for our 2D brain slice as shown in the following table. Here we also include the desired test area for the interface geometry. 
 
 
 |  Parameter | Default value | Testing interval 
@@ -44,31 +54,18 @@ We are going to define the default brain geometry parameters for our 2D brain sl
 | Radial length of slab | 10 mm |
 | Outer arc length | 100 mm |
 | Width of CSF-filled space | 1.5 mm |
-| Interface wiggles | Negative half sine wave|
+| Interface wiggles | Negative half sine waves|
 | Outer surface wiggles | No wiggling |
 | Wavelength of interface wiggles | 10 mm | [1,  50] mm|
 | Amplitude of interface wiggles | 1 mm | [0.1, 5] mm |
 
-The default 2D brain is shown in figure (...)
 
-<p align="center">
-    <img src="figures/default_2D_brain_example.png"
-         alt=""
-         style="width:70%">
-    <h5 align="center"> 
-    Fig.X - Example of default 2D brain geometry. The orange region represents the Stokes domain and the green region the Darcy domain.
-    </h5>
-</p>
-
-We also have the opportunity to extend the model into 3D. In figure (...) we have extended the 2D default brain geometry with an arc length of XX mm in the third dimension. 
-
-
-<!-- Picture of 3D Model   -->
+Eventually we also want to extend the study to 3D simulations where we will use the same default values as a starting point.
 
 
 ### Equations 
 
-We denote $u_S, p_S$ as velocity and pressure respectively in the Stokes domain $S$, and $p_D$ as pressure in the Darcy domain $D$. $\hat{n}_i$ and $\hat{\tau}$ denote the normal and tangentiel component on the $\Gamma$ interface with respect to region $i$. We define the problem by the following equations.
+We denote $u_S, p_S$ as velocity and pressure respectively in the Stokes domain $S$, and $p_D$ as pressure in the Darcy domain $D$. $\hat{n}_i$ and $\hat{\tau}_i$ denote the normal and tangentiel component on the $\Gamma$ interface with respect to region $i$. We define the problem by the following equations.
 
 ####  <ins> Stokes domain </ins>
 
@@ -97,7 +94,7 @@ $$
 $$
 \begin{align}
     \nabla \cdot (-\frac{\kappa}{\mu}\nabla p_D) &= f_D  &\text{in} \ \Omega_D \\
-     P_D &= P_{D,0}  &\text{on} \ \partial \Omega_S \setminus \Gamma 
+     P_D &= P_{D,0}  &\text{on} \ \Gamma_D
 \end{align}
 $$
 
