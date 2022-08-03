@@ -230,7 +230,7 @@ $$
 If the pressure is constant the variance will be zero. We compute then both the mean and the maximum value of all variances along the radial lines. In addition we compute the value of the mean absolute normal flow along the interface as 
 
 $$
-\sqrt{\int_{\Gamma} \Big((u_S(x)) \cdot \hat{n}\_S(x)\Big)^2 d\Gamma} \ / \ \int\_{\Gamma} 1 \ dx.
+\sqrt{\int_{\Gamma} \Big((u_S(x)) \cdot \hat{n}\_S(x)\Big)^2 dx} \ / \ \int\_{\Gamma} 1 \ dx.
 $$
 
 
@@ -238,7 +238,7 @@ $$
 <p align="center">
     <img src="figures/evaluation_lines_default.png"
          alt=""
-         style="width:60%">
+         style="width:80%">
     <h5 align="center"> 
     Fig.X - 100 radial lines in this example. Default run case also 
     </h5>
