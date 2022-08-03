@@ -144,10 +144,7 @@ $$
 \end{align}
 $$
 
-We zero out the first term in line (...) using the theorem in the paper (REFER).
-
-We can then handle the remaining tangential component of the  $\partial\Omega_S\setminus\Gamma$ boundary using the Nitsche method (theorem?).  
-
+We zero out the first term in line (...) using the theorem in the paper (REFER). We handle the remaining tangential component of the  $\partial\Omega_S\setminus\Gamma$ boundary using the Nitsche method (theorem?)
 
 $$
 \begin{align}
@@ -158,8 +155,7 @@ $$
 \end{align}
 $$
 
-where $u_{S,\text{tan}}$ is the condition for the tangential part of the stokes velocity on the $\partial\Omega_S\setminus\Gamma$. We only want the normal component and thus we set $u_{S,\text{tan}}$ = 0
-
+where $u_{S,\text{tan}}$ is the condition for the tangential part of the stokes velocity on the $\partial\Omega_S\setminus\Gamma$. We only want the normal component and thus we set $u_{S,\text{tan}}$ = 0.
 
 
 #### Darcy 
@@ -167,11 +163,15 @@ where $u_{S,\text{tan}}$ is the condition for the tangential part of the stokes 
 $$
 \begin{align}
     \int_{\Omega_D} f_D \cdot q_d \ dx &= \int_{\Omega_D} \frac{\kappa}{\mu} \nabla p_D \cdot \nabla q_D \ dx + \int_{\partial\Omega_D} \underbrace{-\hat{n}_D \cdot \frac{\kappa}{\mu} \nabla p_D}\_{g\Gamma - u_S \cdot \hat{n}_S \ \text{on} \ \Gamma} \cdot q_D \ dx \\
-    &= \int\_{\Omega_D} \frac{\kappa}{\mu} \nabla p_D \cdot \nabla q_D \ dx + \int\_{\Gamma} (g\Gamma - u_S \cdot \hat{n}_S) \cdot q_D \ dx - \int\_{\partial\Omega\setminus\Gamma} \hat{n}_D \cdot \kappa \nabla p_D \cdot q_D \ dx
+    &= \int\_{\Omega_D} \frac{\kappa}{\mu} \nabla p_D \cdot \nabla q_D \ dx + \int\_{\Gamma} (g\Gamma - u_S \cdot \hat{n}_S) \cdot q_D \ dx - \int\_{\Gamma_D} \hat{n}_D \cdot \kappa \nabla p_D \cdot q_D \ dx
 \end{align}
 $$
 
 where we handle the last term as a neuman condition.
+
+
+
+
 
 
 ### Parameter choices for the PDE modelling
@@ -190,6 +190,49 @@ $$
     \kappa &= 1\cdot10^{-16} \ \text{m}^2
 \end{align}
 $$
+
+
+
+
+### Combinned
+
+$$
+\begin{align}
+    a_{S, v_S} &= \int_{\Omega_S} 2\mu \ \varepsilon(u_S) \odot \varepsilon(v_S)  -  p_S \nabla\cdot v_S \ dx + \int\_{\Gamma} P_D \big[\hat{n}_S \cdot v_S \big] + \alpha \big[u_S \cdot\hat{\tau}_S \big]\big[\hat{\tau}_S \cdot v_S \big] \ dx \\
+    b_{S, v_S} &= \int_{\Omega_S} f_S \cdot v_S \\
+    a_{S, q_S} &= - \int\_{\Omega_S} (\nabla \cdot u_S) \cdot q_S \ dx. \\
+    b_{S, q_S} &= 0 \\
+    a_{D, q_D} &= \int\_{\Omega_D} \frac{\kappa}{\mu} \nabla p_D \cdot \nabla q_D \ dx  -\int\_{\Gamma} ( u_S \cdot \hat{n}_S) \cdot q_D \ dx 
+\end{align}
+$$
+
+
+<!-- $$  
+\begin{align}
+    \begin{bmatrix}
+        \int_{\Omega_S} 2\mu \ \varepsilon(u_S) \odot \varepsilon(v_S) \ dx + \int\_{\Gamma} \alpha \big[u_S \cdot\hat{\tau}_S \big]\big[\hat{\tau}_S \cdot v_S \big] \ dx  &  
+        - \int_{\Omega_S} p_S \nabla\cdot v_S \ dx &
+        \int\_{\Gamma} P_D \big[\hat{n}_S \cdot v_S \big] &
+        = \int_{\Omega_S} f_S \cdot v_S   \\
+        - \int\_{\Omega_S} (\nabla \cdot u_S) \cdot q_S \ dx & 
+        & 
+        & 
+        = 0 \\
+       -\int\_{\Gamma} ( u_S \cdot \hat{n}_S) \cdot q_D &
+        & 
+        \int\_{\Omega_D} \frac{\kappa}{\mu} \nabla p_D \cdot \nabla q_D \ dx &
+        =  \int_{\Omega_D} f_D \cdot q_d \ dx
+    \end{bmatrix}
+\end{align}
+$$ -->
+
+|  |  $u_S$ | $p_S$ | $p_D$ | d |
+|---|:---:|:---:|:---:|:---:|
+| $(v_s)$ |  $\int_{\Omega_S} 2\mu \ \varepsilon(u_S) \odot \varepsilon(v_S) \ dx + \int\_{\Gamma} \alpha \big[u_S \cdot\hat{\tau}_S \big]\big[\hat{\tau}_S \cdot v_S \big] \ dx$ |  $- \int_{\Omega_S} p_S \nabla\cdot v_S \ dx$ |  $\int\_{\Gamma} P_D \big[\hat{n}_S \cdot v_S \big] \ dx$ |  $= \int_{\Omega_S} f_S \cdot v_S$ |
+| $(q_s)$ |  $- \int\_{\Omega_S} (\nabla \cdot u_S) \cdot q_S \ dx$ |  |  | $= 0$ |
+| $(q_D)$| $-\int\_{\Gamma} ( u_S \cdot \hat{n}_S) \cdot q_D \ dx$ | - |  $\int\_{\Omega_D} \frac{\kappa}{\mu} \nabla p_D \cdot \nabla q_D \ dx$ |  $=  \int_{\Omega_D} f_D \cdot q_d \ dx$ |
+
+
 
 
 

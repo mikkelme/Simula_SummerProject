@@ -280,7 +280,7 @@ function create_brain_3D(param::model_params)
 
     connect_and_volumize(brain)
     add_mesh_field(brain, param)
-    apply_periodic_meshing(brain) # map back to front 
+    # apply_periodic_meshing(brain) # map back to front 
 
     # Add physical groups 
     obj = [(brain.vol, 3), (brain.tan_surf, 2), (brain.rad_surf, 2), (brain.arc, 1), (brain.vertex, 0)] # (tag, dim)
