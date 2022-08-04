@@ -230,13 +230,13 @@ function run_3D_single_inner_negsine(;run=true)
     end_width = 0.5e-3
     num_samples = 20
  
-    lc = 2e-2
+    lc = 2e-3
     arcLen = (50e-3, 30e-3)
     A = 1e-3
     λ = 10*1e-3
     ω(λ) = 2*pi/λ  
     inner_perturb = @sprintf("(x,z) -> %f * (sin(abs(x) * %f - pi/2) * fld(mod2pi(abs(x) * %f - pi/2),pi) + sin(abs(z) * %f - pi/2) * fld(mod2pi(abs(z) * %f - pi/2),pi)) ", A , ω(λ), ω(λ),  ω(λ), ω(λ))
-    BS_points = (200, 200) 
+    BS_points = (1000, 1000) 
     ∇pd0 = "(x) -> VectorValue(0.0, 0.0, 0.0)" # Zero flux
 
     # Run
@@ -273,7 +273,9 @@ end
 # run_single_inner_negsine(run=false)
 # run_solution_convergence(run=false)
 
-# run_permeability(run=true)
+# run_permeability(run=false)
+
 
 run_3D_single_inner_negsine(run=true)
+
 

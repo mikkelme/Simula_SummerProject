@@ -187,7 +187,7 @@ end
 # data_folder =  "data_flat_curve/"
 # # data_folder =  "data_ssh1e-4"
 
-data_folder = ["data_flat", "data_single_sine"]
+# data_folder = ["data_flat", "data_single_sine"]
 # readpath = path * data_folder[2] * "/txt_files/"
 
 

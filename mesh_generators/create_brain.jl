@@ -75,8 +75,8 @@ if abspath(PROGRAM_FILE) == @__FILE__
 
 
     # 3D brain example (Work in progress)
-    lc = 1e-3
-    BS_points = (200, 200) 
+    lc = 2e-3
+    BS_points = (1000, 1000) 
     d_ratio = 0.5
     arcLen = (50e-3, 10e-3) # Some z-arclen does not work
     param = model_params(lc, arcLen, r_brain, d_ratio, r_curv, inner_perturb, outer_perturb, BS_points, field_Lc_lim, field_Dist_lim)
