@@ -239,7 +239,7 @@ $$
 \sqrt{\int_{\Gamma} \Big((u_S(x)) \cdot \hat{n}\_S(x)\Big)^2 dx} \ / \ \int\_{\Gamma} 1 \ dx.
 $$
 
-Finally we create two center lines, one for each domain, which we use as an integration path for comparing the quality of the solutions (see figure $(3)$). This further explained in the section [Choosing the resolution](#Choosing-the-resolution)
+Finally we create two center lines, one for each domain, which we use as an integration path for comparing the quality of the solutions (see figure $(3)$ ). This further explained in the section [Choosing the resolution](#Choosing-the-resolution)
 
 <p align="center">
     <img src="figures/evaluation_lines_default.png"
