@@ -182,18 +182,3 @@ function combinned_analyse(savename, folder_names, labels)
 
 end
 
-
-
-# data_folder =  "data_flat_curve/"
-# # data_folder =  "data_ssh1e-4"
-
-# data_folder = ["data_flat", "data_single_sine"]
-# readpath = path * data_folder[2] * "/txt_files/"
-
-
-
-# palette(:tab10)
-
-
-
-# pressure_variance_vs_angle(readpath * "ps_radial_var.txt"; save = false)

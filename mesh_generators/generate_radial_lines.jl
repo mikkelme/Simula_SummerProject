@@ -83,23 +83,3 @@ function create_radial_lines(param::model_params, num_lines; view = false)
 end
 
 
-
-# # --- Brain Model --- # 
-# lc = 0.1
-# arcLen = (5, 0)
-# r_brain = 2
-# d_ratio = 0.5
-# # r_curv = 10
-# inner_perturb(x, y) = 0.2 * cos(pi * abs(x) / 0.5) 
-# outer_perturb(x, y) = 0.2 * cos(pi * abs(x) / 2)  
-
-# # inner_perturb(x, y) = 0
-# # outer_perturb(x, y) = 0
-# BS_points = (arcLen[1]*20, arcLen[2]*10)
-# field_Lc_lim = [1 / 2, 1]
-# field_Dist_lim = [0.1, 0.5]
-# brain_params = model_params(lc, arcLen, r_brain, d_ratio, r_curv, inner_perturb, outer_perturb, BS_points, field_Lc_lim, field_Dist_lim)
-
-
-# num_lines = 5
-# create_radial_lines(brain_params, num_lines, view = true)

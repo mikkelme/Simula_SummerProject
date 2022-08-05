@@ -177,10 +177,6 @@ function connect_and_volumize(brain::geo3D)
         brain.vol[i] = gmsh.model.occ.addVolume([surfLoop])
         gmsh.model.occ.synchronize()
 
-        # # Add physical gorups
-        # [gmsh.model.addPhysicalGroup(2, [s]) for s in brain.rad_surf[i]] # surface
-        # gmsh.model.addPhysicalGroup(3, [vol])  # volume
-    
     end
 end
 
@@ -280,7 +276,7 @@ function create_brain_3D(param::model_params)
 
     connect_and_volumize(brain)
     add_mesh_field(brain, param)
-    # apply_periodic_meshing(brain) # map back to front 
+    # apply_periodic_meshing(brain) #
 
     # Add physical groups 
     obj = [(brain.vol, 3), (brain.tan_surf, 2), (brain.rad_surf, 2), (brain.arc, 1), (brain.vertex, 0)] # (tag, dim)
@@ -292,14 +288,6 @@ function create_brain_3D(param::model_params)
         end
     end
     
-
-    # vertex::Array{Int32,2}            # Vertices of all corners
-    # arc::Array{Int32,2}               # Tangential arcs
-    # tan_surf::Array{Int32,1}          # Tangential surfaces
-    # rad_surf::Array{Int32,2}          # Radial surfaces
-    # angle::Tuple{Float64,Float64}     # Angle span (z → x-axis, z → y-axis)
-
-
 
     # Generate mesh
     gmsh.model.occ.synchronize()

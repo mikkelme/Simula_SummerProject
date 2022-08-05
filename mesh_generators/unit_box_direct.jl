@@ -48,7 +48,6 @@ function create_unit_box(lc, view=false)
     gmsh.model.occ.synchronize()
     gmsh.model.mesh.setTransfiniteSurface(surf)
     # gmsh.option.setNumber("Mesh.RecombineAll", 1) # For square mesh
-
     # surf_group = gmsh.model.addPhysicalGroup(2, [surf]) # This must be here for some reason when writing
 
 
@@ -163,17 +162,4 @@ function create_coupled_box(lc, view=false)
     return model, pgs_dict
 
 end
-
-
-
-# create_unit_box(2, true)
-# model = GmshDiscreteModel("./my_unitbox.msh") # Test the mesh
-# create_coupled_box(2, true)
-
-# if abspath(PROGRAM_FILE) == @__FILE__
-#     lc = 0.1
-#     lc = 2
-# end
-
-
 

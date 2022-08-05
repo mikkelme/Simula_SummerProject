@@ -1,6 +1,6 @@
+# Based on code from Miro
 using LightGraphs
 using Plots 
-
 
 """
 Let V be a TestFESpace on a simple open curve. We compute a function 
@@ -147,39 +147,3 @@ function plot_nflow_profile(brain_param, u, Γ, savepath = false, info = 0.0)
 end
 
 
-
-
-# model_path, _ = split_square_mesh(0.2; offset=0.2, distance=2)
-
-# model = GmshDiscreteModel(model_path)
-
-# Ω0 = Triangulation(model, tags=["top_surface"])
-# Ω1 = Triangulation(model, tags=["bottom_surface"])
-# Γ = InterfaceTriangulation(Ω0, Ω1)
-# # Let's have some vector space
-# Velm = ReferenceFE(lagrangian, VectorValue{2, Float64}, 1)
-# V = TestFESpace(Ω0, Velm)
-# u = interpolate_everywhere(identity, V)
-
-# # For representing flux
-# Qelm = ReferenceFE(lagrangian, Float64, 1)
-# δQ = TestFESpace(Γ, Qelm)
-
-# ν = get_normal_vector(Γ)
-
-# uh = project(u.⁺⋅ν.⁺, δQ)
-
-# # Compute the arclength coordinate
-# al = arclength_coordinate(δQ)
-
-
-# using Plots 
-# # NOTE: now we want to plot stuff against arc length. The dofs are not 
-# # ordered in a way that x_val below is monotone...
-# x_val = get_free_dof_values(al)
-# # ... That's why we need to reorder
-# idx = sortperm(x_val)
-
-# y_val = get_free_dof_values(uh)
-
-# plot(x_val[idx], y_val[idx])

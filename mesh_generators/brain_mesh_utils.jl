@@ -22,7 +22,6 @@ end
 
 
 
-
 function spherical_to_cartesian(r, theta, phi)
     # theta: angle from x-axis in x-z-plane (0 → 2π)
     # phi: angle from y-axis towards x-z-plane (0 → π)
@@ -39,22 +38,3 @@ end
 
 
 
-
-
-
-# lc = 1e-3 
-# arcLen = (100e-3, 0)
-# r_brain = 10e-3  
-# d_ratio = 1.5e-3/r_brain
-# r_curv = 50e-3 
-# # inner_perturb(x, y) = 0.5e-3 * cos(pi * abs(x) / 2e-3)
-# # outer_perturb(x, y) = 0.0 
-
-# inner_perturb = "(x,z) -> 0.0"  # 10 - 20 waves pr. cm is a good number
-# outer_perturb = "(x,z) -> 0.0"
-# BS_points = (1000, 0) 
-# field_Lc_lim = [1 / 2, 1]
-# field_Dist_lim = [1e-3, 5e-3] 
-# brain_param = model_params(lc, arcLen, r_brain, d_ratio, r_curv, inner_perturb, outer_perturb, BS_points, field_Lc_lim, field_Dist_lim)
-
-# @show brain_param

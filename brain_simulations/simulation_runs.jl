@@ -268,17 +268,12 @@ end
 
 
 # --- Simulaiton runs --- #
-
+# run_solution_convergence(run=false)
+# run_flat(run=false)
+# run_single_inner_negsine(run=false)
 # run_inner_negsines_lambda(run = false)
 # run_inner_negsines_amp(run=false)
-
-# run_flat(run=false)
-run_single_inner_negsine(run=true)
-# run_solution_convergence(run=false)
-
 # run_permeability(run=false)
-
-
 # run_3D_single_inner_negsine(run=false)
 
 
