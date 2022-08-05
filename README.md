@@ -430,7 +430,7 @@ Due to the so far promising result for the default brian geometry we invistigate
          alt=""
          style="width:49%">
      <h5 align="left"> 
-    Fig.13 - Stokes pressure max variance (top row) and absolute Stokes normal flow on the interface (bottom row), both as a function of CSF-width for various interface wavelengths keeping amplitude $A = 1 \ \text{mm}$ (left column) and various interface amplitudes keeping wavelength $\lambda = 10 \ \text{mm}$ (right column). The complete data is available at {data_inner_negsines_λ.../data_inner_negsines_A...}/{ps_radial_var.txt,us_nflow.txt}, where the dot replaces the wavelength and ampltidue values in the folder names. 
+    Fig.13 - Stokes pressure max variance (top row) and absolute Stokes normal flow on the interface (bottom row), both as a function of CSF-width for various interface wavelengths keeping amplitude $A = 1 \ \text{mm}$ (left column) and various interface amplitudes keeping wavelength $\lambda = 10 \ \text{mm}$ (right column). The complete data is available at {data_inner_negsines_λ.../data_inner_negsines_A...}/txt_files/{ps_radial_var.txt,us_nflow.txt}, where the dot replaces the wavelength and ampltidue values in the folder names. 
     </h5>
 </p>
 
@@ -464,7 +464,7 @@ Finally we invistigate the consequences of varying the permeability $\kappa$ gov
          alt=""
          style="width:49%">
      <h5 align="left"> 
-    Fig.15 - Stokes pressure max variance (left) and absolute Stokes normal flow on the interface (right), both as a function of CSF-width for various permeability. The complete data is available at...
+    Fig.15 - Stokes pressure max variance (left) and absolute Stokes normal flow on the interface (right), both as a function of CSF-width for various permeability. The complete data is available at data_Kappa_Κ1.../txt_files/{ps_radial_var.txt,us_nflow.txt} where the dots replace the value of the permeability in the folder name.
     </h5>
 </p>
 
