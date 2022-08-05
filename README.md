@@ -2,8 +2,9 @@
 
 
 TODO
-- Explain structure of repo 
 - Comment code
+- Put theory into References folder
+- Clean up 
 
 
 This repo contains the work done as a summer intern at Simula during a six week period in the summer of 2022. The project was guided by my supervisor [Miroslav Kutcha](https://github.com/MiroK).
@@ -247,7 +248,7 @@ We begin by assessing the 2D case.
 
 ### Choosing the resolution
 
-For the choice of the mesh resolution we perform an approximated error convergence test by simulating a series of systems with an increasing resolution. In Gmsh the mesh size resolution is parameterized by the *lc* variable, which in our case is set to define the largest mesh line of the tetrahedral mesh. In addition we define a so-called mesh field which linearly decrease the lc-value to half its orginal value over a distance of 1 to 5 mm from the interface, such that the mesh is twice as fine resolved around the interface. By choosing an exaggerated resolution of $lc = 0.05 \ \text{mm}$ as our approximated *true* reference solution* we can calculate the $l^2$-norm between this reference solution and other solutions with lower resolution. The comparison is done as an integral over the centerlines available for the Stokes and Darcy domain as shown in figure $(3)$. The results of the error convergence test is shown in figure $(4)$.
+For the choice of the mesh resolution we perform an approximated error convergence test by simulating a series of systems with an increasing resolution. In Gmsh the mesh size resolution is parameterized by the *lc* variable, which in our case is set to define the largest mesh line of the tetrahedral mesh. In addition we define a so-called mesh field which linearly decrease the lc-value to half its orginal value over a distance of 1 to 5 mm from the interface, such that the mesh is twice as fine resolved around the interface. By choosing an exaggerated resolution of $lc = 0.05 \ \text{mm}$ as our approximated *true* reference solution we can calculate the $l^2$-norm between this reference solution and other solutions with lower resolution. The comparison is done as an integral over the centerlines available for the Stokes and Darcy domain as shown in figure $(3)$. The results of the error convergence test is shown in figure $(4)$.
 
 <p align="center">
     <img src="figures/SNS_solution_convergence.png"
@@ -258,7 +259,7 @@ For the choice of the mesh resolution we perform an approximated error convergen
     </h5>
 </p>
 
-From figure $(4)$ we get an idea of which accuracy to expect from a given resolution. By choosing $lc = 0.1 \ \text{mm}$ we should get an accuracy on the order $\pm 0.1 \\%$ of the true solution which is more than good enough for the purpose of our studies. To meet limitations on availble computer power we settle on $lc = 0.2 \ \text{mm}$ in the following 2D simulations. 
+From figure $(4)$ we get an idea of which accuracy to expect from a given resolution. By choosing $lc = 0.1 \ \text{mm}$ we should get an accuracy on the order $\pm 0.1 \\%$ of the true solution which is more than good enough for the purpose of our studies. To meet limitations on availble computation time we settle on $lc = 0.2 \ \text{mm}$ in the following 2D simulations. 
 
 
 ### Flat interface
@@ -278,7 +279,7 @@ We begin with the simple case of a flat interface and otherwise default geometry
     </h5>
 </p>
 
-From figure $(5)$ we observe that the pressure variance decreases with the width. Considering that the pressure difference across the domain is set to $ \Delta P_S = 133.3224 \ \text{Pa}$ the relative pressure deviation on the pressure profile along a radial line in the worst case scenario (using the maximum variance) with a width close to the typical width of 1.5 mm is on the order
+From figure $(5)$ we observe that the pressure variance decreases with the width. Considering that the pressure difference across the domain is set to $\Delta P_S = 133.3224 \ \text{Pa}$ the relative pressure deviation on the pressure profile along a radial line in the worst case scenario (using the maximum variance) with a width close to the typical width of 1.5 mm is on the order
  
 $$
 \frac{\text{max std}}{\Delta p_S} = \frac{\sqrt{\text{max var}}}{\Delta p_S}  \approx \frac{\sqrt{10^{-9}}}{133.3224} \approx 10^{-5} \ \\%,
