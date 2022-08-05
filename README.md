@@ -156,7 +156,7 @@ $$
 \end{align}
 $$
 
-where $u_{S,\text{tan}}$ is the condition for the tangential part of the Stokes velocity on the $\partial\Omega_S\setminus\Gamma$, $\gamma$ is the Nitsche penalty parameter (chosen to be propertional to the order of the lagrangian test space functions) and $h$ is the mesh element size. We only want normal flow on the $\Gamma_S$ boundary so we set $u_{S,\text{tan}}$ = 0. The outer boundary $\Lambda_S$ is handled as with a Dirichlet condition as explained later.
+where $u_{S,\text{tan}}$ is the condition for the tangential part of the Stokes velocity on the $\partial\Omega_S\setminus\Gamma$, $\gamma$ is the Nitsche penalty parameter (chosen to be propertional to the order of the lagrangian test space functions) and $h$ is the mesh element size. We only want normal flow on the $\Gamma_S$ boundary so we set $u_{S,\text{tan}}$ = 0. The outer boundary $\Lambda_S$ is handled with a Dirichlet condition as explained later.
 
 
 #### Darcy 
@@ -168,11 +168,9 @@ $$
 \end{align}
 $$
 
-where we handle the last term as a Neuman condition.
-
 ### Parameter choices for the PDE modelling
 
-We are going to drive the CSF flow by a pressure difference $\Delta p_S  = 133.3224 \ \text{Pa}$ $(1 \ \text{mmHg})$, across the Stokes domain. In practice we set the pressure $\Delta p_S$ on the left $\Gamma_S$ boundary and zero on the right $\Gamma_S$ boundary resulting in a left to right flow. For the outer surface of the Stokes domain $\Lambda_S$ we enforce a no slip condition setting $u_{S,0} = \vec{0} \ \text{m/s}$ as a Dirichlet condition. This also means that we will put the source terms $f_S = f_D = 0$ in both domains. For the pressure in the Darcy domain we are going to enforce the boundary conditions on all non interface surfaces $\Gamma_D$ as Neumann conditions by setting a zero flux $\nabla p_D = \vec{0} \ \text{Pa/m}$. For the interface $\Gamma$ we choose a balanced normal flow, i.e. $g\Gamma = 0 \ \text{m/s}$ and a slip rate given as $\alpha = \mu/\sqrt{\kappa} \ \text{Pa}\cdot\text{s/m}$. Finally we set the CSF viscosity $\mu = 0.8 \cdot 10^{-3} \ \text{Pa}\cdot\text{s}$ and the percolation permeability $\kappa = 1\cdot10^{-16} \ \text{m}^2$. These parameter choices is summed up in the following.  
+We are going to drive the CSF flow by a pressure difference $\Delta p_S  = 133.3224 \ \text{Pa}$ $(1 \ \text{mmHg})$, across the Stokes domain. In practice we set the pressure equal to $\Delta p_S$ on the left $\Gamma_S$ boundary and equal to zero on the right $\Gamma_S$ boundary resulting in a left to right flow. For the outer surface of the Stokes domain $\Lambda_S$ we enforce a no slip condition setting $u_{S,0} = \vec{0} \ \text{m/s}$ as a Dirichlet condition. This also means that we will put the source terms $f_S = f_D = 0$ in both domains. For the pressure in the Darcy domain we are going to enforce the boundary conditions on all non interface surfaces $\Gamma_D$ as Neumann conditions by setting a zero flux $\nabla p_D = \vec{0} \ \text{Pa/m}$. For the interface $\Gamma$ we choose a balanced normal flow, i.e. $g\Gamma = 0 \ \text{m/s}$ and a slip rate given as $\alpha = \mu/\sqrt{\kappa} \ \text{Pa}\cdot\text{s/m}$. Finally we set the CSF viscosity $\mu = 0.8 \cdot 10^{-3} \ \text{Pa}\cdot\text{s}$ and the percolation permeability $\kappa = 1\cdot10^{-16} \ \text{m}^2$. These parameter choices is summed up in the following.  
 
 
 $$
@@ -184,7 +182,7 @@ $$
 \end{align}
 $$
 
-This result in the final system of equations
+Note that when implementing the weak formulation we perform an error convergence test using manufactured solution on a more general case where we ignore the above conditions in order to ease the work of coming up with a manufactured solution. Using the specific parameter choices we get the final system of equations
 
 
 $$
