@@ -11,6 +11,7 @@ TODO
 
 
 [a relative link](brain_simulations)
+[a workaround link](repo/brain_simulations)
 
 This repo contains the work done as a summer intern at Simula during a six week period in the summer of 2022. The project was guided by my supervisor [Miroslav Kutcha](https://github.com/MiroK).
 
