@@ -9,6 +9,9 @@ TODO
 - Put comma and dots on equations (where it looks fine on the readme as well)
 - Can you do links do data paths?
 
+
+[a relative link](brain_simulations)
+
 This repo contains the work done as a summer intern at Simula during a six week period in the summer of 2022. The project was guided by my supervisor [Miroslav Kutcha](https://github.com/MiroK).
 
 ## Introduction 
@@ -277,7 +280,7 @@ We begin with the simple case of a flat interface and otherwise default geometry
          alt=""
          style="width:49%">
      <h5 align="center"> 
-    Fig.5 - Stokes pressure max (left) and mean (right) variance along 300 evenly distributed radial lines for a decreasing CSF-width. For these simulations we used a flat interface and otherwise default geometry. The complete data is available at data_flat/txt_files/ps_radial_var.txt. [a relative link](brain_simulations)
+    Fig.5 - Stokes pressure max (left) and mean (right) variance along 300 evenly distributed radial lines for a decreasing CSF-width. For these simulations we used a flat interface and otherwise default geometry. The complete data is available at data_flat/txt_files/ps_radial_var.txt. 
     </h5>
 </p>
 
