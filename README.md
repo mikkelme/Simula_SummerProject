@@ -145,7 +145,7 @@ $$
 \end{align}
 $$
 
-based on theorem 2.3 from [Bertoluzza S.](References/BCPS_Stokes_Pressure_BC.pdf). We handle the remaining tangential component of the  $\partial\Omega_S\setminus\Gamma$ boundary using the Nitsche method (theorem?)
+based on theorem 2.3 from [Bertoluzza S.](References/BCPS_Stokes_Pressure_BC.pdf). We handle the remaining tangential component of the  $\partial\Omega_S\setminus\Gamma$ boundary using the Nitsche method
 
 $$
 \begin{align}
@@ -156,7 +156,7 @@ $$
 \end{align}
 $$
 
-where $u_{S,\text{tan}}$ is the condition for the tangential part of the Stokes velocity on the $\partial\Omega_S\setminus\Gamma$. We only want the normal component and thus we set $u_{S,\text{tan}}$ = 0.
+where $u_{S,\text{tan}}$ is the condition for the tangential part of the Stokes velocity on the $\partial\Omega_S\setminus\Gamma$, $\gamma$ is the Nitsche penalty parameter (chosen to be propertional to the order of the lagrangian test space functions) and $h$ is the mesh element size. We only want normal flow on the $\Gamma_S$ boundary so we set $u_{S,\text{tan}}$ = 0. The outer boundary $\Lambda_S$ is handled as with a Dirichlet condition as explained later.
 
 
 #### Darcy 
