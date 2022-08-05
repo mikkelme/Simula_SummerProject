@@ -178,6 +178,17 @@ We are going to drive the CSF flow by a pressure difference $\Delta p_S  = 133.3
 
 $$
 \begin{align}
+    &u_{S,0} = \vec{0} \ \text{m/s}& &g\Gamma = 0 \ \text{m/s}& \\
+    &p_{S,0} = 133.3224 \ \text{Pa} \ (1 \ \text{mmHg} )& &\alpha = \mu/\sqrt{\kappa} \ \text{Pa}\cdot\text{s/m} & \\
+    &f_S = f_D =  0& &\mu = 0.8 \cdot 10^{-3} \ \text{Pa}\cdot\text{s}&\\
+    &\nabla p_D = \vec{0} \ \text{Pa/m}&  &\kappa = 1\cdot10^{-16} \ \text{m}^2&\\
+\end{align}
+$$
+
+
+
+$$
+\begin{align}
     u_{S,0} &= \vec{0} \ \text{m/s} \\
     p_{S,0} &= 133.3224 \ \text{Pa} \ (1 \ \text{mmHg} ) \\
     f_S &= 0 \\
