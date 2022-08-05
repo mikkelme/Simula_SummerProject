@@ -450,11 +450,11 @@ From figure $(13)$ we mainly observe that a more extreme interface modelling, lo
 </p>
 
 
-Considering the worst case pressure variance from the results shown in figure $(13)$ we still find the deviations to lie at a maximum of 0.3 \%, which is a fairly positive result for the prospects of dimension reduction. 
+Considering the worst case pressure variance from the results shown in figure $(13)$ we still find the deviations to lie at a maximum of 0.3 \%, which is a fairly acceptable result for the prospects of dimension reduction. 
 
 ### Varying permeability 
 
-Finally we invistigate the consequences of varying the permeability $\mu$ governing the percolation flow. We do so by repeating previous evaluations for the default geomtry with permabilities in the range $[10^{-16},10^{-12}] \ \text{m}^2$. The results are shown in figure $(15)$
+Finally we invistigate the consequences of varying the permeability $\kappa$ governing the percolation flow. We do so by repeating previous evaluations for the default geomtry with permabilities in the range $[10^{-16},10^{-12}] \ \text{m}^2$. The results are shown in figure $(15)$
 
 <p float>
     <img src="figures/Kappa_ps_maxvar_width.png"
