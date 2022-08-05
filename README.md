@@ -345,7 +345,7 @@ $$
 
 This is considerible more than for the case of the flat interface but still within an acceptable margin of error. 
 
-Another interesting observation that holds applies both for the case of the flat interface in figure $(5)$ and the default geometry in figure $(8)$ is the fact that there is a small but noticeable difference between the max and the mean variances computed over the radial lines. Thus we take a further look on the angular distribution as shown in figure $(9)$.
+Another interesting observation that applies both for the case of the flat interface in figure $(5)$ and the default geometry in figure $(8)$ is the fact that there is a small but noticeable difference between the max and the mean variances computed over the radial lines. Thus we take a further look on the angular distribution as shown in figure $(9)$.
 
 
 
@@ -357,11 +357,11 @@ Another interesting observation that holds applies both for the case of the flat
          alt=""
          style="width:49%">
      <h5 align="left"> 
-    Fig.9 - Stokes pressure variance on each radial line as a function of angular coordinates a long the Stokes domain. On the left we have the flat interface case and on the right the default geometry case. 
+    Fig.9 - Stokes pressure variance on each radial line as a function of angular coordinates along the Stokes domain. On the left we have the flat interface case and on the right the default geometry case. 
     </h5>
 </p>
 
-figure $(9)$ we do not se any obvious patterns in the distribution for the flat interface case, but for the default geomtry case we see a  qualitatively match between the variance spikes and the frequiency of the interface sinewaves. This hints to the fact that the local interface geomtry affects the local pressure profile. 
+From figure $(9)$ we do not se any obvious patterns in the distribution for the flat interface case, but for the default geomtry case we see a  qualitatively match between the variance spikes and the frequency of the interface sinewaves. This supports the idea that the local interface geometry affects the local pressure profile as well. 
 
 
 In figure $(10)$ we see the absolute normal flow.
@@ -379,10 +379,10 @@ In figure $(10)$ we see the absolute normal flow.
 Form figure $(10)$ we observe again a decreasing trend for the normal flow when width decreases. Around the typical width we get a normal flow of roughly $5\cdot10^{-4} \ \text{mm/s}$ which in comparison to a maximum flow velocity around $700 \ \text{mm/s}$ yields a relative deviation 
 
 $$
-\frac{\text{Norm. flow}}{\text{max} \ u_S} \approx \frac{5\cdot10^{-4} }{500} \approx \cdot 10^{-4} \ \\%.
+\frac{\text{Norm. flow}}{\text{max} \ u_S} \approx \frac{5\cdot10^{-4} }{500} \approx 10^{-4} \ \\%.
 $$
 
-Thus we are still getting neglible deviations. By looking at the simulation for a width of $1.45 \ \text{mm}$ we see that the CSF normal flow mainly happens around the edges of each negative sinewave dimple as seen in figure $(11)$. We also take a look at the direction of flow in such a dimple which is shown in figure $(12)$. 
+Thus we are still getting neglible deviations for the normal flow. By looking at the simulation for a width of $1.45 \ \text{mm}$ we see that the CSF normal flow mainly happens around the edges of each negative sinewave dimple as seen in figure $(11)$. We also take a look at the direction of flow in such a dimple which is shown in figure $(12)$. 
 
 
 <p align="center">
@@ -390,7 +390,7 @@ Thus we are still getting neglible deviations. By looking at the simulation for 
          alt=""
          style="width:60%">
     <h5 align="left"> 
-    Fig.11 - Direction and magnitude of Stokes normal flow along interface for a simulation at width $1.45 \ \text{mm}$ using the default geometry. The x-axis denote the position along the interface in terms of curve length going from left to right (in flow direction). The left y-axis corresponding to the grey lines show the radial position of the interface (perturbations) and serves as reference for the interface geometry. The right y-axis shows the Stokes CSF normal flow. A positive value means that it flows through the interface from Stokes to Darcy domain and vice versa. 
+    Fig.11 - Direction and magnitude of Stokes normal flow along interface for a simulation at width $1.45 \ \text{mm}$ using the default geometry. The x-axis denote the position along the interface in terms of curve length going from left to right (in flow direction). The left y-axis corresponding to the grey lines show the radial position (perturbations) of the interface and serves as reference for the interface geometry. The right y-axis shows the Stokes CSF normal flow. A positive value means that it flows through the interface from Stokes to Darcy domain and vice versa. 
     </h5>
 </p>
 
@@ -400,7 +400,7 @@ Thus we are still getting neglible deviations. By looking at the simulation for 
          alt=""
          style="width:60%">
     <h5 align="left"> 
-    Fig.12 - A ParaView visualization of the CSF flow in the Stokes domain in a dimple of the default geometry using a width of $1.45 \ \text{mm}$ (same simulation as referred to in figure $(11)$. The magnitude (us Magnitude) of the flow is shown as a heatmap and the direction of the flow field is indicated with white vector arrows (not scaled by magnitude). The arrow population is randomly generated. The brown-ish color in the bottom denote the Darcy domain without any data representations applied. 
+    Fig.12 - A ParaView visualization of the CSF flow in the Stokes domain in a dimple of the default geometry using a width of $1.45 \ \text{mm}$ (same simulation as referred to in figure $(11)$). The magnitude (us Magnitude) of the flow is shown as a heatmap and the direction of the flow field is indicated with white vector arrows (not scaled by magnitude). The arrow population is randomly generated. The brown-ish color in the bottom denote the Darcy domain without any data representations applied. 
     </h5>
 </p>
  
