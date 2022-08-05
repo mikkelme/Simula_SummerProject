@@ -173,7 +173,7 @@ where we handle the last term as a Neuman condition.
 
 ### Parameter choices for the PDE modelling
 
-We are going to drive the CSF flow by a pressure difference $\Delta p_S  = 133.3224 \ \text{Pa}$ $(1 \ \text{mmHg})$, across the Stokes domain. For the outer surface of the Stokes domain $\Lambda_S$ we enforce a no slip condition setting $u_{S,0} = \vec{0} \ \text{m/s}$ as a Dirichlet condition. This also means that we will put the source terms $f_S = f_D = 0$ in both domains. For the pressure in the Darcy domain we are going to enforce the boundary conditions on all non interface surfaces $\Gamma_D$ as Neumann conditions by setting a zero flux $\nabla p_D = \vec{0} \ \text{Pa/m}$. For the interface $\Gamma$ we choose a balanced normal flow, i.e. $g\Gamma = 0 \ \text{m/s}$ and a slip rate given as $\alpha = \mu/\sqrt{\kappa} \ \text{Pa}\cdot\text{s/m}$. Finally we set the CSF viscosity $\mu = 0.8 \cdot 10^{-3} \ \text{Pa}\cdot\text{s}$ and the percolation permeability $\kappa = 1\cdot10^{-16} \ \text{m}^2$. These parameter choices is summed up in the following.  
+We are going to drive the CSF flow by a pressure difference $\Delta p_S  = 133.3224 \ \text{Pa}$ $(1 \ \text{mmHg})$, across the Stokes domain. In practice we set the pressure $\Delta p_S$ on the left $\Gamma_S$ boundary and zero on the right $\Gamma_S$ boundary resulting in a left to right flow. For the outer surface of the Stokes domain $\Lambda_S$ we enforce a no slip condition setting $u_{S,0} = \vec{0} \ \text{m/s}$ as a Dirichlet condition. This also means that we will put the source terms $f_S = f_D = 0$ in both domains. For the pressure in the Darcy domain we are going to enforce the boundary conditions on all non interface surfaces $\Gamma_D$ as Neumann conditions by setting a zero flux $\nabla p_D = \vec{0} \ \text{Pa/m}$. For the interface $\Gamma$ we choose a balanced normal flow, i.e. $g\Gamma = 0 \ \text{m/s}$ and a slip rate given as $\alpha = \mu/\sqrt{\kappa} \ \text{Pa}\cdot\text{s/m}$. Finally we set the CSF viscosity $\mu = 0.8 \cdot 10^{-3} \ \text{Pa}\cdot\text{s}$ and the percolation permeability $\kappa = 1\cdot10^{-16} \ \text{m}^2$. These parameter choices is summed up in the following.  
 
 
 $$
@@ -184,23 +184,6 @@ $$
     &\nabla p_D = \vec{0} \ \text{Pa/m}&  &\kappa = 1\cdot10^{-16} \ \text{m}^2&\\
 \end{align}
 $$
-
-
-
-$$
-\begin{align}
-    u_{S,0} &= \vec{0} \ \text{m/s} \\
-    p_{S,0} &= 133.3224 \ \text{Pa} \ (1 \ \text{mmHg} ) \\
-    f_S &= 0 \\
-    f_D &= 0 \\
-    \nabla p_D &= \vec{0} \ \text{Pa/m} \\
-    g\Gamma &= 0 \ \text{m/s} \\
-    \alpha &= \mu/\sqrt{\kappa} \ \text{Pa}\cdot\text{s/m} \\
-    \mu &= 0.8 \cdot 10^{-3} \ \text{Pa}\cdot\text{s} \\
-    \kappa &= 1\cdot10^{-16} \ \text{m}^2
-\end{align}
-$$
-
 
 This result in the final system of equations
 
