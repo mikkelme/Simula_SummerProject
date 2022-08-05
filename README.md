@@ -1,12 +1,5 @@
 # Simula Summer Project - Prospects of dimension reduction for cerebrospinal fluid flow in brain simulations
 
-
-TODO
-- Comment code
-- Put theory into References folder
-- Clean up 
-
-
 This repo contains the work done as a summer intern at Simula during a six week period in the summer of 2022. The project was guided by my supervisor [Miroslav Kutcha](https://github.com/MiroK).
 
 ## Introduction 
