@@ -14,7 +14,7 @@ This repo contains the work done as a summer intern at Simula during a six week 
 
 In this project we build a framework for simulating the flow of the cerebrospinal fluid (CSF) in the human brain. The CSF flows, among other regions, on the outside of the brain tissue in the outer most inside the skull. The CSF enter the brain tissue through small pores in the brain tissue and takes part in the transpoortation of waste matter produced in the brain. Thus the motivation for simulating the CSF flow is to contribute to medical brain research. However, such simulations becomes computational expensive when considering large regions of the brain and hence we want to invistigate the possibility to introduce a simpler model by the use of dimension reduction. That is, instead of considering the CSF-filled space as a 3D sphere shell with thickness we reduce it to a 2D sphere encapsulating the brain tissue. In order for such a simplification to be sucessful we most be able to neglect the dynamics in the reduced dimension without any great impacts on the predicted flow. More precisely we want the pressure to be approximately constant on the cross section of the CSF flow through the radial plane. In addition we should have negligble flow in the normal direction to the main CSF flow. Due to the fact that the CSF-filled space is much longer than it is thick, one can hypothesise that the flow might meet the above criterias rather well. 
 
-We are going to simulate the CSF flow using finite elements to solve the partial derivative equations. For simplicity we initially take on a 2D problem where we consider a 2D slice of the brain. Thus the corresponding dimension reduction problem is to reduce the 2D slice surface of the CSF-filled space to a 1D line. By decreasing the width of the CSF-filled space, we can study the devolopment of the pressure profile on the cross section of the CSF flow and the normal flow on the interface between the CSF-filled space and the brain tissue, as the surface approaches a line. In figure $(1)$ we see the visualization of a real brain scannings as reference for the system we are going to model.
+We are going to simulate the CSF flow using finite elements to solve the partial derivative equations (PDEs). For simplicity we initially take on a 2D problem where we consider a 2D slice of the brain. Thus the corresponding dimension reduction problem is to reduce the 2D slice surface of the CSF-filled space to a 1D line. By decreasing the width of the CSF-filled space, we can study the devolopment of the pressure profile on the cross section of the CSF flow and the normal flow on the interface between the CSF-filled space and the brain tissue, as the surface approaches a line. In figure $(1)$ we see the visualization of a real brain scannings as reference for the system we are going to model.
 
 <p float>
     <img src="figures/real_brain_full.png"
@@ -67,7 +67,7 @@ Eventually we also want to extend the study to 3D simulations where we will use 
 
 ### Equations 
 
-We denote $u_S, p_S$ as velocity and pressure in the Stokes domain $\Omega_S$ respectively, and $p_D$ as pressure in the Darcy domain $\Omega_D$. $\hat{n}_i$ and $\hat{\tau}_i$ denote the normal and tangential component on the interface $\Gamma$ with respect to domain $i$. By convention the normal vector is pointing outwards from the domains. Finally, for a domain $\Omega_i$ we denote the boundaries $\partial\Omega_i$. We define the problem by the following equations.
+We denote $u_S, p_S$ as velocity and pressure in the Stokes domain $\Omega_S$ respectively, and $p_D$ as pressure in the Darcy domain $\Omega_D$. $\hat{n}_i$ and $\hat{\tau}_i$ denote the normal and tangential vector components on the interface $\Gamma$ with respect to domain $i$. By convention the normal vector is pointing outwards from the domains. Finally, for a domain $\Omega_i$ we denote the boundaries $\partial\Omega_i$. We define the problem by the following equations.
 
 ####  <ins> Stokes domain </ins>
 
@@ -169,17 +169,19 @@ $$
 \end{align}
 $$
 
-where we handle the last term as a neuman condition.
+where we handle the last term as a Neuman condition.
 
 ### Parameter choices for the PDE modelling
 
-We are going to drive the CSF flow by a pressure difference $\Delta p_S  = 133.3224 \ \text{Pa}$ $(1 \ \text{mmHg})$, across the Stokes domain. For the outer surface of the Stokes domain $\Lambda_S$ we enforce a no slip condition as dirichlet condition setting $u_{S,0} = \vec{0} \ \text{m/s}$. This also means that we will put the source terms $f_S = f_D = 0$ in both domains. For the pressure in the Darcy domain we are going to enforce the boundary conditions on all non interface surfaces $\Gamma_D$ as neumann conditions by setting a zero flux, i.e. $\nabla p_D = \vec{0} \ \text{Pa/m}$. For the interface $\Gamma$ we choose a balanced normal flow, i.e. $g\Gamma = 0 \ \text{m/s}$ and a slip rate given as $\alpha = \mu/\sqrt{\kappa} \ \text{Pa}\cdot\text{s/m}$. Finally we set the CSF viscosity $\mu = 0.8 \cdot 10^{-3} \ \text{Pa}\cdot\text{s}$ and the percolation permeability $\kappa = 1\cdot10^{-16}$ \ \text{m}^2. These parameter choices is summed up in the following  
+We are going to drive the CSF flow by a pressure difference $\Delta p_S  = 133.3224 \ \text{Pa}$ $(1 \ \text{mmHg})$, across the Stokes domain. For the outer surface of the Stokes domain $\Lambda_S$ we enforce a no slip condition setting $u_{S,0} = \vec{0} \ \text{m/s}$ as a Dirichlet condition. This also means that we will put the source terms $f_S = f_D = 0$ in both domains. For the pressure in the Darcy domain we are going to enforce the boundary conditions on all non interface surfaces $\Gamma_D$ as Neumann conditions by setting a zero flux $\nabla p_D = \vec{0} \ \text{Pa/m}$. For the interface $\Gamma$ we choose a balanced normal flow, i.e. $g\Gamma = 0 \ \text{m/s}$ and a slip rate given as $\alpha = \mu/\sqrt{\kappa} \ \text{Pa}\cdot\text{s/m}$. Finally we set the CSF viscosity $\mu = 0.8 \cdot 10^{-3} \ \text{Pa}\cdot\text{s}$ and the percolation permeability $\kappa = 1\cdot10^{-16} \ \text{m}^2$. These parameter choices is summed up in the following.  
 
 
 $$
 \begin{align}
     u_{S,0} &= \vec{0} \ \text{m/s} \\
     p_{S,0} &= 133.3224 \ \text{Pa} \ (1 \ \text{mmHg} ) \\
+    f_S &= 0 \\
+    f_D &= 0 \\
     \nabla p_D &= \vec{0} \ \text{Pa/m} \\
     g\Gamma &= 0 \ \text{m/s} \\
     \alpha &= \mu/\sqrt{\kappa} \ \text{Pa}\cdot\text{s/m} \\
