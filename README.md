@@ -24,7 +24,7 @@ We are going to simulate the CSF flow using finite elements to solve the partial
     <img src="figures/real_brain_clip.png"
          alt=""
          style="width:49%">
-     <h5 align="center"> 
+     <h5 align="left"> 
     Fig.1 - Real brain scanning as a reference for the model geometry. The blue color indicates the CSF-filled space, the white-brown-ish color the brain tissue and the red parts some of the major blood vessels. The left image shows a full 3D view of the brain tissue surface, while the right image shows a sliced version of it.
     </h5>
 </p>
