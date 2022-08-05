@@ -214,7 +214,7 @@ $$
 
 ### Extension to 3D
 
-For the 3D model we use more or less the same weak formulation as summarized above. However, due to the ambiguity of defining the tangential vector we define the projection operator 
+For the 3D model we use the same weak formulation as summarized above. However, due to the ambiguity of defining the tangential vector in 3D we define the projection operator 
 
 $$
 \begin{align}
@@ -222,7 +222,7 @@ $$
 \end{align}
 $$
 
-which computes the projection of $u$ to the tangent plane. For the boundary conditions of the newly introduced stokes boundaries we use a stress free configuration, i.e. $\sigma(u_S, p_S)\cdot\hat{n}_S = \vec{0}$, enforced as a Neumann condition. For the newly introduced Darcy boundaries we simply use the no flux Neumann condition on them as well. 
+which computes the projection of $u$ to the tangent plane given a normal vector $\hat{n}$. For the boundary conditions of the newly appearing stokes boundaries in 3D we use a stress free configuration, i.e. $\sigma(u_S, p_S)\cdot\hat{n}_S = \vec{0}$, enforced as a Neumann condition. For the newly appearing Darcy boundaries we simply use the no flux Neumann condition on them as well. 
 
 
 ### Evaluating the metrics for dimension reduction 
