@@ -273,9 +273,9 @@ end
 # run_single_inner_negsine(run=false)
 # run_solution_convergence(run=false)
 
-# run_permeability(run=false)
+run_permeability(run=false)
 
 
-run_3D_single_inner_negsine(run=true)
+# run_3D_single_inner_negsine(run=false)
 
 
