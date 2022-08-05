@@ -67,7 +67,7 @@ Eventually we also want to extend the study to 3D simulations where we will use 
 
 ### Equations 
 
-We denote $u_S, p_S$ as velocity and pressure respectively in the Stokes domain $\Omega_S$, and $p_D$ as pressure in the Darcy domain $\Omega_D$. $\hat{n}_i$ and $\hat{\tau}_i$ denote the normal and tangential component on the $\Gamma$ interface with respect to region $i$. Finally, for a domain $\Omega$ we denote the boundaries $\partial\Omega$. We define the problem by the following equations.
+We denote $u_S, p_S$ as velocity and pressure in the Stokes domain $\Omega_S$ respectively, and $p_D$ as pressure in the Darcy domain $\Omega_D$. $\hat{n}_i$ and $\hat{\tau}_i$ denote the normal and tangential component on the interface $\Gamma$ with respect to domain $i$. By convention the normal vector is pointing outwards from the domains. Finally, for a domain $\Omega_i$ we denote the boundaries $\partial\Omega_i$. We define the problem by the following equations.
 
 ####  <ins> Stokes domain </ins>
 
