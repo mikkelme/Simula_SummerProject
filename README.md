@@ -221,6 +221,18 @@ $$
  -->
 
 
+### Extension to 3D
+
+For the 3D model we use more or less the same weak formulation as summarized above. However, due to the ambiguity of defining the tangential vector we define the projection operator 
+
+$$
+\begin{align}
+    P(u, \hat{n}) = u  - (u\cdot\hat{n}) \hat{n},
+\end{align}
+$$
+
+which computes the projection of $u$ to the tangent plane. For the boundary conditions of the newly introduced stokes boundaries we use a stress free configuration, i.e. $\sigma(u_S, p_S)\cdot\hat{n}_S = \vec{0}$, enforced as a Neumann condition. For the newly introduced Darcy boundaries we simply use the no flux Neumann condition on them as well. 
+
 
 ### Evaluating the metrics for dimension reduction 
 
@@ -480,11 +492,7 @@ From figure $(15)$ we observe that the pressure variance is seemingly uneffected
 
 ### 3D brain simulations
 
-
-
-stress free config and projection vector for tangential parts. 
-
-or periodic boundry conditions from back to front. 
+Finally, we extend our studies to the 3D case with the scope of getting an idea whether the 2D results carries over to 3D simulations. This part was quite time limited and thus we did not implement any way to evaluate the pressure variance in radial direction. The only systematic measurement the interface normal flow as a function of stokes width shown in figure $(16)$.
 
 
 <p align="center">
@@ -492,7 +500,7 @@ or periodic boundry conditions from back to front.
          alt=""
          style="width:60%">
     <h5 align="center"> 
-    Fig.X - Caption
+    Fig.16 - Caption
     </h5>
 </p>
 
