@@ -145,7 +145,7 @@ $$
 \end{align}
 $$
 
-based on theorem 2.3 from [Bertoluzza S.](References/BCPS_Stokes_Pressure_BC). We handle the remaining tangential component of the  $\partial\Omega_S\setminus\Gamma$ boundary using the Nitsche method (theorem?)
+based on theorem 2.3 from [Bertoluzza S.](References/BCPS_Stokes_Pressure_BC.pdf). We handle the remaining tangential component of the  $\partial\Omega_S\setminus\Gamma$ boundary using the Nitsche method (theorem?)
 
 $$
 \begin{align}
