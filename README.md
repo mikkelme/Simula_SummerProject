@@ -29,9 +29,9 @@ We are going to simulate the CSF flow using finite elements to solve the partial
     </h5>
 </p>
 
-As seen in figure (1) $(1)$ the surface of the brain is not smooth. Thus we will introduce a wiggled surface and study the prospects for dimension reduction for different geometric modelling of the surface.
+As seen in figure $(1)$ the surface of the brain is not smooth. Hence we will introduce a wiggled surface and study the prospects for dimension reduction for different geometric modellings of the surface.
 
-Progamming wise we are going to use Julia as the main language for this project. We use the [Gridap](https://gridap.github.io/Gridap.jl/stable/) module for the finite element part and [Gmsh](https://gmsh.info) for creating the geometry and the mesh.
+Progamming wise we are going to use [Julia](https://julialang.org) as the main language for this project. We use the [Gridap](https://gridap.github.io/Gridap.jl/stable/) module for the finite element part and [Gmsh](https://gmsh.info) for creating the geometry and the mesh.
 
 ## Method & Theory 
 
