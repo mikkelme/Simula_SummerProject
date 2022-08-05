@@ -44,7 +44,7 @@ We are going to model our brain as a composition of two domains: The *Stokes* do
     <img src="figures/default_2D_brain_example_notation.png"
          alt=""
          style="width:80%">
-    <h5 align="center"> 
+    <h5 align="left"> 
     Fig.2 - Example of 2D brain model using default geometry. The orange region represents the Stokes domain $\Omega_S$ and the green region the Darcy domain $\Omega_D$. The black line dividing the Stokes and the Darcy domain represent the interface $\Gamma$. In addition we have grouped and named the boundaries for later reference. For the Stokes domain we have the outer surface $\Lambda_S$ and the left and right boundaries $\Gamma_S$. For the Darcy domain all boundaries expect the interface is grouped as $\Gamma_D$. 
     </h5>
 </p>
@@ -249,7 +249,7 @@ Finally we create two center lines, one for each domain, which we use as an inte
     <img src="figures/evaluation_lines_default.png"
          alt=""
          style="width:80%">
-    <h5 align="center"> 
+    <h5 align="left"> 
     Fig.3 - Showcase of the radial lines and center lines used for result evaluations. Here we used 100 radial lines as an example. The model is build by the default geometry and solved to show the magnitude of velocity field (us Magnitude) in the Stokes domain and the pressure in the Darcy domain (pdh).
     </h5>
 </p>
@@ -268,7 +268,7 @@ For the choice of the mesh resolution we perform an approximated error convergen
     <img src="figures/SNS_solution_convergence.png"
          alt=""
          style="width:60%">
-    <h5 align="center"> 
+    <h5 align="left"> 
     Fig.4 - Approximated error convergence test using a resolution of $lc = 0.05 \ \text{mm}$ as a true reference solution. We calculate the $l^2$-norm between the reference solution and solutions using a lower resolution (higher $lc$) along a center line for both the domains. For the geometry we used the default 2D brain geometry.
     </h5>
 </p>
@@ -288,7 +288,7 @@ We begin with the simple case of a flat interface and otherwise default geometry
     <img src="figures/FLAT_ps_meanvar_width.png"
          alt=""
          style="width:49%">
-     <h5 align="center"> 
+     <h5 align="left"> 
     Fig.5 - Stokes pressure max (left) and mean (right) variance along 300 evenly distributed radial lines for a decreasing CSF-width. For these simulations we used a flat interface and otherwise default geometry. The complete data is available at data_flat/txt_files/ps_radial_var.txt. 
     </h5>
 </p>
@@ -309,7 +309,7 @@ which is considered neglible. We can confirm that the pressure is approximately 
     <img src="figures/FLAT_ps_profile1.45e-03.png"
          alt=""
          style="width:49%">
-     <h5 align="center"> 
+     <h5 align="left"> 
     Fig.6 - Stokes pressure profile along a radial line for the flat interface and otherwise default geometry with a CSF-width of 1.45 mm visualized in ParaView. On the left side we see a pressure contour heatmap of the model where psh denotes the Stokes pressure and pdh denotes the Darcy pressure. Notice that the interface is not visible in this image as the pressure is seemingly continous on the interface. On the right we see the Stokes pressure on the radial line coresponding to the white arrow on the left. On the x-axis we have radial position and on the y-axis we have Stokes pressure (psh). Notice that ParaView cannot resolve the values to more than four decimal accuracy, and thus it only confirms that the absolute deviations is at most on the order $10^{-4} \ \text{Pa}$. The data is available at data_flat/vtu_files/{darcy_1.45e-03,stokes_1.45e-03.vtu}.
     </h5>
 </p>
@@ -320,7 +320,7 @@ In addition we evaluate the absolute normal flow on the interface which is shown
     <img src="figures/FLAT_us_nflow_abs.png"
          alt=""
          style="width:60%">
-    <h5 align="center"> 
+    <h5 align="left"> 
     Fig.7 - Absolute Stokes normal flow on the interface as a function of CSF-width. For these simulations we used a flat interface and otherwise default geometry. The complete data is available in the folder data_flat/txt_files/us_nflow.txt.
     </h5>
 </p>
@@ -346,7 +346,7 @@ We now introduce the wiggles back to the interface and compute similar metrics a
     <img src="figures/SNS_ps_meanvar_width.png"
          alt=""
          style="width:49%">
-     <h5 align="center"> 
+     <h5 align="left"> 
     Fig.8 - Stokes pressure max (left) and mean (right) variance along 300 evenly distributed radial lines for a decreasing CSF-width. For these simulations we used a default geometry. The complete data is available at data_single_inner_negsine/txt_files/ps_radial_var.txt. 
     </h5>
 </p>
@@ -370,7 +370,7 @@ Another interesting observation that holds applies both for the case of the flat
     <img src="figures/SNS_ps_var_angle.png"
          alt=""
          style="width:49%">
-     <h5 align="center"> 
+     <h5 align="left"> 
     Fig.9 - Stokes pressure variance on each radial line as a function of angular coordinates a long the Stokes domain. On the left we have the flat interface case and on the right the default geometry case. 
     </h5>
 </p>
@@ -385,7 +385,7 @@ In figure $(10)$ we see the absolute normal flow.
     <img src="figures/SNS_us_nflow_abs.png"
          alt=""
          style="width:60%">
-    <h5 align="center"> 
+    <h5 align="left"> 
     Fig.10 - Absolute Stokes normal flow on the interface as a function of CSF-width. For these simulations we used the default geometry. The complete data is available in the folder data_single_inner_negsine/txt_files/us_nflow.txt.
     </h5>
 </p>
@@ -403,7 +403,7 @@ Thus we are still getting neglible deviations. By looking at the simulation for 
     <img src="figures/SNS_nflow_profile1.45e-03.png"
          alt=""
          style="width:60%">
-    <h5 align="center"> 
+    <h5 align="left"> 
     Fig.11 - Direction and magnitude of Stokes normal flow along interface for a simulation at width $1.45 \ \text{mm}$ using the default geometry. The x-axis denote the position along the interface in terms of curve length going from left to right (in flow direction). The left y-axis corresponding to the grey lines show the radial position of the interface (perturbations) and serves as reference for the interface geometry. The right y-axis shows the Stokes CSF normal flow. A positive value means that it flows through the interface from Stokes to Darcy domain and vice versa. 
     </h5>
 </p>
@@ -413,7 +413,7 @@ Thus we are still getting neglible deviations. By looking at the simulation for 
     <img src="figures/SNS_glyph_noscale1.45e-03.png"
          alt=""
          style="width:60%">
-    <h5 align="center"> 
+    <h5 align="left"> 
     Fig.12 - A ParaView visualization of the CSF flow in the Stokes domain in a dimple of the default geometry using a width of $1.45 \ \text{mm}$ (same simulation as referred to in figure $(11)$. The magnitude (us Magnitude) of the flow is shown as a heatmap and the direction of the flow field is indicated with white vector arrows (not scaled by magnitude). The arrow population is randomly generated. The brown-ish color in the bottom denote the Darcy domain without any data representations applied. 
     </h5>
 </p>
@@ -443,7 +443,7 @@ Due to the so far promising result for the default brian geometry we invistigate
     <img src="figures/MNS_amp_us_nflow_abs.png"
          alt=""
          style="width:49%">
-     <h5 align="center"> 
+     <h5 align="left"> 
     Fig.13 - Stokes pressure max variance (top row) and absolute Stokes normal flow on the interface (bottom row), both as a function of CSF-width for various interface wavelengths keeping amplitude $A = 1 \ \text{mm}$ (left column) and various interface amplitudes keeping wavelength $\lambda = 10 \ \text{mm}$ (right column). The complete data is available at {data_inner_negsines_λ.../data_inner_negsines_A...)/{ps_radial_var.txt,us_nflow.txt}, where the dot replaces the wavelength and ampltidue values. 
     </h5>
 </p>
@@ -458,7 +458,7 @@ From figure $(13)$ we mainly observe that a more extreme interface modelling, lo
     <img src="figures/MNS_1mm_us_heatmap.png"
          alt=""
          style="width:49%">
-     <h5 align="center"> 
+     <h5 align="left"> 
     Fig.14 - Stokes velocity magnitude (us Magnitude) for simulations of CSF-width $1.45 \ \text{mm}$ with a 1 mm wavelength interface (left) and a 10 mm wavelength interface (right) and otherwise defaul geometry.
     </h5>
 </p>
@@ -477,7 +477,7 @@ Finally we invistigate the consequences of varying the permeability $\mu$ govern
     <img src="figures/Kappa_us_nflow_abs.png"
          alt=""
          style="width:49%">
-     <h5 align="center"> 
+     <h5 align="left"> 
     Fig.15 - Stokes pressure max variance (left) and absolute Stokes normal flow on the interface (right), both as a function of CSF-width for various permeability. The complete data is available at...
     </h5>
 </p>
@@ -533,7 +533,7 @@ Finally, we extend our studies to the 3D case with the scope of getting some bri
     <img src="figures/3D_ps_profile6_right.png"
          alt=""
          style="width:49%">
-     <h5 align="center"> 
+     <h5 align="left"> 
     Fig.16 - 3D model pressure results and display of manually chosen radial line (left) and Stokes pressure profile along the mentioned radial lines (right). For these simulations we used a 3D geomtry with outer arc lengths (100, 30) mm, resolution lc = 2 mm and otherwise following the equliviants of the 2D default default geometry
     </h5>
 </p>
@@ -551,7 +551,7 @@ Thus we are starting to get some bigger deviations compared to the 2D case which
     <img src="figures/3D_us_nflow_abs.png"
          alt=""
          style="width:60%">
-    <h5 align="center"> 
+    <h5 align="left"> 
     Fig.17 - 3D model absolute Stokes normal flow on the interface as a function of CSF-width. For these simulations we used a 3D geomtry with outer arc lengths (100, 30) mm, resolution lc = 2 mm and otherwise following the equliviants of the 2D default default geometry. The complete data is available in the folder data_3D/txt_files/us_nflow.txt.
     </h5>
 </p>
@@ -576,7 +576,7 @@ which gives approximately 0.08 mm/s giving a a reletive deviation of 7.5 %. Thus
     <img src="figures/filename.png"
          alt=""
          style="width:60%">
-    <h5 align="center"> 
+    <h5 align="left"> 
     Fig.X - Caption
     </h5>
 </p> -->
