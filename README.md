@@ -126,7 +126,7 @@ $$
 \end{align}
 $$
 
-In eq. $(13)$ we decompose the last term in normal $\hat{n}_S$ and tangential $\hat{\tau}_S$ direction as
+We decompose the stress term on $\partial\Omega$ in normal $\hat{n}_S$ and tangential $\hat{\tau}_S$ direction as
 
 $$
 \begin{align}
