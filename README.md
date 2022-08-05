@@ -300,7 +300,7 @@ which is considered neglible. We can confirm that the pressure is approximately 
     </h5>
 </p>
 
-In addition we evaluate the absolute normal flow on the interface which is shown in figure $(7)$
+In addition we evaluate the absolute normal flow on the interface which is shown in figure $(7)$.
 
 <p align="center">
     <img src="figures/FLAT_us_nflow_abs.png"
@@ -311,7 +311,7 @@ In addition we evaluate the absolute normal flow on the interface which is shown
     </h5>
 </p>
 
-From figure $(7)$ we see that the absolute normal flow drops qualitatively linearly with width. When comparing the magnitude of the normal flow, close to the typical width 1.5 mm, to the maximum velocity of $700 \ \text{mm/s}$ we get a relative deviation on the order 
+From figure $(7)$ we see that the absolute normal flow is qualitatively proportional with width. When comparing the magnitude of the normal flow, close to the typical width 1.5 mm, to the maximum velocity of $700 \ \text{mm/s}$ we get a relative deviation on the order 
 
 $$
 \frac{\text{Norm. flow}}{\text{max} \ u_S}  \approx \frac{10^{-5}}{700} \approx 10^{-6} \ \\%,
@@ -323,7 +323,7 @@ which is again considered neglible.
 
 ### Default interface (Interface with wiggles)
 
-We now introduce the wiggles back to the interface and compute similar metrics as done for the flat curve. The pressure variance is shown in figure 
+We now introduce the wiggles to the interface and compute similar metrics as done for the flat curve. The pressure variance is shown in figure $(8)$.
 
 <p float>
     <img src="figures/SNS_ps_maxvar_width.png"
