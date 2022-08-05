@@ -49,7 +49,7 @@ We are going to model our brain as a composition of two domains: The *Stokes* do
     </h5>
 </p>
 
-We are going to define a set of default brain geometry parameters for our 2D brain model. The parameters is shown in the following table where we have also included the parameter test interval for the interface geometry. Notice that we used the default geometry to showcase the 2D domains in figure $(2)$.
+We practical reasons we define a set of default brain geometry parameters for our 2D brain model. The parameters is shown in the following table where along with parameter test interval for the interface geometry. Notice that we have already used the default geometry to showcase the 2D domains in figure $(2)$.
 
 |  Parameter | Default value | Testing interval 
 |---|:---:|:---:|
@@ -68,7 +68,7 @@ Eventually we also want to extend the study to 3D simulations where we will use 
 
 ### Equations 
 
-We denote $u_S, p_S$ as velocity and pressure in the Stokes domain $\Omega_S$ respectively, and $p_D$ as pressure in the Darcy domain $\Omega_D$. $\hat{n}_i$ and $\hat{\tau}_i$ denote the normal and tangential vector components on the interface $\Gamma$ with respect to domain $i$. By convention the normal vector is pointing outwards from the domains. Finally, for a domain $\Omega_i$ we denote the boundaries $\partial\Omega_i$. We define the problem by the following equations.
+We denote $u_S, p_S$ as velocity and pressure in the Stokes domain $\Omega_S$ respectively, and $p_D$ as pressure in the Darcy domain $\Omega_D$. $\hat{n}_i$ and $\hat{\tau}_i$ denote the normal and tangential vector components on the interface $\Gamma$ with respect to domain $i$. By convention the normal vector is pointing outwards from the domains. Finally, for a domain $\Omega_i$ we denote the complete set of boundaries as $\partial\Omega_i$. We define the problem by the following equations.
 
 ####  <ins> Stokes domain </ins>
 
@@ -118,7 +118,6 @@ $$
 We define the test spaces $v_S, q_S, q_D$ to be in the Sobolev space (H1). 
 
 #### Stokes
-From eq. $(1)$ we get
 
 $$
 \begin{align}
