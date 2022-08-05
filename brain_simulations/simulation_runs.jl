@@ -80,8 +80,10 @@ end
 
 function run_single_inner_negsine(;run=true)
     # Settings
-    folder_name = "single_inner_negsine"
-    start_width = 5e-3
+    # folder_name = "single_inner_negsine"
+    folder_name = "GET_BETTER_FIGURE"
+    start_width = 1.45e-3
+    # start_width = 5e-3
     end_width = 0.5e-3
     num_samples = 20
     num_rad_lines = 300
@@ -96,6 +98,7 @@ function run_single_inner_negsine(;run=true)
         brain_param = model_params(lc, arcLen, r_brain, d_ratio, r_curv, inner_perturb, outer_perturb, BS_points, field_Lc_lim, field_Dist_lim)
         PDE_param = PDE_params(μ, Κ, α, ps0, ∇pd0)
         eval_decreasing_lc(brain_param, PDE_param, start_width, end_width, num_samples, num_rad_lines; folder_name = folder_name)
+        exit()
     end
     # Analyse     
     readpath = path * "data_" * folder_name * "/txt_files/"
@@ -270,10 +273,10 @@ end
 # run_inner_negsines_amp(run=false)
 
 # run_flat(run=false)
-# run_single_inner_negsine(run=false)
+run_single_inner_negsine(run=true)
 # run_solution_convergence(run=false)
 
-run_permeability(run=false)
+# run_permeability(run=false)
 
 
 # run_3D_single_inner_negsine(run=false)

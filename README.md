@@ -30,7 +30,7 @@ We are going to simulate the CSF flow using finite elements to solve the partial
          alt=""
          style="width:49%">
      <h5 align="center"> 
-    Fig.1 - Real brain scanning as a reference for the model geometry. The blue color indicates the CSF-filled space, the white-brown-ish color the brain tissue and the red parts some of the major blood vessels. The left image shows a full 3D view of the brain tissue surface, while the right image shows a sliced version of it. </h5>[a relative link](brain_simulations)   <h5 align="center"> 
+    Fig.1 - Real brain scanning as a reference for the model geometry. The blue color indicates the CSF-filled space, the white-brown-ish color the brain tissue and the red parts some of the major blood vessels. The left image shows a full 3D view of the brain tissue surface, while the right image shows a sliced version of it.
     </h5>
 </p>
 
@@ -282,14 +282,14 @@ We begin with the simple case of a flat interface and otherwise default geometry
          alt=""
          style="width:49%">
      <h5 align="center"> 
-    Fig.5 - Stokes pressure max (left) and mean (right) variance along 300 evenly distributed radial lines for a decreasing CSF-width. For these simulations we used a flat interface and otherwise default geometry. The complete data is available at data_flat/txt_files/ps_radial_var.txt. [a relative link](brain_simulations). 
+    Fig.5 - Stokes pressure max (left) and mean (right) variance along 300 evenly distributed radial lines for a decreasing CSF-width. For these simulations we used a flat interface and otherwise default geometry. The complete data is available at data_flat/txt_files/ps_radial_var.txt. 
     </h5>
 </p>
 
-From figure $(5)$ we observe that the pressure variance decreases with the width. Considering that the pressure difference across the domain is set to $ \Delta P_S = 133.3224 \ \text{Pa}$ the relative pressure deviation on the pressure profile along a radial line in the worst case scenario (using the maximum variance) with a width close to the typical width of 1.5 is on the order
+From figure $(5)$ we observe that the pressure variance decreases with the width. Considering that the pressure difference across the domain is set to $ \Delta P_S = 133.3224 \ \text{Pa}$ the relative pressure deviation on the pressure profile along a radial line in the worst case scenario (using the maximum variance) with a width close to the typical width of 1.5 mm is on the order
  
 $$
-\frac{\text{max std}}{\Delta p_S} = \frac{\sqrt{\text{max var}}}{\Delta p_S} = \frac{\sqrt{10^{-9}}}{133.3224} \approx 10^{-5} \ \\%,
+\frac{\text{max std}}{\Delta p_S} = \frac{\sqrt{\text{max var}}}{\Delta p_S}  \approx \frac{\sqrt{10^{-9}}}{133.3224} \approx 10^{-5} \ \\%,
 $$
 
 which is considered neglible. We can confirm that the pressure is approximately constant by looking at the pressure profile across a radial line as shown in figure $(6)$.
@@ -321,7 +321,7 @@ In addition we evaluate the absolute normal flow on the interface which is shown
 From figure $(7)$ we see that the absolute normal flow drops qualitatively linearly with width. When comparing the magnitude of the normal flow, close to the typical width 1.5 mm, to the maximum velocity of $700 \ \text{mm/s}$ we get a relative deviation on the order 
 
 $$
-\frac{\text{Norm. flow}}{\text{max} \ u_S} = \frac{10^{-5}}{700} \approx 10^{-6} \ \\%,
+\frac{\text{Norm. flow}}{\text{max} \ u_S}  \approx \frac{10^{-5}}{700} \approx 10^{-6} \ \\%,
 $$
 
 which is again considered neglible.
@@ -330,7 +330,7 @@ which is again considered neglible.
 
 ### Default interface (Interface with wiggles)
 
-We now introduce the wiggles back to the interface and compute similar metrics as done for the flat curve. The pressure variance is shown in figures (---) and (---)
+We now introduce the wiggles back to the interface and compute similar metrics as done for the flat curve. The pressure variance is shown in figure 
 
 <p float>
     <img src="figures/SNS_ps_maxvar_width.png"
@@ -340,33 +340,38 @@ We now introduce the wiggles back to the interface and compute similar metrics a
          alt=""
          style="width:49%">
      <h5 align="center"> 
-    Fig.X - Caption
+    Fig.8 - Stokes pressure max (left) and mean (right) variance along 300 evenly distributed radial lines for a decreasing CSF-width. For these simulations we used a default geometry. The complete data is available at data_single_inner_negsine/txt_files/ps_radial_var.txt. 
     </h5>
 </p>
 
-
-We observe again that the pressure variance decreases with decreasing width, but the order of magnitude is significantly larger than for the flat interface. At the width close to the typical width of 1.5 mm the relative pressure deviation from the mean on a radial line in the worst case scenario (using the maximum variance) with a width close to the typical width of 1.5 mm is roughlt on the order
+We observe again that the pressure variance decreases with width, but the order of magnitude is significantly larger than for the flat interface. At the width close to the typical width the relative pressure deviation on the pressure profile along a radial line in the worst case scenario (using the maximum variance) is on the order
 
 $$
-\frac{\text{max std}}{\Delta p_S} = \frac{\sqrt{\text{max var}}}{\Delta p_S} = \frac{\sqrt{10^{-1}}}{133.3224} \approx  0.1 \ \\%,
+\frac{\text{max std}}{\Delta p_S} = \frac{\sqrt{\text{max var}}}{\Delta p_S}  \approx \frac{\sqrt{10^{-1}}}{133.3224} \approx  0.1 \ \\%.
 $$
 
-This is still to be considered an acceptable margin of error. 
+This is considerible more than for the case of the flat interface but still within an acceptable margin of error. 
 
-Until now we have seen that there is a small difference in the mean variance and then maximum variance. In the case of the default geometry we see that the maximum variance is roughly twice as large as the mean variance. By looking at the the variance for each radial line as a function of angle we can make a visual check to see if someting interesting is going on.
+Another interesting observation that holds applies both for the case of the flat interface in figure $(5)$ and the default geometry in figure $(8)$ is the fact that there is a small but noticeable difference between the max and the mean variances computed over the radial lines. Thus we take a further look on the angular distribution as shown in figure $(9)$.
 
 
 
-<p align="center">
+<p float>
+    <img src="figures/FLAT_ps_var_angle.png"
+         alt=""
+         style="width:49%">
     <img src="figures/SNS_ps_var_angle.png"
          alt=""
-         style="width:60%">
-    <h5 align="center"> 
-    Fig.X - Caption
+         style="width:49%">
+     <h5 align="center"> 
+    Fig.9 - Stokes pressure variance on each radial line as a function of angular coordinates a long the Stokes domain. On the left we have the flat interface case and on the right the default geometry case. 
     </h5>
 </p>
 
-By looking at figure (...) we see qualitatively that the variance spikes following the frequiency of the interface sinewaves. In figure (...) we see the absolute normal flow.
+figure $(9)$ we do not se any obvious patterns in the distribution for the flat interface case, but for the default geomtry case we see a  qualitatively match between the variance spikes and the frequiency of the interface sinewaves. This hints to the fact that the local interface geomtry affects the local pressure profile. 
+
+
+In figure $(10)$ we see the absolute normal flow.
 
 
 <p align="center">
@@ -374,17 +379,17 @@ By looking at figure (...) we see qualitatively that the variance spikes followi
          alt=""
          style="width:60%">
     <h5 align="center"> 
-    Fig.X - Caption
+    Fig.10 - Absolute Stokes normal flow on the interface as a function CSF-width. For these simulations we used the default geometry. The complete data is available in the folder data_single_inner_negsine/txt_files/us_nflow.txt.
     </h5>
 </p>
 
-Form figure (...) we again see an decreasing trend for the normal flow when width decreases. Around the typical width we get a normal flow aorund $5\cdot10^{-4} \ \text{mm/s}$ compared which compared to a maximum flow velocity around $700 \ \text{mm/s}$ a relative deviation 
+Form figure $(10)$ we observe again a decreasing trend for the normal flow when width decreases. Around the typical width we get a normal flow of roughly $5\cdot10^{-4} \ \text{mm/s}$ which in comparison to a maximum flow velocity around $700 \ \text{mm/s}$ yields a relative deviation 
 
 $$
-\frac{\text{Norm. flow}}{\text{max} \ u_S} = \frac{5\cdot10^{-4} }{500} \approx 8,3 \cdot 10^{-5} \ \\%,
+\frac{\text{Norm. flow}}{\text{max} \ u_S} \approx \frac{5\cdot10^{-4} }{500} \approx \cdot 10^{-4} \ \\%.
 $$
 
-Thus we are still getting promising results for the possibility to make dimension reduction model. By looking at the simulation for a width of $1.45 \ \text{mm}$ we see that the CSF normal flows mainly happens around the edges of each negative sinewave dimple (figure (...)). We also take a look at the direction of flow in such a dimple (see figure (...)) 
+Thus we are still getting neglible deviations. By looking at the simulation for a width of $1.45 \ \text{mm}$ we see that the CSF normal flow mainly happens around the edges of each negative sinewave dimple as seen in figure $(11)$. We also take a look at the direction of flow in such a dimple which is shown in figure $(12)$. 
 
 
 <p align="center">
@@ -392,10 +397,9 @@ Thus we are still getting promising results for the possibility to make dimensio
          alt=""
          style="width:60%">
     <h5 align="center"> 
-    Fig.X - Caption
+    Fig.11 - Direction and magnitude of Stokes normal flow along interface for a simulation at width $1.45 \ \text{mm}$ using the default geometry. The x-axis denote the position along the interface in terms of curve length going from left to right (in flow direction). The left y-axis corresponding to the grey lines show the radial position of the interface (perturbations) and serves as reference for the interface geometry. The right y-axis shows the Stokes CSF normal flow. A positive value means that it flows through the interface from Stokes to Darcy domain and vice versa. 
     </h5>
 </p>
-
 
 
 <p align="center">
@@ -403,17 +407,19 @@ Thus we are still getting promising results for the possibility to make dimensio
          alt=""
          style="width:60%">
     <h5 align="center"> 
-    Fig.X -  (not scaled magnitude).
+    Fig.12 - A ParaView visualization of the CSF flow in the Stokes domain in a dimple of the default geometry using a width of $1.45 \ \text{mm}$ (same simulation as referred to in figure $(11)$. The magnitude (us Magnitude) of the flow is shown as a heatmap and the direction of the flow field is indicated with white vector arrows (not scaled by magnitude). The arrow population is randomly generated. The brown-ish color in the bottom denote the Darcy domain without any data representations applied. 
     </h5>
 </p>
+ 
+From figure $(11)$ we obserbe that the CSF flows into the brain tissue mainly during its path from the middle of the sinewave dimple and all the way up to the hard square edge (notice that the flow direction is left to right). We have no information about the velocity field in the brain tissue, but by combinning the information from figure $(11)$ and $(12)$ one might argue that we have two kinds of distint flow patterens: 
 
-We can see that the CSF flows into the the brain tissue during its path from the middle of the sinewave dimple and all the way up to the hard square edge. Unfortunately we have no information about the velocity field in the brain tissue, but by combinning the information from figure (---) and (---) one might argue that we have two kinds of flows: First we observe that CSF is cutting the cornes of square edges, meaning that the in-flow to the brain tissue increases just before meeting a square edge but then immediately reverses after the edge. However, bu comparing the sizes of the in and out-flow we can conclude that some of CSF that flows inte the brain tissue from the bottom of the dimple and forward makes it all the way through to the beginning of the next dimple. This makes sense as not all the CSF have time to avoid the obstacle and is forced to penetrate it rather than go around. 
+1. First, we observe that the CSF is cutting the cornes of the square edges, which is deduced from the fact that the in-flow to the brain tissue increases just before meeting a square edge but then immediately reverses after the edge. 
 
+2. Secondly, by comparing the sizes of the in and out-flow we can deduce qualitatively that some of CSF makes its way all the way though the brain tissue from dimple to dimple. Intuitively we can make sense of this as the phenonema that not all the CSF "have time" to avoid the obstacle (brain tissue with reduced flow properties) and is forced to penetrate it rather than go around. 
 
 ### Varying interface wavelength and amplitude
 
-Due to the promising result for the default brian geometry we invistigate the consequences of more extreme interface models. That is, we vary the wavelength in the interval [1,  50] mm with default amplitude of 1 mm and vary the ampltidue in the interval [0.1, 5] mm keeping the default wavelength of 10 mm. The results are shown in figure (...) and (.).
-
+Due to the so far promising result for the default brian geometry we invistigate the consequences of more extreme interface models. That is, we vary the wavelength in the interval [1,  50] mm keeping the default amplitude of 1 mm and vary the ampltidue in the interval [0.1, 5] mm keeping the default wavelength of 10 mm. We keep otherwise specified default geometry parameters. The results of these variations are shown in figure $(13)$.
 
 <p float>
     <img src="figures/MNS_lambda_ps_maxvar_width.png"
@@ -431,15 +437,12 @@ Due to the promising result for the default brian geometry we invistigate the co
          alt=""
          style="width:49%">
      <h5 align="center"> 
-    Fig.X - Multi caption
+    Fig.13 - Stokes pressure max variance (top row) and absolute Stokes normal flow on the interface (bottom row), both as a function of CSF-width for various interface wavelengths keeping amplitude $A = 1 \ \text{mm}$ (left column) and various interface amplitudes keeping wavelength $\lambda = 10 \ \text{mm}$ (right column). The complete data is available at {data_inner_negsines_λ.../data_inner_negsines_A...)/{ps_radial_var.txt,us_nflow.txt}, where the dot replaces the wavelength and ampltidue values. 
     </h5>
 </p>
 
 
-We see mainly that a more extreme surface, low wavelength (high frequency) and high amplitude, gives raise to a less constant Stokes pressure profile and more normal flow though the interface. However, the only exception is the $\lambda = 1 \ \text{mm}$ simulation in figure (...). It seems that the small wavelength makes it *difficult* for the CSF to reach the bottom of the dimples, and the surface becomes pseudo flat. By looking at the velocity magnitude in figure (...) we see that there is not much flow in dimples in the 1 mm wavelength simulation compared to that of the default 10 mm wavelength.
-
-Considering the worst case scenario of the above simulations we hit a maximum deviation (pressure) around 0.3 \%.
-
+From figure $(13)$ we mainly observe that a more extreme interface modelling, low wavelength (high frequency) and high amplitude, gives raise to a less constant Stokes pressure profile and more normal flow though the interface. However, the only exception is the $\lambda = 1 \ \text{mm}$ case the top left subfigure of figure $(13)$. Here it seems like the small wavelength makes it *difficult* for the CSF to reach the bottom of the dimples, and the interface becomes pseudo flat. By looking at the velocity magnitude in figure $(14)$ we see that flow velocity is rather low in the dimples for the 1 mm wavelength case (left) compared to the that of the 10 mm wavelength in the default geometry (right).
 
 <p float>
     <img src="figures/MNS_10mm_us_heatmap.png"
@@ -449,19 +452,16 @@ Considering the worst case scenario of the above simulations we hit a maximum de
          alt=""
          style="width:49%">
      <h5 align="center"> 
-    Fig.X - 10 mm left (default) and 1 mm right
+    Fig.14 - Stokes velocity magnitude (us Magnitude) for simulations of CSF-width $1.45 \ \text{mm}$ with a 1 mm wavelength interface (left) and a 10 mm wavelength interface (right) and otherwise defaul geometry.
     </h5>
 </p>
 
 
+Considering the worst case pressure variance from the results shown in figure $(13)$ we still find the deviations to lie at a maximum of 0.3 \%, which is a fairly positive result for the prospects of dimension reduction. 
+
 ### Varying permeability 
 
-Finally we try to invistigate the consequences of lower permeability. 
-Test interval: $[10^{-16},10^{-12}] \ \text{m}^2$.
-
-Due to the increased easy of flow in the brain tissue this should make things worse. 
-
-
+Finally we invistigate the consequences of varying the permeability $\mu$ governing the percolation flow. We do so by repeating previous evaluations for the default geomtry with permabilities in the range $[10^{-16},10^{-12}] \ \text{m}^2$. The results are shown in figure $(15)$
 
 <p float>
     <img src="figures/Kappa_ps_maxvar_width.png"
@@ -471,14 +471,16 @@ Due to the increased easy of flow in the brain tissue this should make things wo
          alt=""
          style="width:49%">
      <h5 align="center"> 
-    Fig.X - 
+    Fig.15 - Stokes pressure max variance (left) and absolute Stokes normal flow on the interface (right), both as a function of CSF-width for various permeability. The complete data is available at...
     </h5>
 </p>
 
-
+From figure $(15)$ we observe that the pressure variance is seemingly uneffected by the change in permeability in the four orders test range. Regarding the normal flow we se that it increases as the permeability is reduced. This is in agreement with expectations considering that a lower permeability gives rise to a less resistant percolation flow. However, surprinsgsly enough this did not introduce any significant deviations greater than already seen from the variations on the interface shown in figure $(13)$
 
 
 ### 3D brain simulations
+
+
 
 stress free config and projection vector for tangential parts. 
 
