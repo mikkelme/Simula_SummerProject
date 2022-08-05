@@ -2,16 +2,11 @@
 
 
 TODO
-- Clarify direction of low (left to right)
 - Talk about that things is tested with manufactured solutions 
 - Explain structure of repo 
 - Comment code
 - Put comma and dots on equations (where it looks fine on the readme as well)
 - Can you do links do data paths?
-
-
-[a relative link](brain_simulations)
-[a link](https://github.com/mikkelme/Simula_SummerProject/tree/main/brain_simulations)
 
 
 This repo contains the work done as a summer intern at Simula during a six week period in the summer of 2022. The project was guided by my supervisor [Miroslav Kutcha](https://github.com/MiroK).
@@ -491,15 +486,17 @@ From figure $(15)$ we observe that the pressure variance is seemingly uneffected
 
 
 ### 3D brain simulations
-go for lc = 2e-3 for computation time reasons....
 
-¨
-Finally, we extend our studies to the 3D case with the scope of getting an idea whether the 2D results carries over to 3D simulations. This part was quite time limited and thus we did not implement any way to evaluate the pressure variance in radial direction. Looking at the simulation for a width of $1.45 \ \text{mm}$ 
-
-
+Finally, we extend our studies to the 3D case with the scope of getting some brief insight whether the 2D results carries over to the 3D simulations. As a disclaimer it must be mentioned that we did not really have the opportunity to do a more rigious analyse of the 3D case due to the time limitations of this project. We exteneded the 2D model with an outer arc of 30 mm into the new direction. We choose a resolution of $lc = 2 \ \text{mm}$ mainly due to computational limits given the availble time, and we do test the solution with any manufactured solutions. Thus we have no guarantee for the quality of the following solutions. Due to the nature of the stress free boundary conditions along the new stokes boundaries, we found that the stokes flow seems to be concentrated along the center line (with respect to the third dimension) close to the interface surface. Thus we evaluate the pressure profile along some manually chosen radial lines at the center of the model as shown in figure $(16)$
 
 
 <p float>
+   <img src="figures/3D_ps_profile7_left.png"
+         alt=""
+         style="width:49%">
+    <img src="figures/3D_ps_profile7_right.png"
+         alt=""
+         style="width:49%">
     <img src="figures/3D_ps_profile1_left.png"
          alt=""
          style="width:49%">
@@ -537,16 +534,17 @@ Finally, we extend our studies to the 3D case with the scope of getting an idea 
          alt=""
          style="width:49%">
      <h5 align="center"> 
-    Fig.16 - 
+    Fig.16 - 3D model pressure results and display of manually chosen radial line (left) and Stokes pressure profile along the mentioned radial lines (right). For these simulations we used a 3D geomtry with outer arc lengths (100, 30) mm, resolution lc = 2 mm and otherwise following the equliviants of the 2D default default geometry
     </h5>
 </p>
 
+From figure $(16)$ we see that the relative pressure halfwidth is highest in the first measurement at the left boundary, where we read it off to be roughly 
 
+$$
+  \frac{1}{2} \frac{\text{max }(p_S) - \text{min }(p_S)}{\text{max }(p_S)} \approx \frac{1}{2}\frac{136 - 126}{136} \approx 4 \ \\%.
+$$
 
-
-
-
-The only systematic measurement the interface normal flow as a function of stokes width shown in figure $(XX)$.
+Thus we are starting to get some bigger deviations compared to the 2D case which might be significant for the prospects of dimension reduction model. We also evaluate the normal flow along the interface surface which is shown figure $(17)$.
 
 
 <p align="center">
@@ -554,12 +552,20 @@ The only systematic measurement the interface normal flow as a function of stoke
          alt=""
          style="width:60%">
     <h5 align="center"> 
-    Fig.XX - 3D model absolute Stokes normal flow on the interface as a function of CSF-width. For these simulations we used a 3D geomtry with outer arc lengths (100, 30) mm, resolution lc = 2 mm and otherwise following the equliviants of the 2D default default geometry. The complete data is available in the folder data_3D/txt_files/us_nflow.txt.
+    Fig.17 - 3D model absolute Stokes normal flow on the interface as a function of CSF-width. For these simulations we used a 3D geomtry with outer arc lengths (100, 30) mm, resolution lc = 2 mm and otherwise following the equliviants of the 2D default default geometry. The complete data is available in the folder data_3D/txt_files/us_nflow.txt.
     </h5>
 </p>
 
 
-From the results in figure $(XX)$ we see a similar trend of decreasing normal flow with width as seen for the 2D model. However, 3 of the data point stands out from this trend around 2-3 mm stokes width, which we have no current good explanations for. 
+From the results in figure $(17)$ we see a similar trend of decreasing normal flow with width as seen for the 2D model. However, three of the data point stands out from this trend around in the interval around 2-3 mm stokes width. We do not have any good explantions for the time being, since it happens for widths above the tpyical length we choose to ignore it for now. At a width of  $1.45 \ \text{mm}$ the normal flow reads roughly 0.006 mm/s. Since the results showed some quite high velocites on the corners of this model we can not really use the maximum flow velocity as a reference this time. Instead we calculate the absolute flow magnitude along the interface as
+
+$$
+    \sqrt{\int (u_S \cdot u_S) \ d\Gamma}
+$$
+
+which gives approximately 0.08 mm/s giving a a reletive deviation of 7.5 %. Thus we start to get some higher deviation percentages that could be signs that the 3D case is a bit more challenging regarding the prsopects for dimension reduction than that of the 2D case. 
+
+
 
 
 
