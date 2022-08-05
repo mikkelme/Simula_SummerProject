@@ -404,11 +404,11 @@ Thus we are still getting neglible deviations for the normal flow. By looking at
     </h5>
 </p>
  
-From figure $(11)$ we obserbe that the CSF flows into the brain tissue mainly during its path from the middle of the sinewave dimple and all the way up to the hard square edge (notice that the flow direction is left to right). We have no information about the velocity field in the brain tissue, but by combinning the information from figure $(11)$ and $(12)$ one might argue that we have two kinds of distint flow patterens: 
+From figure $(11)$ we observe that the CSF flows into the brain tissue mainly during its path from the bottom of the sinewave dimple and all the way up to the hard square edge (notice that the flow direction is left to right). We have no information about the velocity field in the brain tissue, but by combinning the information from figure $(11)$ and $(12)$ one might argue that we have two kinds of distinct flow patterens: 
 
 1. First, we observe that the CSF is cutting the cornes of the square edges, which is deduced from the fact that the in-flow to the brain tissue increases just before meeting a square edge but then immediately reverses after the edge. 
 
-2. Secondly, by comparing the sizes of the in and out-flow we can deduce qualitatively that some of CSF makes its way all the way though the brain tissue from dimple to dimple. Intuitively we can make sense of this as the phenonema that not all the CSF "have time" to avoid the obstacle (brain tissue with reduced flow properties) and is forced to penetrate it rather than go around. 
+2. Secondly, by comparing the sizes of the in and out-flow we can deduce qualitatively that some of CSF not only cuts the cornes but makes its way all the way though the brain tissue from dimple to dimple. Intuitively we can make sense of this as the phenonema that not all the CSF "have time" to avoid the obstacle (brain tissue with reduced flow properties) and is forced to penetrate it rather than go around. 
 
 ### Varying interface wavelength and amplitude
 
@@ -430,18 +430,18 @@ Due to the so far promising result for the default brian geometry we invistigate
          alt=""
          style="width:49%">
      <h5 align="left"> 
-    Fig.13 - Stokes pressure max variance (top row) and absolute Stokes normal flow on the interface (bottom row), both as a function of CSF-width for various interface wavelengths keeping amplitude $A = 1 \ \text{mm}$ (left column) and various interface amplitudes keeping wavelength $\lambda = 10 \ \text{mm}$ (right column). The complete data is available at {data_inner_negsines_λ.../data_inner_negsines_A...)/{ps_radial_var.txt,us_nflow.txt}, where the dot replaces the wavelength and ampltidue values. 
+    Fig.13 - Stokes pressure max variance (top row) and absolute Stokes normal flow on the interface (bottom row), both as a function of CSF-width for various interface wavelengths keeping amplitude $A = 1 \ \text{mm}$ (left column) and various interface amplitudes keeping wavelength $\lambda = 10 \ \text{mm}$ (right column). The complete data is available at {data_inner_negsines_λ.../data_inner_negsines_A...}/{ps_radial_var.txt,us_nflow.txt}, where the dot replaces the wavelength and ampltidue values in the folder names. 
     </h5>
 </p>
 
 
-From figure $(13)$ we mainly observe that a more extreme interface modelling, low wavelength (high frequency) and high amplitude, gives raise to a less constant Stokes pressure profile and more normal flow though the interface. However, the only exception is the $\lambda = 1 \ \text{mm}$ case the top left subfigure of figure $(13)$. Here it seems like the small wavelength makes it *difficult* for the CSF to reach the bottom of the dimples, and the interface becomes pseudo flat. By looking at the velocity magnitude in figure $(14)$ we see that flow velocity is rather low in the dimples for the 1 mm wavelength case (left) compared to the that of the 10 mm wavelength in the default geometry (right).
+From figure $(13)$ we mainly observe that a more extreme interface modelling, low wavelength (high frequency) and high amplitude, gives raise to a less constant Stokes pressure profile and more normal flow though the interface. However, the only exception is the $\lambda = 1 \ \text{mm}$ case in the top left subfigure of figure $(13)$. Here it seems like the small wavelength makes it *difficult* for the CSF to reach the bottom of the dimples, and the interface becomes pseudo flat. By looking at the velocity magnitude in figure $(14)$ we see that flow velocity is rather low in the dimples for the 1 mm wavelength case (left) compared to the that of the 10 mm wavelength in the default geometry (right).
 
 <p float>
-    <img src="figures/MNS_10mm_us_heatmap.png"
+    <img src="figures/MNS_1mm_us_heatmap.png"
          alt=""
          style="width:49%">
-    <img src="figures/MNS_1mm_us_heatmap.png"
+    <img src="figures/MNS_10mm_us_heatmap.png"
          alt=""
          style="width:49%">
      <h5 align="left"> 
