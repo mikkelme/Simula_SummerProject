@@ -520,7 +520,7 @@ Finally, we extend our studies to the 3D case with the scope of getting some bri
          alt=""
          style="width:49%">
      <h5 align="left"> 
-    Fig.16 - 3D model pressure results and display of manually chosen radial line (left) and Stokes pressure profile along the mentioned radial lines (right). For these simulations we used a 3D geomtry with outer arc lengths (100, 30) mm, resolution lc = 2 mm and otherwise following the equliviants of the 2D default default geometry
+    Fig.16 - 3D model pressure results and display of manually chosen radial lines (left) and Stokes pressure profile along the mentioned radial lines (right). For these simulations we used a 3D geomtry with outer arc lengths (100, 30) mm, resolution lc = 2 mm and otherwise following the equivalents of the 2D default default geometry.
     </h5>
 </p>
 
@@ -530,7 +530,7 @@ $$
   \frac{1}{2} \frac{\text{max }(p_S) - \text{min }(p_S)}{\text{max }(p_S)} \approx \frac{1}{2}\frac{136 - 126}{136} \approx 4 \ \\%.
 $$
 
-Thus we are starting to get some bigger deviations compared to the 2D case which might be significant for the prospects of dimension reduction model. We also evaluate the normal flow along the interface surface which is shown figure $(17)$.
+Thus we are starting to get some bigger deviations compared to the 2D case which might be significant for the prospects of a dimension reduction model. We also evaluate the normal flow along the interface surface which is shown figure $(17)$.
 
 
 <p align="center">
@@ -538,31 +538,17 @@ Thus we are starting to get some bigger deviations compared to the 2D case which
          alt=""
          style="width:60%">
     <h5 align="left"> 
-    Fig.17 - 3D model absolute Stokes normal flow on the interface as a function of CSF-width. For these simulations we used a 3D geomtry with outer arc lengths (100, 30) mm, resolution lc = 2 mm and otherwise following the equliviants of the 2D default default geometry. The complete data is available in the folder data_3D/txt_files/us_nflow.txt.
+    Fig.17 - 3D model absolute Stokes normal flow on the interface as a function of CSF-width. For these simulations we used a 3D geomtry with outer arc lengths (100, 30) mm, resolution lc = 2 mm and otherwise following the equivalents of the 2D default default geometry. The complete data is available in the folder data_3D/txt_files/us_nflow.txt.
     </h5>
 </p>
 
 
-From the results in figure $(17)$ we see a similar trend of decreasing normal flow with width as seen for the 2D model. However, three of the data point stands out from this trend around in the interval around 2-3 mm stokes width. We do not have any good explantions for the time being, since it happens for widths above the tpyical length we choose to ignore it for now. At a width of  $1.45 \ \text{mm}$ the normal flow reads roughly 0.006 mm/s. Since the results showed some quite high velocites on the corners of this model we can not really use the maximum flow velocity as a reference this time. Instead we calculate the absolute flow magnitude along the interface as
+From the results in figure $(17)$ we see a similar trend of decreasing normal flow with width as seen for the 2D model. However, three of the data point stands out from this trend around the interval around 2-3 mm CSF-width. We do not have any good explantions for the time being, but since it happens for widths above the typical length we choose to ignore it for now. At a width of  $1.45 \ \text{mm}$ the normal flow reads roughly 0.006 mm/s. Since the results showed some quite high velocites on the corners of this model we can not really use the maximum flow velocity as a reference this time. Instead we calculate the absolute flow magnitude along the interface as
 
 $$
-    \sqrt{\int (u_S \cdot u_S) \ d\Gamma}
+    \sqrt{\int (u_S \cdot u_S) \ d\Gamma},
 $$
 
-which gives approximately 0.08 mm/s giving a a reletive deviation of 7.5 %. Thus we start to get some higher deviation percentages that could be signs that the 3D case is a bit more challenging regarding the prsopects for dimension reduction than that of the 2D case. 
+which gives approximately 0.08 mm/s giving a a relative deviation of 7.5 %. Thus we start to get some higher deviation percentages that could be signs that the 3D case is a bit more challenging regarding the prospects for dimension reduction compared to that of the 2D case.
 
 
-
-
-
-
-
-
-<!-- <p align="center">
-    <img src="figures/filename.png"
-         alt=""
-         style="width:60%">
-    <h5 align="left"> 
-    Fig.X - Caption
-    </h5>
-</p> -->
