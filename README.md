@@ -227,10 +227,10 @@ which computes the projection of $u$ to the tangent plane given a normal vector 
 
 ### Evaluating the metrics for dimension reduction 
 
-In order to evaluate whether the Stokes pressure is approximately constant on the cross section, we create a collection of radial lines in the Stokes domain as shown in figure $(3)$. By using these as integration paths we create the variance associated to each radial line $RL$ as  
+In order to evaluate whether the Stokes pressure is approximately constant on the cross section, we create a collection of radial lines in the Stokes domain as shown in figure $(3)$. By using these as integration paths we compute the variance associated to each radial line $RL$ as  
 
 $$
-\text{var}(p_S)_{RL} = \int_{RL} \Big(p_S(x) - \big\langle p_S(x) \big\rangle\Big)^2 dx \ / \int_{RL} 1 \ dx.
+\text{var}(p_S)\_{RL} = \int_{RL} \Big(p_S(x) - \big\langle p_S(x) \big\rangle\Big)^2 dx \ / \int_{RL} 1 \ dx.
 $$
 
 If the pressure is going towards a constant profile the variance will go towards zero. We compute both the mean and the maximum value of all variances along the radial lines. In addition we compute the value of the mean absolute normal flow along the interface as 
