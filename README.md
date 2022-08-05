@@ -7,6 +7,7 @@ TODO
 - Explain structure of repo 
 - Comment code
 - Put comma and dots on equations (where it looks fine on the readme as well)
+- Can you do links do data paths?
 
 This repo contains the work done as a summer intern at Simula during a six week period in the summer of 2022. The project was guided by my supervisor [Miroslav Kutcha](https://github.com/MiroK).
 
@@ -249,23 +250,23 @@ We begin by assessing the 2D case.
 
 ### Choosing the resolution
 
-For the choice of the mesh resolution we perform an approximated error convergence test by simulating a series of systems with an increasing resolution. In Gmsh the mesh size resolution is parameterized by the *lc* variable, which in our case is set to define the largest mesh line tetrahedral mesh. In addition we define a so-called mesh field which linearly decrease the lc-value to half its orginal value over a distance of 1 to 5 mm from the interface, such that the mesh is twice as small around the interface. By choosing an exaggerated resolution of $lc = 0.05 \ \text{mm}$ as our approximated *true* reference solution* we can calculate the $l^2$-norm between this reference solution and other solutions with lower resolution. This is shown in figure (...)
+For the choice of the mesh resolution we perform an approximated error convergence test by simulating a series of systems with an increasing resolution. In Gmsh the mesh size resolution is parameterized by the *lc* variable, which in our case is set to define the largest mesh line of the tetrahedral mesh. In addition we define a so-called mesh field which linearly decrease the lc-value to half its orginal value over a distance of 1 to 5 mm from the interface, such that the mesh is twice as fine resolved around the interface. By choosing an exaggerated resolution of $lc = 0.05 \ \text{mm}$ as our approximated *true* reference solution* we can calculate the $l^2$-norm between this reference solution and other solutions with lower resolution. The comparison is done as an integral over the centerlines available for the Stokes and Darcy domain as shown in figure $(3)$. The results of the error convergence test is shown in figure $(4)$.
 
 <p align="center">
     <img src="figures/SNS_solution_convergence.png"
          alt=""
          style="width:60%">
     <h5 align="center"> 
-    Fig.X - Approximated error convergence test using a resolution of $lc = 0.05 \ \text{mm}$ as a true reference solution. We calculate the $l^2$-norm between the reference solution and solutions using a lower resolution (higher $lc$) along a center line for both the domains. This is performed using the default 2D brain geometry.
+    Fig.4 - Approximated error convergence test using a resolution of $lc = 0.05 \ \text{mm}$ as a true reference solution. We calculate the $l^2$-norm between the reference solution and solutions using a lower resolution (higher $lc$) along a center line for both the domains. For the geometry we used the default 2D brain geometry.
     </h5>
 </p>
 
-From figure (...) we get an appropximated view of which accuracy to expect from a given resolution. By choosing $lc = 0.1 \ \text{mm}$ we should get an accuracy on the order $\pm 0.1 \\%$ of the true solution. To meet limitations on availble computer power we settle on $lc = 0.1 \ \text{mm}$ in the following 2D simulations. 
+From figure $(4)$ we get an idea of which accuracy to expect from a given resolution. By choosing $lc = 0.1 \ \text{mm}$ we should get an accuracy on the order $\pm 0.1 \\%$ of the true solution which is more than good enough for the purpose of our studies. To meet limitations on availble computer power we settle on $lc = 0.2 \ \text{mm}$ in the following 2D simulations. 
 
 
 ### Flat interface
 
-We begin by the simple case of the default brain geometry, but with a flat interface. That is, we model the interface as a curve arc without any wiggles. We simulate the system with a varying CSF-width (witdh of the Stokes domain cross section) in the interval [0.5, 5] mm. the result are shown in figure (...) and (...). 
+We begin with the simple case of a flat interface and otherwise default geometry. That is, we model the interface as a curve arc without any wiggles. We simulate the system with a varying CSF-width (witdh of the Stokes domain cross section) in the interval [0.5, 5] mm. the result are shown in figure $(5)$.
 
 
 <p float>
@@ -276,17 +277,17 @@ We begin by the simple case of the default brain geometry, but with a flat inter
          alt=""
          style="width:49%">
      <h5 align="center"> 
-    Fig.X - Caption
+    Fig.5 - Stokes pressure max (left) and mean (right) variance along 300 evenly distributed radial lines for a decreasing CSF-width. For these simulations we used a flat interface and otherwise default geometry. The complete data is available at data_flat/txt_files/ps_radial_var.txt. [a relative link](brain_simulations)
     </h5>
 </p>
 
-We observe that the pressure variance decreases along with the width. Considering that the pressure difference across the domain is $ \Delta P_S = 133.3224 \ \text{Pa}$ the relative pressure deviation from the mean on a radial line in the worst case scenario (using the maximum variance) with a width close to the typical width of 1.5 is roughly on the order
+From figure $(5)$ we observe that the pressure variance decreases with the width. Considering that the pressure difference across the domain is set to $ \Delta P_S = 133.3224 \ \text{Pa}$ the relative pressure deviation on the pressure profile along a radial line in the worst case scenario (using the maximum variance) with a width close to the typical width of 1.5 is on the order
  
 $$
-\frac{\text{max std}}{\Delta p_S} = \frac{\sqrt{\text{max var}}}{\Delta p_S} = \frac{\sqrt{10^{-9}}}{133.3224} \approx \cdot 10^{-5} \ \\%,
+\frac{\text{max std}}{\Delta p_S} = \frac{\sqrt{\text{max var}}}{\Delta p_S} = \frac{\sqrt{10^{-9}}}{133.3224} \approx 10^{-5} \ \\%,
 $$
 
-which is considered neglible. We can confirm that the pressure is approximately constant by looking at the pressure profile across a radial line.
+which is considered neglible. We can confirm that the pressure is approximately constant by looking at the pressure profile across a radial line as shown in figure $(6)$.
 
 
 <p float>
@@ -297,28 +298,29 @@ which is considered neglible. We can confirm that the pressure is approximately 
          alt=""
          style="width:49%">
      <h5 align="center"> 
-    Fig.X - width = 1.45 mm
+    Fig.6 - Stokes pressure profile along a radial line for the flat interface and otherwise default geometry with a CSF-width of 1.45 mm visualized in ParaView. On the left side we see a pressure contour heatmap of the model where psh denotes the Stokes pressure and pdh denotes the Darcy pressure. Notice that the interface is not visible in this image as the pressure is seemingly continous on the interface. On the right we see the Stokes pressure on the radial line coresponding to the white arrow on the left. On the x-axis we have radial position and on the y-axis we have Stokes pressure (psh). Notice that ParaView cannot resolve the values to more than four decimal accuracy, and thus it only confirms that the absolute deviations is at most on the order $10^{-4} \ \text{Pa}$. The data is available at data_flat/vtu_files/{darcy_1.45e-03,stokes_1.45e-03.vtu}.
     </h5>
 </p>
 
-In addition we evaluate the absolute normal flow on the interface.
+In addition we evaluate the absolute normal flow on the interface which is shown in figure $(7)$
 
 <p align="center">
     <img src="figures/FLAT_us_nflow_abs.png"
          alt=""
          style="width:60%">
     <h5 align="center"> 
-    Fig.X - Caption
+    Fig.7 - Absolute Stokes normal flow on the interface as a function CSF-width. For these simulations we used a flat interface and otherwise default geometry. The complete data is available in the folder data_flat/txt_files/us_nflow.txt.
     </h5>
 </p>
 
-We see that the absolute normal flow drops seemingly linearly with width. When comparing the magnitude of the normal flow,  at a width of 1.45 mm, to the maximum velocity of $700 \ \text{mm/s}$ we get a relative deviation on the order 
+From figure $(7)$ we see that the absolute normal flow drops qualitatively linearly with width. When comparing the magnitude of the normal flow, close to the typical width 1.5 mm, to the maximum velocity of $700 \ \text{mm/s}$ we get a relative deviation on the order 
 
 $$
-\frac{\text{Norm. flow}}{\text{max} \ u_S} = \frac{10^{-5}}{700} \approx 1,4 \cdot 10^{-6} \ \\%,
+\frac{\text{Norm. flow}}{\text{max} \ u_S} = \frac{10^{-5}}{700} \approx 10^{-6} \ \\%,
 $$
 
-Thus the flat interface shows promosing properties for dimension reduction. 
+which is again considered neglible.
+
 
 
 ### Default interface (Interface with wiggles)
