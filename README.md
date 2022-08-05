@@ -326,7 +326,7 @@ In addition we evaluate the absolute normal flow on the interface which is shown
          alt=""
          style="width:60%">
     <h5 align="center"> 
-    Fig.7 - Absolute Stokes normal flow on the interface as a function CSF-width. For these simulations we used a flat interface and otherwise default geometry. The complete data is available in the folder data_flat/txt_files/us_nflow.txt.
+    Fig.7 - Absolute Stokes normal flow on the interface as a function of CSF-width. For these simulations we used a flat interface and otherwise default geometry. The complete data is available in the folder data_flat/txt_files/us_nflow.txt.
     </h5>
 </p>
 
@@ -391,7 +391,7 @@ In figure $(10)$ we see the absolute normal flow.
          alt=""
          style="width:60%">
     <h5 align="center"> 
-    Fig.10 - Absolute Stokes normal flow on the interface as a function CSF-width. For these simulations we used the default geometry. The complete data is available in the folder data_single_inner_negsine/txt_files/us_nflow.txt.
+    Fig.10 - Absolute Stokes normal flow on the interface as a function of CSF-width. For these simulations we used the default geometry. The complete data is available in the folder data_single_inner_negsine/txt_files/us_nflow.txt.
     </h5>
 </p>
 
@@ -491,8 +491,62 @@ From figure $(15)$ we observe that the pressure variance is seemingly uneffected
 
 
 ### 3D brain simulations
+go for lc = 2e-3 for computation time reasons....
 
-Finally, we extend our studies to the 3D case with the scope of getting an idea whether the 2D results carries over to 3D simulations. This part was quite time limited and thus we did not implement any way to evaluate the pressure variance in radial direction. The only systematic measurement the interface normal flow as a function of stokes width shown in figure $(16)$.
+¨
+Finally, we extend our studies to the 3D case with the scope of getting an idea whether the 2D results carries over to 3D simulations. This part was quite time limited and thus we did not implement any way to evaluate the pressure variance in radial direction. Looking at the simulation for a width of $1.45 \ \text{mm}$ 
+
+
+
+
+<p float>
+    <img src="figures/3D_ps_profile1_left.png"
+         alt=""
+         style="width:49%">
+    <img src="figures/3D_ps_profile1_right.png"
+         alt=""
+         style="width:49%">
+    <img src="figures/3D_ps_profile2_left.png"
+         alt=""
+         style="width:49%">
+    <img src="figures/3D_ps_profile2_right.png"
+         alt=""
+         style="width:49%">
+    <img src="figures/3D_ps_profile3_left.png"
+         alt=""
+         style="width:49%">
+    <img src="figures/3D_ps_profile3_right.png"
+         alt=""
+         style="width:49%">
+    <img src="figures/3D_ps_profile4_left.png"
+         alt=""
+         style="width:49%">
+    <img src="figures/3D_ps_profile4_right.png"
+         alt=""
+         style="width:49%">
+    <img src="figures/3D_ps_profile5_left.png"
+         alt=""
+         style="width:49%">
+    <img src="figures/3D_ps_profile5_right.png"
+         alt=""
+         style="width:49%">
+    <img src="figures/3D_ps_profile6_left.png"
+         alt=""
+         style="width:49%">
+    <img src="figures/3D_ps_profile6_right.png"
+         alt=""
+         style="width:49%">
+     <h5 align="center"> 
+    Fig.16 - 
+    </h5>
+</p>
+
+
+
+
+
+
+The only systematic measurement the interface normal flow as a function of stokes width shown in figure $(XX)$.
 
 
 <p align="center">
@@ -500,9 +554,14 @@ Finally, we extend our studies to the 3D case with the scope of getting an idea 
          alt=""
          style="width:60%">
     <h5 align="center"> 
-    Fig.16 - Caption
+    Fig.XX - 3D model absolute Stokes normal flow on the interface as a function of CSF-width. For these simulations we used a 3D geomtry with outer arc lengths (100, 30) mm, resolution lc = 2 mm and otherwise following the equliviants of the 2D default default geometry. The complete data is available in the folder data_3D/txt_files/us_nflow.txt.
     </h5>
 </p>
+
+
+From the results in figure $(XX)$ we see a similar trend of decreasing normal flow with width as seen for the 2D model. However, 3 of the data point stands out from this trend around 2-3 mm stokes width, which we have no current good explanations for. 
+
+
 
 
 
