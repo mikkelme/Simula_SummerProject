@@ -44,7 +44,7 @@ We are going to model our brain as a composition of two domains: The *Stokes* do
          alt=""
          style="width:80%">
     <h5 align="center"> 
-    Fig.2 - Example of 2D brain model using default geometry. The orange region represents the Stokes domain $\Omega_S$ and the green region the Darcy domain $\Omega_D$. The black line dividing the stokes and the darcy domain represent the interface $\Gamma$. In addition we have grouped and named the boundaries for later reference. For the stokes domain we have the outer surface $\Lambda_S$ and the left and right boundaries $\Gamma_S$. For the Darcy domain all boundaries expect the interface is grouped as $\Gamma_D$. 
+    Fig.2 - Example of 2D brain model using default geometry. The orange region represents the Stokes domain $\Omega_S$ and the green region the Darcy domain $\Omega_D$. The black line dividing the Stokes and the Darcy domain represent the interface $\Gamma$. In addition we have grouped and named the boundaries for later reference. For the Stokes domain we have the outer surface $\Lambda_S$ and the left and right boundaries $\Gamma_S$. For the Darcy domain all boundaries expect the interface is grouped as $\Gamma_D$. 
     </h5>
 </p>
 
@@ -67,7 +67,7 @@ Eventually we also want to extend the study to 3D simulations where we will use 
 
 ### Equations 
 
-We denote $u_S, p_S$ as velocity and pressure respectively in the Stokes domain $S$, and $p_D$ as pressure in the Darcy domain $D$. $\hat{n}_i$ and $\hat{\tau}_i$ denote the normal and tangentiel component on the $\Gamma$ interface with respect to region $i$. We define the problem by the following equations.
+We denote $u_S, p_S$ as velocity and pressure respectively in the Stokes domain $\Omega_S$, and $p_D$ as pressure in the Darcy domain $\Omega_D$. $\hat{n}_i$ and $\hat{\tau}_i$ denote the normal and tangential component on the $\Gamma$ interface with respect to region $i$. Finally, for a domain $\Omega$ we denote the boundaries $\partial\Omega$. We define the problem by the following equations.
 
 ####  <ins> Stokes domain </ins>
 
@@ -157,7 +157,7 @@ $$
 \end{align}
 $$
 
-where $u_{S,\text{tan}}$ is the condition for the tangential part of the stokes velocity on the $\partial\Omega_S\setminus\Gamma$. We only want the normal component and thus we set $u_{S,\text{tan}}$ = 0.
+where $u_{S,\text{tan}}$ is the condition for the tangential part of the Stokes velocity on the $\partial\Omega_S\setminus\Gamma$. We only want the normal component and thus we set $u_{S,\text{tan}}$ = 0.
 
 
 #### Darcy 
@@ -173,7 +173,7 @@ where we handle the last term as a neuman condition.
 
 ### Parameter choices for the PDE modelling
 
-We are going to drive the CSF flow by a pressure difference $\Delta p_S  = 133.3224 \ \text{Pa}$ $(1 \ \text{mmHg})$, across the stokes domain. For the outer surface of the stokes domain $\Lambda_S$ we enforce a no slip condition as dirichlet condition setting $u_{S,0} = \vec{0} \ \text{m/s}$. This also means that we will put the source terms $f_S = f_D = 0$ in both domains. For the pressure in the Darcy domain we are going to enforce the boundary conditions on all non interface surfaces $\Gamma_D$ as neumann conditions by setting a zero flux, i.e. $\nabla p_D = \vec{0} \ \text{Pa/m}$. For the interface $\Gamma$ we choose a balanced normal flow, i.e. $g\Gamma = 0 \ \text{m/s}$ and a slip rate given as $\alpha = \mu/\sqrt{\kappa} \ \text{Pa}\cdot\text{s/m}$. Finally we set the CSF viscosity $\mu = 0.8 \cdot 10^{-3} \ \text{Pa}\cdot\text{s}$ and the percolation permeability $\kappa = 1\cdot10^{-16}$ \ \text{m}^2. These parameter choices is summed up in the following  
+We are going to drive the CSF flow by a pressure difference $\Delta p_S  = 133.3224 \ \text{Pa}$ $(1 \ \text{mmHg})$, across the Stokes domain. For the outer surface of the Stokes domain $\Lambda_S$ we enforce a no slip condition as dirichlet condition setting $u_{S,0} = \vec{0} \ \text{m/s}$. This also means that we will put the source terms $f_S = f_D = 0$ in both domains. For the pressure in the Darcy domain we are going to enforce the boundary conditions on all non interface surfaces $\Gamma_D$ as neumann conditions by setting a zero flux, i.e. $\nabla p_D = \vec{0} \ \text{Pa/m}$. For the interface $\Gamma$ we choose a balanced normal flow, i.e. $g\Gamma = 0 \ \text{m/s}$ and a slip rate given as $\alpha = \mu/\sqrt{\kappa} \ \text{Pa}\cdot\text{s/m}$. Finally we set the CSF viscosity $\mu = 0.8 \cdot 10^{-3} \ \text{Pa}\cdot\text{s}$ and the percolation permeability $\kappa = 1\cdot10^{-16}$ \ \text{m}^2. These parameter choices is summed up in the following  
 
 
 $$
@@ -222,7 +222,7 @@ $$
 
 ### Evaluating the metrics for dimension reduction 
 
-In order to evaluate whether the stokes pressure is approximately constant on the cross section, we create a collection of radial lines in the stokes domain as shown in figure $(3)$. By using these as integration paths we create the variance associated to each radial line $RL$ as  
+In order to evaluate whether the Stokes pressure is approximately constant on the cross section, we create a collection of radial lines in the Stokes domain as shown in figure $(3)$. By using these as integration paths we create the variance associated to each radial line $RL$ as  
 
 $$
 \text{var}(p_S)_{RL} = \int_{RL} \Big(p_S(x) - \big\langle p_S(x) \big\rangle\Big)^2 dx \ / \int_{RL} 1 \ dx.
@@ -241,7 +241,7 @@ Finally we create two center lines, one for each domain, which we use as an inte
          alt=""
          style="width:80%">
     <h5 align="center"> 
-    Fig.3 - 100 radial lines in this example. Default run case also 
+    Fig.3 - Showcase of the radial lines and center lines used for result evaluations. Here we used 100 radial lines as an example. The model is build by the default geometry and solved to show the magnitude of velocity field (us Magnitude) in the Stokes domain and the pressure in the Darcy domain (pdh).
     </h5>
 </p>
 
@@ -269,7 +269,7 @@ From figure (...) we get an appropximated view of which accuracy to expect from 
 
 ### Flat interface
 
-We begin by the simple case of the default brain geometry, but with a flat interface. That is, we model the interface as a curve arc without any wiggles. We simulate the system with a varying CSF-width (witdh of the stokes domain cross section) in the interval [0.5, 5] mm. the result are shown in figure (...) and (...). 
+We begin by the simple case of the default brain geometry, but with a flat interface. That is, we model the interface as a curve arc without any wiggles. We simulate the system with a varying CSF-width (witdh of the Stokes domain cross section) in the interval [0.5, 5] mm. the result are shown in figure (...) and (...). 
 
 
 <p float>
@@ -433,7 +433,7 @@ Due to the promising result for the default brian geometry we invistigate the co
 </p>
 
 
-We see mainly that a more extreme surface, low wavelength (high frequency) and high amplitude, gives raise to a less constant stokes pressure profile and more normal flow though the interface. However, the only exception is the $\lambda = 1 \ \text{mm}$ simulation in figure (...). It seems that the small wavelength makes it *difficult* for the CSF to reach the bottom of the dimples, and the surface becomes pseudo flat. By looking at the velocity magnitude in figure (...) we see that there is not much flow in dimples in the 1 mm wavelength simulation compared to that of the default 10 mm wavelength.
+We see mainly that a more extreme surface, low wavelength (high frequency) and high amplitude, gives raise to a less constant Stokes pressure profile and more normal flow though the interface. However, the only exception is the $\lambda = 1 \ \text{mm}$ simulation in figure (...). It seems that the small wavelength makes it *difficult* for the CSF to reach the bottom of the dimples, and the surface becomes pseudo flat. By looking at the velocity magnitude in figure (...) we see that there is not much flow in dimples in the 1 mm wavelength simulation compared to that of the default 10 mm wavelength.
 
 Considering the worst case scenario of the above simulations we hit a maximum deviation (pressure) around 0.3 \%.
 
