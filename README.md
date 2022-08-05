@@ -2,11 +2,8 @@
 
 
 TODO
-- Talk about that things is tested with manufactured solutions 
 - Explain structure of repo 
 - Comment code
-- Put comma and dots on equations (where it looks fine on the readme as well)
-- Can you do links do data paths?
 
 
 This repo contains the work done as a summer intern at Simula during a six week period in the summer of 2022. The project was guided by my supervisor [Miroslav Kutcha](https://github.com/MiroK).
@@ -203,14 +200,6 @@ $$
 $$
 
 
-<!-- 
-|  |  $u_S$ | $p_S$ | $p_D$ |  |
-|---|:---:|:---:|:---:|:---:|
-| $(v_s)$ |  $\int_{\Omega_S} 2\mu \ \varepsilon(u_S) \odot \varepsilon(v_S) \ dx$ <br /> $+ \int\_{\Gamma} \alpha \big[u_S \cdot\hat{\tau}_S \big]\big[\hat{\tau}_S \cdot v_S \big] \ dx$ |  $- \int_{\Omega_S} p_S \nabla\cdot v_S \ dx$ |  $\int\_{\Gamma} P_D \big[\hat{n}_S \cdot v_S \big] \ dx$ |  $=0$ |
-| $(q_s)$ |  $- \int\_{\Omega_S} (\nabla \cdot u_S) \cdot q_S \ dx$ |  |  | $= 0$ |
-| $(q_D)$| $-\int\_{\Gamma} ( u_S \cdot \hat{n}_S) \cdot q_D \ dx$ | - |  $\int\_{\Omega_D} \frac{\kappa}{\mu} \nabla p_D \cdot \nabla q_D \ dx$ |  $=  0$ |
- -->
-
 
 ### Extension to 3D
 
@@ -239,14 +228,14 @@ $$
 \sqrt{\int_{\Gamma} \Big((u_S(x)) \cdot \hat{n}\_S(x)\Big)^2 dx} \ / \ \int\_{\Gamma} 1 \ dx.
 $$
 
-Finally we create two center lines, one for each domain, which we use as an integration path for comparing the quality of the solutions (see figure $(3)$ ). This further explained in the section [Choosing the resolution](#Choosing-the-resolution)
+Finally we create two center lines, one for each domain, which we use as an integration path for comparing the quality of the solutions (see figure $(3)$ ). This is further explained in the section [Choosing the resolution](#Choosing-the-resolution)
 
 <p align="center">
     <img src="figures/evaluation_lines_default.png"
          alt=""
          style="width:80%">
     <h5 align="left"> 
-    Fig.3 - Showcase of the radial lines and center lines used for result evaluations. Here we used 100 radial lines as an example. The model is build by the default geometry and solved to show the magnitude of velocity field (us Magnitude) in the Stokes domain and the pressure in the Darcy domain (pdh).
+    Fig.3 - Showcasing of the radial lines and center lines used for result evaluations. Here we used 100 radial lines as an example. The model is build by the default geometry and solved to show the magnitude of the velocity field (us Magnitude) in the Stokes domain and the pressure in the Darcy domain (pdh).
     </h5>
 </p>
 
