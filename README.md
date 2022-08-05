@@ -6,14 +6,15 @@ TODO
 - Talk about that things is tested with manufactured solutions 
 - Explain structure of repo 
 - Comment code
+- Put comma and dots on equations (where it looks fine on the readme as well)
 
 This repo contains the work done as a summer intern at Simula during a six week period in the summer of 2022. The project was guided by my supervisor [Miroslav Kutcha](https://github.com/MiroK).
 
 ## Introduction 
 
-In this project we build a framework for simulating the flow of the cerebrospinal fluid (CSF) in the human brain. The CSF flows, among other regions, on the outside of the brain tissue in the outer most inside the skull. The CSF enter the brain tissue through small pores in the brain tissue and takes part in the transpoortation of waste matter produced in the brain. Thus the motivation for simulating the CSF flow is to contribute to medical brain research. However, such simulations becomes computational expensive when considering large regions of the brain and hence we want to invistigate the possibility to introduce a simpler model by the use of dimension reduction. That is, instead of considering the CSF-filled space as a 3D sphere shell with thickness we reduce it to a 2D sphere encapsulating the brain tissue. In order for such a simplification to be sucessful we most be able to neglect the dynamics in the reduced dimension without any great impacts on the predicted flow. More precisely we want the pressure to be approximately constant on the crosssection of the CSF flow through the radial plane. In addition we should have negligble flow in the normal direction to the main CSF flow. Due to the fact that the CSF-filled space is much longer than it is thick, one can hypothesise that the flow might meet the above criterias rather well. 
+In this project we build a framework for simulating the flow of the cerebrospinal fluid (CSF) in the human brain. The CSF flows, among other regions, on the outside of the brain tissue in the outer most inside the skull. The CSF enter the brain tissue through small pores in the brain tissue and takes part in the transpoortation of waste matter produced in the brain. Thus the motivation for simulating the CSF flow is to contribute to medical brain research. However, such simulations becomes computational expensive when considering large regions of the brain and hence we want to invistigate the possibility to introduce a simpler model by the use of dimension reduction. That is, instead of considering the CSF-filled space as a 3D sphere shell with thickness we reduce it to a 2D sphere encapsulating the brain tissue. In order for such a simplification to be sucessful we most be able to neglect the dynamics in the reduced dimension without any great impacts on the predicted flow. More precisely we want the pressure to be approximately constant on the cross section of the CSF flow through the radial plane. In addition we should have negligble flow in the normal direction to the main CSF flow. Due to the fact that the CSF-filled space is much longer than it is thick, one can hypothesise that the flow might meet the above criterias rather well. 
 
-We are going to simulate the CSF flow using finite elements to solve the partial derivative equations. For simplicity we initially take on a 2D problem where we consider a 2D slice of the brain. Thus the corresponding dimension reduction problem is to reduce the 2D slice surface of the CSF-filled space to a 1D line. By decreasing the width of the CSF-filled space, we can study the devolopment of the pressure profile on the crossection of the CSF flow and the normal flow on the interface between the CSF-filled space and the brain tissue, as the surface approaches a line. In figure $(1)$ we see the visualization of a real brain scannings as reference for the system we are going to model.
+We are going to simulate the CSF flow using finite elements to solve the partial derivative equations. For simplicity we initially take on a 2D problem where we consider a 2D slice of the brain. Thus the corresponding dimension reduction problem is to reduce the 2D slice surface of the CSF-filled space to a 1D line. By decreasing the width of the CSF-filled space, we can study the devolopment of the pressure profile on the cross section of the CSF flow and the normal flow on the interface between the CSF-filled space and the brain tissue, as the surface approaches a line. In figure $(1)$ we see the visualization of a real brain scannings as reference for the system we are going to model.
 
 <p float>
     <img src="figures/real_brain_full.png"
@@ -43,12 +44,11 @@ We are going to model our brain as a composition of two domains: The *Stokes* do
          alt=""
          style="width:80%">
     <h5 align="center"> 
-    Fig.2 - Example of default 2D brain geometry. The orange region represents the Stokes domain $\Omega_S$ and the green region the Darcy domain $\Omega_D$. The black line dividing the stokes and the darcy domain represent the interface $\Gamma$. In addition we have grouped and named the boundaries for later reference. For the stokes domain we have the outer surface $\Lambda_S$ and the left and right boundaries $\Gamma_S$. For the Darcy domain all boundaries expect the interface is grouped as $\Gamma_D$. 
+    Fig.2 - Example of 2D brain model using default geometry. The orange region represents the Stokes domain $\Omega_S$ and the green region the Darcy domain $\Omega_D$. The black line dividing the stokes and the darcy domain represent the interface $\Gamma$. In addition we have grouped and named the boundaries for later reference. For the stokes domain we have the outer surface $\Lambda_S$ and the left and right boundaries $\Gamma_S$. For the Darcy domain all boundaries expect the interface is grouped as $\Gamma_D$. 
     </h5>
 </p>
 
-We are going to define a set of default brain geometry parameters for our 2D brain slice as shown in the following table. Here we also include the desired test area for the interface geometry. 
-
+We are going to define a set of default brain geometry parameters for our 2D brain model. The parameters is shown in the following table where we have also included the parameter test interval for the interface geometry. Notice that we used the default geometry to showcase the 2D domains in figure $(2)$.
 
 |  Parameter | Default value | Testing interval 
 |---|:---:|:---:|
@@ -222,26 +222,26 @@ $$
 
 ### Evaluating the metrics for dimension reduction 
 
-For the evaluating of the stokes pressure we create a series of radial lines (RL) in the stokes domain and calculate the pressure variance along each of them as
+In order to evaluate whether the stokes pressure is approximately constant on the cross section, we create a collection of radial lines in the stokes domain as shown in figure $(3)$. By using these as integration paths we create the variance associated to each radial line $RL$ as  
 
 $$
-\text{var}(p_S) = \int_{RL} \Big(p_S(x) - \big\langle p_S(x) \big\rangle\Big)^2 dx \ / \int_{RL} 1 \ dx.
+\text{var}(p_S)_{RL} = \int_{RL} \Big(p_S(x) - \big\langle p_S(x) \big\rangle\Big)^2 dx \ / \int_{RL} 1 \ dx.
 $$
 
-If the pressure is constant the variance will be zero. We compute then both the mean and the maximum value of all variances along the radial lines. In addition we compute the value of the mean absolute normal flow along the interface as 
+If the pressure is going towards a constant profile the variance will go towards zero. We compute both the mean and the maximum value of all variances along the radial lines. In addition we compute the value of the mean absolute normal flow along the interface as 
 
 $$
 \sqrt{\int_{\Gamma} \Big((u_S(x)) \cdot \hat{n}\_S(x)\Big)^2 dx} \ / \ \int\_{\Gamma} 1 \ dx.
 $$
 
-
+Finally we create two center lines, one for each domain, which we use as an integration path for comparing the quality of the solutions (see figure $(3)$). This further explained in the section [Choosing the resolution](#Choosing-the-resolution)
 
 <p align="center">
     <img src="figures/evaluation_lines_default.png"
          alt=""
          style="width:80%">
     <h5 align="center"> 
-    Fig.X - 100 radial lines in this example. Default run case also 
+    Fig.3 - 100 radial lines in this example. Default run case also 
     </h5>
 </p>
 
@@ -269,7 +269,7 @@ From figure (...) we get an appropximated view of which accuracy to expect from 
 
 ### Flat interface
 
-We begin by the simple case of the default brain geometry, but with a flat interface. That is, we model the interface as a curve arc without any wiggles. We simulate the system with a varying CSF-width (witdh of the stokes domain crossection) in the interval [0.5, 5] mm. the result are shown in figure (...) and (...). 
+We begin by the simple case of the default brain geometry, but with a flat interface. That is, we model the interface as a curve arc without any wiggles. We simulate the system with a varying CSF-width (witdh of the stokes domain cross section) in the interval [0.5, 5] mm. the result are shown in figure (...) and (...). 
 
 
 <p float>
