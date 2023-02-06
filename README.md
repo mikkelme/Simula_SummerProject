@@ -40,7 +40,7 @@ We are going to model our brain as a composition of two domains: The *Stokes* do
     </h5>
 </p>
 
-We practical reasons we define a set of default brain geometry parameters for our 2D brain model. The parameters is shown in the following table where along with parameter test interval for the interface geometry. Notice that we have already used the default geometry to showcase the 2D domains in figure $(2)$.
+For practical reasons we define a set of default brain geometry parameters for our 2D brain model. The parameters is shown in the following table where along with parameter test interval for the interface geometry. Notice that we have already used the default geometry to showcase the 2D domains in figure $(2)$.
 
 |  Parameter | Default value | Testing interval 
 |---|:---:|:---:|
